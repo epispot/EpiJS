@@ -1,0 +1,33 @@
+{
+    "name": "epijs",
+    "version": "1.0.0",
+    "description": "A disease modeling package.",
+    "main": "epijs/index.js",
+    "bin": {
+        "epijs": "epijs/bin/index.js"
+    },
+    "scripts": {
+        "test": "mocha tests/index.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Quantalabs/EpiJS.git"
+    },
+    "keywords": [
+        "disease modeling",
+        "epidemiology"
+    ],
+    "author": "QLabs (@Quantalabs)",
+    "license": "GPL-3.0-or-later",
+    "bugs": {
+        "url": "https://github.com/Quantalabs/epijs/issues"
+    },
+    "homepage": "https://github.com/Quantalabs/epijs#readme",
+    "devDependencies": {
+        "mocha": "^8.3.0"
+    },
+    "dependencies": {
+        "chartjs": "^0.3.24",
+        "nodeplotlib": "^0.7.3"
+    }
+}
