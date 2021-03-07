@@ -1,4 +1,5 @@
-<h1 align="center">Welcome to EpiJS 👋</h1>
+<div align="center"><img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/meve5c0a4lky6b6veif9.png" alt="EpiJS Logo"></div>
+<h1 align="center">EpiJS</h1>
 <p align="center">
   <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000" />
   <a href="https://github.com/Quantalabs/epijs#readme" target="_blank">
