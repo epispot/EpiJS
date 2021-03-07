@@ -1,4 +1,4 @@
-const package = require('../package.json');
+const package = require('./package.json');
 
 // Package info
 let version     = package.version;
@@ -13,5 +13,6 @@ EpiJS.description = description
 EpiJS.author = author
 EpiJS.about = about
 
+const epijs = require('EpiJs')
 
-
+EpiJS.epijs = epijs

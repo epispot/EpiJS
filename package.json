@@ -2,7 +2,7 @@
     "name": "epijs",
     "version": "1.0.0",
     "description": "A disease modeling package.",
-    "main": "epijs/index.js",
+    "main": "index.js",
     "bin": {
         "epijs": "epijs/bin/index.js"
     },
@@ -27,7 +27,7 @@
         "mocha": "^8.3.0"
     },
     "dependencies": {
-        "chartjs": "^0.3.24",
+        "chart.js": "^2.9.4",
         "nodeplotlib": "^0.7.3"
     }
 }
