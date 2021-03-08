@@ -18,6 +18,8 @@
   <h4 id="-demo-https-npm-runkit-com-epijs-" align="center">✨ <a href="https://npm.runkit.com/epijs">Demo</a></h4>
 </p>
 
+#### NOTE: This package is currently a work in progress. It's not yet published below. Feel free to contribute and speed up the process to publishing.
+
 ## Install
 
 ```sh
