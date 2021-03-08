@@ -39,12 +39,12 @@ npm test
 
 ## Screenshots
 
-SIR Model:
-![SIR Model graph](https://i.ibb.co/k25pwf9/Screenshot-2021-03-07-185544.jpg)
-SEIR Model:
-![SEIR Model graph](https://user-images.githubusercontent.com/55121845/110269735-2e549e80-7f79-11eb-862e-d248533f0bc1.jpg)
-SEIRD Model:
-![SEIRD Model graph](https://user-images.githubusercontent.com/55121845/110269786-4b896d00-7f79-11eb-8844-6f0df85faa3f.png)
+SIR Model: \
+![image](https://user-images.githubusercontent.com/55121845/110269885-81c6ec80-7f79-11eb-98bd-9964db28d371.png) \
+SEIR Model: \
+![SEIR Model graph](https://user-images.githubusercontent.com/55121845/110269735-2e549e80-7f79-11eb-862e-d248533f0bc1.jpg) \
+SEIRD Model: \
+![SEIRD Model graph](https://user-images.githubusercontent.com/55121845/110269786-4b896d00-7f79-11eb-8844-6f0df85faa3f.png) \
 
 ## Author
 
