@@ -37,6 +37,11 @@ npm install
 npm test
 ```
 
+## Screenshots
+
+SIR Model:
+![SIR Model graph](https://i.ibb.co/k25pwf9/Screenshot-2021-03-07-185544.jpg)
+
 ## Author
 
 👤 **QLabs (@Quantalabs)**
