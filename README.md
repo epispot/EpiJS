@@ -12,7 +12,7 @@
   <p>A disease modeling package.</p>
   </blockquote>
   <h4 id="-homepage-https-github-com-quantalabs-epijs-readme-" align="center">🏠 <a href="https://github.com/Quantalabs/epijs#readme">Homepage</a></h4>
-  <h4 id="-demo-https-npm-runkit-com-epijs-" align="center">✨ <a href="https://npm.runkit.com/epijs">Demo</a></h4>
+  <h4 id="-demo-https-npm-runkit-com-epijs-" align="center">✨ <a href="https://quantalabs.github.io/EpiJS/index.html">Demo</a></h4>
 </p>
 
 #### NOTE: This package is currently a work in progress. It's not yet published below. Feel free to contribute and speed up the process to publishing.
