@@ -24,7 +24,7 @@
     },
     "homepage": "https://github.com/Quantalabs/epijs#readme",
     "devDependencies": {
-        "mocha": "^8.3.1"
+        "mocha": "^8.3.2"
     },
     "dependencies": {
         "chart.js": "^2.9.4",
