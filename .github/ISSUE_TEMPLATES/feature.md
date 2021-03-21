@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for epispot.
+about: Suggest an idea for EpiJS
 title: 'Feature -'
 labels: 'enhancement'
 assignees: '@Quantalabs'
