@@ -27,7 +27,7 @@
         "mocha": "^8.3.2"
     },
     "dependencies": {
-        "chart.js": "^2.9.4",
+        "chart.js": "^3.0.2",
         "nodeplotlib": "^0.7.3"
     }
 }
