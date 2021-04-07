@@ -13,6 +13,6 @@ EpiJS.description = description
 EpiJS.author = author
 EpiJS.about = about
 
-const epijs = require('EpiJs')
+const epijs = require('EpiJS')
 
 EpiJS.epijs = epijs

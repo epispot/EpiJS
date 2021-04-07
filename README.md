@@ -64,7 +64,13 @@ Give a ⭐️ if this project helped you!
 ## 📝 License
 
 Copyright © 2021 [QLabs (@Quantalabs)](https://github.com/Quantalabs).<br />
-This project is [GPL--3.0](https://github.com/Quantalabs/epijs/blob/master/LICENSE) licensed.
+This project is [GPL-3.0](https://github.com/Quantalabs/epijs/blob/master/LICENSE) licensed.
+
+## Related work
+
+- [epispot](https://github.com/epispot/epispot)
+- [CovaSim](https://covasim.org)
+
 
 ***
 _This README was generated with ❤️ by [readme-md-generator](https://github.com/kefranabg/readme-md-generator)_
