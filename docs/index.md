@@ -8,7 +8,7 @@ npm install epijs
 ```
 Or, use it in your website:
 ``` HTML linenums="1"
-<script src="https://cdn.jsdelivr.net/npm/epijs@v1.0.0/index.min.js">
+<script src="https://cdn.jsdelivr.net/npm/epijs@v1.0.0/index.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"> <!-- Chart.js is required. -->
 ```
 
