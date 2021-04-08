@@ -8,6 +8,20 @@
   <a href="https://github.com/Quantalabs/epijs/blob/main/LICENSE" target="_blank">
     <img alt="License: GPL--3.0" src="https://img.shields.io/github/license/Quantalabs/EpiJS" />
   </a>
+  <a href="https://npmjs.org/package/@quantalabs/epijs" target="_blank">
+    <img alt="npm version" src="https://img.shields.io/npm/v/@quantalabs/epijs">
+    <img alt="npm downloads" src="https://img.shields.io/npm/dt/@quantalabs/epijs?color=%232c5fde&label=npm%20downloads">
+  </a>
+  <a href="https://github.com/Quantalabs/epijs/issues/" target="_blank">
+    <img alt="GitHub issues" src="https://img.shields.io/github/issues/quantalabs/epijs">
+  </a>
+  <a href="https://github.com/Quantalabs/EpiJS/pulls" target="_blank">
+    <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/Quantalabs/epijs">
+  </a>
+  <a href="https://quantalabs.github.io/EpiJS/">
+    <img alt="GitHub Pages deployments" src="https://img.shields.io/github/deployments/quantalabs/epijs/github-pages?label=GitHub%20Pages%20Deployment">
+  </a>
+
   <blockquote align="center">
   <p>A disease modeling package.</p>
   </blockquote>
