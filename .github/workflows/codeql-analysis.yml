@@ -14,7 +14,13 @@ name: "CodeQL"
 on:
   push:
     branches: [ main ]
+    paths: 
+      - EpiJS/
+      - tests/
+      - web/
+      - index.js
   pull_request:
+    branches: [ main ]
 
 jobs:
   analyze:
