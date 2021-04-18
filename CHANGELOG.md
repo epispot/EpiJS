@@ -1,3 +1,16 @@
+# v1.0.1
+Minor update
+
+## New Features
+None.
+
+## Bug Fixes
+None.
+
+## Deprecations
+Remove the `check` function from the `pre` module.
+
+---
 # v1.0.0
 
 Initial release.
