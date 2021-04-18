@@ -1,6 +1,6 @@
 {
     "name": "@quantalabs/epijs",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "A disease modeling package.",
     "main": "index.js",
     "scripts": {
