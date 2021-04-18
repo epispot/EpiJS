@@ -90,6 +90,9 @@ This project is [GPL-3.0](https://github.com/Quantalabs/epijs/blob/master/LICENS
 - [epispot](https://github.com/epispot/epispot)
 - [CovaSim](https://covasim.org)
 
+### Cite EpiJS in your research!
+[![DOI](https://zenodo.org/badge/344988297.svg)](https://zenodo.org/badge/latestdoi/344988297)
+
 
 ***
 _This README was generated with ❤️ by [readme-md-generator](https://github.com/kefranabg/readme-md-generator)_
