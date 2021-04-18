@@ -5,12 +5,6 @@
 
 const chart = require('chart.js')
 
-function check() {
-    alert('All systems good!')
-    console.log('This checks if you\'ve imported everything correctly. If you want to check \
-    the code, please visit the repo and follow the guide there.')
-}
-
 /**
  * The SIR Model returns a chart.js graph with the total Susceptible, Infected, and Recovered after the given amount of time.
  * @param {HTMLElement} c - The HTML5 Canvas Element.
