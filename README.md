@@ -1,7 +1,6 @@
 <div align="center"><img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/meve5c0a4lky6b6veif9.png" alt="EpiJS Logo"></div>
 <h1 align="center">EpiJS</h1>
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-1.0.0%20alpha-blue.svg?cacheSeconds=2592000" />
   <a href="https://github.com/Quantalabs/epijs/graphs/commit-activity" target="_blank">
     <img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" />
   </a>
