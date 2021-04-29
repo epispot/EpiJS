@@ -7,13 +7,36 @@ on:
       - docs/
       - mkdocs.yml
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+            node-version: 12
+      - name: Install Dependencies
+        run: | # We install documentation.js globally so that we can use `documentation` instead of `node_modules/.../documentation`. We also then install it to save as a dependency.
+          npm install
+          npm install -g documentation
+          npm install --save-dev documentation
+          npm cid
+      - name: Generate .md files for documentation
+        run: |
+          documentation build EpiJS/plot.js -f md > docs/plot.md
+          documentation build EpiJS/comps.js -f md > docs/comps.md
+          documentation build EpiJS/model.js -f md > docs/model.md 
+          documentation build EpiJS/pre.js -f md > docs/pre.md
+
   deploy:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
           python-version: 3.x
-      - run: pip install mkdocs-material
-      - run: mkdocs gh-deploy --force
+      - name: Install Dependencies
+        run: pip install mkdocs-material
+      - name: Generate docs
+        run: mkdocs gh-deploy --force
       
