@@ -36,4 +36,19 @@ jobs:
         run: pip install mkdocs-material
       - name: Generate docs
         run: mkdocs gh-deploy --force
+      - name: Add CNAME
+        run: |
+          git switch gh-pages
+          echo epi.js.org >> CNAME
+      - name: Git configuration
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+      - name: Commit Changes
+        continue-on-error: true
+        run: |
+          git add .
+          git commit -m "Add CNAME"
+          git push
+          
       
