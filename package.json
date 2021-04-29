@@ -20,7 +20,7 @@
     "bugs": {
         "url": "https://github.com/Quantalabs/epijs/issues"
     },
-    "homepage": "https://quantalabs.github.io/EpiJS",
+    "homepage": "epi.js.org",
     "devDependencies": {
         "documentation": "^13.2.5",
         "mocha": "^8.3.2"
