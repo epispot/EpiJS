@@ -51,6 +51,7 @@ Or get the latest version from git:
 
 ```sh
 git clone https://github.com/Quantalabs/epijs.git 
+cd EpiJS
 npm install
 ```
 
