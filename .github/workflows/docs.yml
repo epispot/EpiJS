@@ -23,6 +23,16 @@ jobs:
           documentation build EpiJS/comps.js -f md > docs/comps.md
           documentation build EpiJS/model.js -f md > docs/model.md 
           documentation build EpiJS/pre.js -f md > docs/pre.md
+      - name: Git configuration
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+      - name: Commit Changes
+        continue-on-error: true
+        run: |
+          git add .
+          git commit -m "New docs"
+          git push --set-upstream origin main
 
   deploy:
     needs: build
@@ -49,6 +59,7 @@ jobs:
         run: |
           git add .
           git commit -m "Add CNAME"
-          git push
+          git push --set-upstream origin gh-pages
+
           
       
