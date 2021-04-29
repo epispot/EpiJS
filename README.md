@@ -32,7 +32,7 @@
 ## Install
 
 ```sh
-npm install epijs
+npm install @quantalabs/epijs
 ```
 
 ## Usage
@@ -47,12 +47,11 @@ Or in your website:
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"> <!-- Chart.js is required. -->
 ```
 
-## Run tests
+Or get the latest version from git:
 
 ```sh
 git clone https://github.com/Quantalabs/epijs.git 
 npm install
-npm test
 ```
 
 ## Screenshots
