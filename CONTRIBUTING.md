@@ -1,4 +1,4 @@
-# :mega: Attention Contributers
+# :mega: Attention Contributors
 
 ## New Functions
 
