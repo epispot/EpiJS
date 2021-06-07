@@ -45,11 +45,14 @@ jobs:
       - name: Install Dependencies
         run: pip install mkdocs-material
       - name: Generate docs
-        run: mkdocs gh-deploy --force
+        run: | 
+          git pull
+          mkdocs gh-deploy --force
       - name: Add CNAME
         run: |
           git switch gh-pages
           echo epi.js.org >> CNAME
+          git checkout main tests/*
       - name: Git configuration
         run: |
           git config user.name github-actions
