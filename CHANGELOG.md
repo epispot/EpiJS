@@ -1,3 +1,12 @@
+# v1.1.0
+
+## New Features
+- Add SEIHRD model
+
+## Bug Fixes
+None.
+
+---
 # v1.0.1
 Minor update
 
