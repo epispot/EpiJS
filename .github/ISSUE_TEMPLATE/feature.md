@@ -1,9 +1,10 @@
 ---
 name: Feature request
 about: Suggest an idea for EpiJS
-title: 'Feature -'
-labels: 'enhancement'
-assignees: '@Quantalabs'
+title: Feature -
+labels: 'Status: Review Needed, enhancement'
+assignees: ''
+
 ---
 
 **Is your feature request related to a problem? Please describe.**
