@@ -54,6 +54,7 @@ jobs:
           echo epi.js.org >> CNAME
           git checkout main tests/*
           git checkout main web/*
+          git checkout main .gitignore
       - name: Git configuration
         run: |
           git config user.name github-actions
