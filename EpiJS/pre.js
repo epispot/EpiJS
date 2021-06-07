@@ -38,7 +38,7 @@ function sir(c, rn, s, i, time, u, p) {
         }]
     }
 
-    for(var x = 0; x<time; x++){
+    for(let x = 0; x<time; x++){
         data.datasets[0].data.push(data.datasets[0].data[x]-((rn*u)*data.datasets[0].data[x]*data.datasets[1].data[x]/p))
         data.datasets[1].data.push(data.datasets[1].data[x]+((rn*u)*data.datasets[0].data[x]*data.datasets[1].data[x]/p)-u*data.datasets[1].data[x])
         data.datasets[2].data.push(data.datasets[2].data[x]+u*data.datasets[1].data[x])
@@ -46,7 +46,7 @@ function sir(c, rn, s, i, time, u, p) {
     }
     console.log(data.datasets)
 
-    var sirChart = new Chart(c, {
+    let sirChart = new Chart(c, {
         type: 'line',
         data: data,
         options: {
@@ -97,7 +97,7 @@ function seir(c, rn, s, i, t, u, a, p) {
         }]
     }
 
-    for(var x = 0; x<t; x++){
+    for(let x = 0; x<t; x++){
         data.datasets[0].data.push(data.datasets[0].data[x]-((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p))
         data.datasets[1].data.push(data.datasets[1].data[x]+((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p)-(a*data.datasets[1].data[x]))
         data.datasets[2].data.push(data.datasets[2].data[x]+(a*data.datasets[1].data[x])-(u*data.datasets[2].data[x]))
@@ -106,7 +106,7 @@ function seir(c, rn, s, i, t, u, a, p) {
     }
     console.log(data.datasets)
     
-    var seirChart = new Chart(c, {
+    let seirChart = new Chart(c, {
         type: 'line',
         data: data,
         options: {
@@ -163,7 +163,7 @@ function seird(c, rn, s, i, t, u, a, d, p) {
         }]
     }
 
-    for(var x = 0; x<t; x++){
+    for(let x = 0; x<t; x++){
         data.datasets[0].data.push(data.datasets[0].data[x]-((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p))
         data.datasets[1].data.push(data.datasets[1].data[x]+((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p)-(a*data.datasets[1].data[x]))
         data.datasets[2].data.push(data.datasets[2].data[x]+(a*data.datasets[1].data[x])-(u*data.datasets[2].data[x])-(d*data.datasets[2].data[x]))
@@ -173,7 +173,7 @@ function seird(c, rn, s, i, t, u, a, d, p) {
     }
     console.log(data.datasets)
     
-    var sierdChart = new Chart(c, {
+    let sierdChart = new Chart(c, {
         type: 'line',
         data: data,
         options: {
@@ -238,7 +238,7 @@ function seird(c, rn, s, i, t, u, a, d, p) {
       }]
     }
 
-    for(var x = 0; x<t; x++){
+    for(let x = 0; x<t; x++){
       data.datasets[0].data.push(data.datasets[0].data[x]-((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p)) // Susceptible
       data.datasets[1].data.push(data.datasets[1].data[x]+((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p)-(a*data.datasets[1].data[x])) // Exposed
       data.datasets[2].data.push(data.datasets[2].data[x]+(a*data.datasets[1].data[x])-(u*data.datasets[2].data[x])-(di*data.datasets[2].data[x])) // Infected
@@ -249,7 +249,7 @@ function seird(c, rn, s, i, t, u, a, d, p) {
     }
     console.log(data.datasets)
     
-    var siehrdChart = new Chart(c, {
+    let siehrdChart = new Chart(c, {
       type: 'line',
       data: data,
       options: {
