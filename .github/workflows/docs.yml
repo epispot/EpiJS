@@ -53,6 +53,7 @@ jobs:
           git switch gh-pages
           echo epi.js.org >> CNAME
           git checkout main tests/*
+          git checkout main web/*
       - name: Git configuration
         run: |
           git config user.name github-actions
