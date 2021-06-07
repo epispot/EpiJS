@@ -1,13 +1,9 @@
-# :mega: Attention Contributors
+# Contributing guidelines
 
-## New Functions
+## Fixing Issues
 
-Place your function in the apropriate file. If you don't know where to put it in, submit an issue! Make sure it is titled properly and works. Then create a pull request and wait for it to be accepted.
+Check out all [available issues](https://github.com/Quantalabs/EpiJS/issues?q=is%3Aissue+is%3Aopen+label%3A%22Status%3A+Available%22) and claim them with `/claim`. Make sure to reference these issues when you submit your PR.
 
-## Bugs
+## Adding features
 
-If you are changing a bug, create an issue and then (hopefully) fix it in the file. Again, make sure that it works. Use an issue template!
-
-## Efficiency
-
-If you are changing a function to make it more efficient, make sure to again create an issue and fix it. And most importantly, **make sure it works**.
+If there's a feature request already submitted and avaliable on the [issues page](https://github.com/Quantalabs/EpiJS/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement+label%3A%22status%3A+available%22) and claim it with `/claim` in the comments. Make sure to reference these issues when you submit the PR.
