@@ -19,9 +19,6 @@ jobs:
           npm ci
       - name: Generate .md files for documentation
         run: |
-          documentation build EpiJS/plot.js -f md > docs/plot.md
-          documentation build EpiJS/comps.js -f md > docs/comps.md
-          documentation build EpiJS/model.js -f md > docs/model.md 
           documentation build EpiJS/pre.js -f md > docs/pre.md
       - name: Git configuration
         run: |
