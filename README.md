@@ -26,7 +26,7 @@
   <p>A disease modeling package.</p>
   </blockquote>
   <h4 id="-homepage-https-github-com-quantalabs-epijs-readme-" align="center">🏠 <a href="https://github.com/Quantalabs/epijs#readme">Homepage</a></h4>
-  <h4 id="-demo-https-npm-runkit-com-epijs-" align="center">✨ <a href="https://quantalabs.github.io/EpiJS/tests/index.html">Demo</a></h4>
+  <h4 id="-demo-https-npm-runkit-com-epijs-" align="center">✨ <a href="https://epi.js.org/demo/index.html">Demo</a></h4>
 </p>
 
 ## Install
@@ -43,7 +43,7 @@ const epijs = require("@quantalabs/epijs")
 
 Or in your website:
 ```html
-<script src="https://cdn.jsdelivr.net/gh/Quantalabs/EpiJS@1.1.0/web/pre.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/Quantalabs/EpiJS/web/pre.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"> <!-- Chart.js is required. -->
 ```
 

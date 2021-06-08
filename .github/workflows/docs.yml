@@ -52,6 +52,7 @@ jobs:
           git checkout main tests/*
           git checkout main web/*
           git checkout main .gitignore
+          git checkout main demo/*
       - name: Git configuration
         run: |
           git config user.name github-actions
