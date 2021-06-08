@@ -43,7 +43,7 @@ const epijs = require("@quantalabs/epijs")
 
 Or in your website:
 ```html
-<script src="https://cdn.jsdelivr.net/gh/quantalabs/epijs@1.0.0/web/pre.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/Quantalabs/EpiJS@1.1.0/web/pre.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"> <!-- Chart.js is required. -->
 ```
 
