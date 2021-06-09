@@ -11,6 +11,9 @@ jobs:
       - uses: actions/setup-node@v1
         with:
             node-version: 12
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
       - name: Install Dependencies
         run: | # We install documentation.js globally so that we can use `documentation` instead of `node_modules/.../documentation`. We also then install it to save as a dependency.
           npm install
@@ -20,6 +23,8 @@ jobs:
       - name: Generate .md files for documentation
         run: |
           documentation build EpiJS/pre.js -f md > docs/pre.md
+          cd scripts
+          python doc-update.py
       - name: Git configuration
         run: |
           git config user.name github-actions
