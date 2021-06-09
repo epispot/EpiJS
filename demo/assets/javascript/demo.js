@@ -22,7 +22,10 @@ function generate() {
   var t = document.getElementById("time").value
   var u = document.getElementById("u").value
   var pop = document.getElementById("population").value
+  var a = document.getElementById("a").value
+  var d = document.getElementById("d").value
   
   message.innerHTML = "Reload to generate again."
-  sir("model", rn, spop, ipop, t, u, pop)
+  seird("model", rn, spop, ipop, t, u, a, d, pop)
+
 }
