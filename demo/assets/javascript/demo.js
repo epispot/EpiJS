@@ -26,6 +26,6 @@ function generate() {
   var d = document.getElementById("d").value
   
   message.innerHTML = "Reload to generate again."
-  seird("model", rn, spop, ipop, t, u, a, d, pop)
+  seird("model", rn, spop, ipop, t, u, 1/a, d, pop)
 
 }
