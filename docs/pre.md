@@ -17,7 +17,6 @@
     *   [Examples][13]
 
 ## chart
-
 Pre-made graphs for modelling outbreaks.
 
 ## sir
