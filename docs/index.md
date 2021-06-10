@@ -17,7 +17,6 @@ Or, use it in your website:
 ``` js linenums="1"
 const epijs = require("@quantalabs/epijs")
 ```
-See the [docs](https://quantalabs.github.io/EpiJS/docs/) for more!
 
 ## Run tests
 
