@@ -1,5 +1,11 @@
 /**
  * @file Pre-made graphs for modelling outbreaks.
+ * 
+ * Import it with:
+ * @example
+ * 
+ *    const pre = require('EpiJS').pre
+ * 
  */
 
 
@@ -348,3 +354,9 @@ function seird(c, rn, s, i, t, u, a, d, p) {
     }
   });
 }
+
+exports.sir = sir
+exports.seir = seir
+exports.seird = seird
+exports.seihrd = seihrd
+exports.seihcrd = seihcrd
