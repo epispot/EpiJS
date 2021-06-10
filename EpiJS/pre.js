@@ -2,9 +2,8 @@
  * @file Pre-made graphs for modelling outbreaks.
  * 
  * Import it with:
- * @example
  * 
- *    const pre = require('EpiJS').pre
+ *    const pre = require('@quantalabs/epijs').pre
  * 
  */
 
