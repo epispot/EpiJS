@@ -4,33 +4,28 @@
 
 
 
-*   [sir][3]
-    *   [Parameters][4]
-    *   [Examples][5]
-*   [seir][6]
-    *   [Parameters][7]
-    *   [Examples][8]
-*   [seird][9]
-    *   [Parameters][10]
-    *   [Examples][11]
-*   [seihrd][12]
-    *   [Parameters][13]
-    *   [Examples][14]
-*   [seihcrd][15]
-    *   [Parameters][16]
-    *   [Examples][17]
+    *   [Parameters][3]
+    *   [Examples][4]
+*   [seir][5]
+    *   [Parameters][6]
+    *   [Examples][7]
+*   [seird][8]
+    *   [Parameters][9]
+    *   [Examples][10]
+*   [seihrd][11]
+    *   [Parameters][12]
+    *   [Examples][13]
+*   [seihcrd][14]
+    *   [Parameters][15]
+    *   [Examples][16]
 
+## chart
 # Pre
-
 Pre-made graphs for modelling outbreaks.
 
 Import it with:
 
-### Examples
-
-```javascript
-const pre = require('EpiJS').pre
-```
+const pre = require('@quantalabs/epijs').pre
 
 ## sir
 
@@ -38,13 +33,13 @@ The SIR Model returns a chart.js graph with the total Susceptible, Infected, and
 
 ### Parameters
 
-*   `c` **[HTMLElement][18]** The HTML5 Canvas Element.
-*   `rn` **[Number][19]** R Naught, or the amount of people one infected infects whlie infected.
-*   `s` **[Number][19]** The Susceptible population at the beggining of the outbreak
-*   `i` **[Number][19]** The Infected population at the beggining of th outbreak
-*   `time` **[Number][19]** The time the total simulation lasts.
-*   `u` **[Number][19]** The recovery rate
-*   `p` **[Number][19]** The total population.
+*   `c` **[HTMLElement][17]** The HTML5 Canvas Element.
+*   `rn` **[Number][18]** R Naught, or the amount of people one infected infects whlie infected.
+*   `s` **[Number][18]** The Susceptible population at the beggining of the outbreak
+*   `i` **[Number][18]** The Infected population at the beggining of th outbreak
+*   `time` **[Number][18]** The time the total simulation lasts.
+*   `u` **[Number][18]** The recovery rate
+*   `p` **[Number][18]** The total population.
 
 ### Examples
 
@@ -58,14 +53,14 @@ The SIR Model returns a chart.js graph with the total Susceptible, Exposed, Infe
 
 ### Parameters
 
-*   `c` **[HTMLElement][18]** The HTML5 Canvas Element.
-*   `rn` **[Number][19]** R Naught, or the amount of people one infected infects whlie infected.
-*   `s` **[Number][19]** The Susceptible population at the beggining of the outbreak
-*   `i` **[Number][19]** The Infected population at the beggining of th outbreak
-*   `t` **[Number][19]** The time the total simulation lasts.
-*   `u` **[Number][19]** The recovery rate
-*   `a` **[Number][19]** The incubation period
-*   `p` **[Number][19]** The total population.
+*   `c` **[HTMLElement][17]** The HTML5 Canvas Element.
+*   `rn` **[Number][18]** R Naught, or the amount of people one infected infects whlie infected.
+*   `s` **[Number][18]** The Susceptible population at the beggining of the outbreak
+*   `i` **[Number][18]** The Infected population at the beggining of th outbreak
+*   `t` **[Number][18]** The time the total simulation lasts.
+*   `u` **[Number][18]** The recovery rate
+*   `a` **[Number][18]** The incubation period
+*   `p` **[Number][18]** The total population.
 
 ### Examples
 
@@ -79,15 +74,15 @@ The SIR Model returns a chart.js graph with the total Susceptible, Exposed, Infe
 
 ### Parameters
 
-*   `c` **[HTMLElement][18]** The HTML5 Canvas Element.
-*   `rn` **[Number][19]** R Naught, or the amount of people one infected infects whlie infected.
-*   `s` **[Number][19]** The Susceptible population at the beggining of the outbreak
-*   `i` **[Number][19]** The Infected population at the beggining of the outbreak
-*   `t` **[Number][19]** The time the total simulation lasts.
-*   `u` **[Number][19]** The recovery rate
-*   `a` **[Number][19]** The incubation period
-*   `d` **[Number][19]** The death rate
-*   `p` **[Number][19]** The total population.
+*   `c` **[HTMLElement][17]** The HTML5 Canvas Element.
+*   `rn` **[Number][18]** R Naught, or the amount of people one infected infects whlie infected.
+*   `s` **[Number][18]** The Susceptible population at the beggining of the outbreak
+*   `i` **[Number][18]** The Infected population at the beggining of the outbreak
+*   `t` **[Number][18]** The time the total simulation lasts.
+*   `u` **[Number][18]** The recovery rate
+*   `a` **[Number][18]** The incubation period
+*   `d` **[Number][18]** The death rate
+*   `p` **[Number][18]** The total population.
 
 ### Examples
 
@@ -101,18 +96,18 @@ The SIR Model returns a chart.js graph with the total Susceptible, Exposed, Infe
 
 ### Parameters
 
-*   `c` **[HTMLElement][18]** The HTML5 Canvas Element.
-*   `rn` **[Number][19]** R Naught, or the amount of people one infected infects whlie infected.
-*   `s` **[Number][19]** The Susceptible population at the beggining of the outbreak
-*   `i` **[Number][19]** The Infected population at the beggining of the outbreak
-*   `t` **[Number][19]** The time the total simulation lasts.
-*   `u` **[Number][19]** The recovery rate for the infected population
-*   `uh` **[Number][19]** The recovery rate for the hospitalized population
-*   `a` **[Number][19]** The incubation period
-*   `di` **[Number][19]** The death rate for the infected population
-*   `dh` **[Number][19]** The death rate for the hospitalized population
-*   `h` **[Number][19]** The hospitalization rate
-*   `p` **[Number][19]** The total population.
+*   `c` **[HTMLElement][17]** The HTML5 Canvas Element.
+*   `rn` **[Number][18]** R Naught, or the amount of people one infected infects whlie infected.
+*   `s` **[Number][18]** The Susceptible population at the beggining of the outbreak
+*   `i` **[Number][18]** The Infected population at the beggining of the outbreak
+*   `t` **[Number][18]** The time the total simulation lasts.
+*   `u` **[Number][18]** The recovery rate for the infected population
+*   `uh` **[Number][18]** The recovery rate for the hospitalized population
+*   `a` **[Number][18]** The incubation period
+*   `di` **[Number][18]** The death rate for the infected population
+*   `dh` **[Number][18]** The death rate for the hospitalized population
+*   `h` **[Number][18]** The hospitalization rate
+*   `p` **[Number][18]** The total population.
 
 ### Examples
 
@@ -126,24 +121,24 @@ The SIR Model returns a chart.js graph with the total Susceptible, Exposed, Infe
 
 ### Parameters
 
-*   `c` **[HTMLElement][18]** The HTML5 Canvas Element.
-*   `rn` **[Number][19]** R Naught, or the amount of people one infected infects whlie infected.
-*   `s` **[Number][19]** The Susceptible population at the beggining of the outbreak
-*   `i` **[Number][19]** The Infected population at the beggining of the outbreak
-*   `t` **[Number][19]** The time the total simulation lasts.
-*   `u` **[Number][19]** The recovery rate for the infected population
-*   `uh` **[Number][19]** The recovery rate for the hospitalized population
-*   `a` **[Number][19]** The incubation period
-*   `di` **[Number][19]** The death rate for the infected population
-*   `dh` **[Number][19]** The death rate for the hospitalized population
-*   `ch` **[Number][19]** The rate at which patients go to the critical stage from the hospitalized compartment.
-*   `ci` **[Number][19]** The rate at which patients go to the critical stage from the infected compartemnt.
-*   `dc` **[Number][19]** The death rate for critical patients
-*   `uc` **[Number][19]** The recovery rate for critical patients
-*   `hc` **[Number][19]** The rate at which a critical patient goes to the hospitalized compartment, and are no longer critical.
-*   `ic` **[Number][19]** The rate at which a critical patient goes to the infected compartment, and are no longer critical.
-*   `h` **[Number][19]** The hospitalization rate
-*   `p` **[Number][19]** The total population.
+*   `c` **[HTMLElement][17]** The HTML5 Canvas Element.
+*   `rn` **[Number][18]** R Naught, or the amount of people one infected infects whlie infected.
+*   `s` **[Number][18]** The Susceptible population at the beggining of the outbreak
+*   `i` **[Number][18]** The Infected population at the beggining of the outbreak
+*   `t` **[Number][18]** The time the total simulation lasts.
+*   `u` **[Number][18]** The recovery rate for the infected population
+*   `uh` **[Number][18]** The recovery rate for the hospitalized population
+*   `a` **[Number][18]** The incubation period
+*   `di` **[Number][18]** The death rate for the infected population
+*   `dh` **[Number][18]** The death rate for the hospitalized population
+*   `ch` **[Number][18]** The rate at which patients go to the critical stage from the hospitalized compartment.
+*   `ci` **[Number][18]** The rate at which patients go to the critical stage from the infected compartemnt.
+*   `dc` **[Number][18]** The death rate for critical patients
+*   `uc` **[Number][18]** The recovery rate for critical patients
+*   `hc` **[Number][18]** The rate at which a critical patient goes to the hospitalized compartment, and are no longer critical.
+*   `ic` **[Number][18]** The rate at which a critical patient goes to the infected compartment, and are no longer critical.
+*   `h` **[Number][18]** The hospitalization rate
+*   `p` **[Number][18]** The total population.
 
 ### Examples
 
@@ -153,38 +148,36 @@ seihcrd(seihcrdchart, 4, 9999, 1, 265, 1/21, 1/40, 1/14, 1/100, 1/20, 1/10, 1/40
 
 [1]: #chart
 
-[2]: #examples
+[2]: #sir
 
-[3]: #sir
+[3]: #parameters
 
-[4]: #parameters
+[4]: #examples
 
-[5]: #examples-1
+[5]: #seir
 
-[6]: #seir
+[6]: #parameters-1
 
-[7]: #parameters-1
+[7]: #examples-1
 
-[8]: #examples-2
+[8]: #seird
 
-[9]: #seird
+[9]: #parameters-2
 
-[10]: #parameters-2
+[10]: #examples-2
 
-[11]: #examples-3
+[11]: #seihrd
 
-[12]: #seihrd
+[12]: #parameters-3
 
-[13]: #parameters-3
+[13]: #examples-3
 
-[14]: #examples-4
+[14]: #seihcrd
 
-[15]: #seihcrd
+[15]: #parameters-4
 
-[16]: #parameters-4
+[16]: #examples-4
 
-[17]: #examples-5
+[17]: https://developer.mozilla.org/docs/Web/HTML/Element
 
-[18]: https://developer.mozilla.org/docs/Web/HTML/Element
-
-[19]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+[18]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
