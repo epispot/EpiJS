@@ -3,7 +3,7 @@
 ### Table of Contents
 
 
-
+*   [sir][2]
     *   [Parameters][3]
     *   [Examples][4]
 *   [seir][5]
@@ -19,8 +19,8 @@
     *   [Parameters][15]
     *   [Examples][16]
 
-## chart
 # Pre
+
 Pre-made graphs for modelling outbreaks.
 
 Import it with:
