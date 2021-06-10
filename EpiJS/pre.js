@@ -2,9 +2,9 @@
  * @file Pre-made graphs for modelling outbreaks.
  * 
  * Import it with:
- * 
+ * ```
  *    const pre = require('@quantalabs/epijs').pre
- * 
+ * ```
  */
 
 
