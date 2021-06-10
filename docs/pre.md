@@ -2,6 +2,7 @@
 
 ### Table of Contents
 
+*   [chart][1]
     *   [Examples][2]
 *   [sir][3]
     *   [Parameters][4]
@@ -15,7 +16,7 @@
 *   [seihrd][12]
     *   [Parameters][13]
     *   [Examples][14]
-# Pre
+*   [seihcrd][15]
     *   [Parameters][16]
     *   [Examples][17]
 
