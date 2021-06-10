@@ -247,6 +247,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#chart" class="md-nav__link">
+    chart
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#sir" class="md-nav__link">
     sir
   </a>
@@ -344,6 +351,33 @@
         
           <li class="md-nav__item">
   <a href="#examples_3" class="md-nav__link">
+    Examples
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#seihcrd" class="md-nav__link">
+    seihcrd
+  </a>
+  
+    <nav class="md-nav" aria-label="seihcrd">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_4" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples_4" class="md-nav__link">
     Examples
   </a>
   
@@ -406,6 +440,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#chart" class="md-nav__link">
+    chart
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#sir" class="md-nav__link">
     sir
   </a>
@@ -513,6 +554,33 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#seihcrd" class="md-nav__link">
+    seihcrd
+  </a>
+  
+    <nav class="md-nav" aria-label="seihcrd">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_4" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples_4" class="md-nav__link">
+    Examples
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -555,8 +623,12 @@
 <li><a href="#examples-3">Examples</a></li>
 </ul>
 </li>
+<li><a href="#seihcrd">seihcrd</a></li>
 </ul>
 <h1 id="pre">Pre<a class="headerlink" href="#pre" title="Permanent link">&para;</a></h1>
+<div class="highlight"><pre><span></span><code>*   [Examples][16]
+</code></pre></div>
+<h2 id="chart">chart<a class="headerlink" href="#chart" title="Permanent link">&para;</a></h2>
 <p>Pre-made graphs for modelling outbreaks.</p>
 <h2 id="sir">sir<a class="headerlink" href="#sir" title="Permanent link">&para;</a></h2>
 <p>The SIR Model returns a chart.js graph with the total Susceptible, Infected, and Recovered after the given amount of time.</p>
@@ -624,7 +696,33 @@
 <li><code>p</code> <strong><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></strong> The total population.</li>
 </ul>
 <h3 id="examples_3">Examples<a class="headerlink" href="#examples_3" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="nx">seird</span><span class="p">(</span><span class="nx">seirdchart</span><span class="p">,</span> <span class="mf">4</span><span class="p">,</span> <span class="mf">99999</span><span class="p">,</span> <span class="mf">1</span><span class="p">,</span> <span class="mf">100</span><span class="p">,</span> <span class="mf">1</span><span class="o">/</span><span class="mf">21</span><span class="p">,</span> <span class="mf">1</span><span class="o">/</span><span class="mf">14</span><span class="p">,</span> <span class="mf">1</span><span class="o">/</span><span class="mf">100</span><span class="p">,</span> <span class="mf">10000</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="nx">seihrd</span><span class="p">(</span><span class="nx">seihrdmodelchart</span><span class="p">,</span> <span class="mf">4</span><span class="p">,</span> <span class="mf">9999</span><span class="p">,</span> <span class="mf">1</span><span class="p">,</span> <span class="mf">265</span><span class="p">,</span> <span class="mf">1</span><span class="o">/</span><span class="mf">21</span><span class="p">,</span> <span class="mf">1</span><span class="o">/</span><span class="mf">40</span><span class="p">,</span> <span class="mf">1</span><span class="o">/</span><span class="mf">14</span><span class="p">,</span> <span class="mf">1</span><span class="o">/</span><span class="mf">100</span><span class="p">,</span> <span class="mf">1</span><span class="o">/</span><span class="mf">20</span><span class="p">,</span> <span class="mf">1</span><span class="o">/</span><span class="mf">30</span><span class="p">,</span> <span class="mf">10000</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="seihcrd">seihcrd<a class="headerlink" href="#seihcrd" title="Permanent link">&para;</a></h2>
+<p>The SIR Model returns a chart.js graph with the total Susceptible, Exposed, Infected, Recovered, and Dead populations after the given amount of time.</p>
+<h3 id="parameters_4">Parameters<a class="headerlink" href="#parameters_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>c</code> <strong><a href="https://developer.mozilla.org/docs/Web/HTML/Element">HTMLElement</a></strong> The HTML5 Canvas Element.</li>
+<li><code>rn</code> <strong><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></strong> R Naught, or the amount of people one infected infects whlie infected.</li>
+<li><code>s</code> <strong><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></strong> The Susceptible population at the beggining of the outbreak</li>
+<li><code>i</code> <strong><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></strong> The Infected population at the beggining of the outbreak</li>
+<li><code>t</code> <strong><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></strong> The time the total simulation lasts.</li>
+<li><code>u</code> <strong><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></strong> The recovery rate for the infected population</li>
+<li><code>uh</code> <strong><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></strong> The recovery rate for the hospitalized population</li>
+<li><code>a</code> <strong><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></strong> The incubation period</li>
+<li><code>di</code> <strong><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></strong> The death rate for the infected population</li>
+<li><code>dh</code> <strong><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></strong> The death rate for the hospitalized population</li>
+<li><code>ch</code> <strong><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></strong> The rate at which patients go to the critical stage from the hospitalized compartment.</li>
+<li><code>ci</code> <strong><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></strong> The rate at which patients go to the critical stage from the infected compartemnt.</li>
+<li><code>dc</code> <strong><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></strong> The death rate for critical patients</li>
+<li><code>uc</code> <strong><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></strong> The recovery rate for critical patients</li>
+<li><code>hc</code> <strong><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></strong> The rate at which a critical patient goes to the hospitalized compartment, and are no longer critical.</li>
+<li><code>ic</code> <strong><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></strong> The rate at which a critical patient goes to the infected compartment, and are no longer critical.</li>
+<li><code>h</code> <strong><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></strong> The hospitalization rate</li>
+<li><code>p</code> <strong><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></strong> The total population.</li>
+</ul>
+<h3 id="examples_4">Examples<a class="headerlink" href="#examples_4" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nx">seihcrd</span><span class="p">(</span><span class="nx">seihcrdchart</span><span class="p">,</span> <span class="mf">4</span><span class="p">,</span> <span class="mf">9999</span><span class="p">,</span> <span class="mf">1</span><span class="p">,</span> <span class="mf">265</span><span class="p">,</span> <span class="mf">1</span><span class="o">/</span><span class="mf">21</span><span class="p">,</span> <span class="mf">1</span><span class="o">/</span><span class="mf">40</span><span class="p">,</span> <span class="mf">1</span><span class="o">/</span><span class="mf">14</span><span class="p">,</span> <span class="mf">1</span><span class="o">/</span><span class="mf">100</span><span class="p">,</span> <span class="mf">1</span><span class="o">/</span><span class="mf">20</span><span class="p">,</span> <span class="mf">1</span><span class="o">/</span><span class="mf">10</span><span class="p">,</span> <span class="mf">1</span><span class="o">/</span><span class="mf">40</span><span class="p">,</span> <span class="mf">2</span><span class="o">/</span><span class="mf">5</span><span class="p">,</span> <span class="mf">1</span><span class="o">/</span><span class="mf">5</span><span class="p">,</span> <span class="mf">1</span><span class="o">/</span><span class="mf">5</span><span class="p">,</span> <span class="mf">1</span><span class="o">/</span><span class="mf">5</span><span class="p">,</span> <span class="mf">1</span><span class="o">/</span><span class="mf">30</span><span class="p">,</span> <span class="mf">10000</span><span class="p">)</span>
 </code></pre></div>
                 
               
