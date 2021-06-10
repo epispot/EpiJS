@@ -1,3 +1,11 @@
+# v1.2.0
+
+## New Features
+- Add SEIHCRD model
+
+## Bug Fixes
+- Fix import error for npm package.
+
 # v1.1.0
 
 ## New Features
