@@ -2,8 +2,8 @@
 
 ### Table of Contents
 
-*   [chart][1]
-    *   [Examples][2]
+
+
 *   [sir][3]
     *   [Parameters][4]
     *   [Examples][5]
@@ -20,7 +20,7 @@
     *   [Parameters][16]
     *   [Examples][17]
 
-## chart
+# Pre
 
 Pre-made graphs for modelling outbreaks.
 
