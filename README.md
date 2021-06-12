@@ -21,6 +21,7 @@
     <img alt="GitHub Pages deployments" src="https://img.shields.io/github/deployments/quantalabs/epijs/github-pages?label=GitHub%20Pages%20Deployment">
   </a>
   <a href="https://deepsource.io/gh/Quantalabs/EpiJS/?ref=repository-badge" target="_blank"><img alt="DeepSource" title="DeepSource" src="https://deepsource.io/gh/Quantalabs/EpiJS.svg/?label=active+issues"/></a>
+  <a href="https://www.jsdelivr.com/package/gh/quantalabs/epijs"><img src="https://data.jsdelivr.com/v1/package/gh/quantalabs/epijs/badge" alt=""></a>
 
   <blockquote align="center">
   <p>A disease modeling package.</p>
