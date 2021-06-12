@@ -37,7 +37,7 @@ function sir(c, rn, s, i, time, u, p) {
             borderColor: "#"+Math.floor(Math.random()*16777215).toString(16),
         },
         { 
-            data: [0],
+            data: [p-(s+i)],
             label: "Recovered",
             borderColor: "#"+Math.floor(Math.random()*16777215).toString(16),
         }]
@@ -96,7 +96,7 @@ function seir(c, rn, s, i, t, u, a, p) {
             borderColor: "#"+Math.floor(Math.random()*16777215).toString(16),
         },
         { 
-            data: [0],
+            data: [p-(s+i)],
             label: "Recovered",
             borderColor: "#"+Math.floor(Math.random()*16777215).toString(16),
         }]
@@ -157,7 +157,7 @@ function seird(c, rn, s, i, t, u, a, d, p) {
             borderColor: "#"+Math.floor(Math.random()*16777215).toString(16),
         },
         { 
-            data: [0],
+            data: [p-(s+i)],
             label: "Recovered",
             borderColor: "#"+Math.floor(Math.random()*16777215).toString(16),
         },
@@ -208,7 +208,7 @@ function seird(c, rn, s, i, t, u, a, d, p) {
  * 
  *      seihrd(seihrdmodelchart, 4, 9999, 1, 265, 1/21, 1/40, 1/14, 1/100, 1/20, 1/30, 10000)
  */
- function seihrd(c, rn, s, i, t, u, uh, a, di, dh, h, p) {
+function seihrd(c, rn, s, i, t, u, uh, a, di, dh, h, p) {
     let data = {
       labels: [],
       datasets: [{ 
@@ -232,7 +232,7 @@ function seird(c, rn, s, i, t, u, a, d, p) {
         borderColor: "#"+Math.floor(Math.random()*16777215).toString(16)
       },
       { 
-        data: [0],
+        data: [p-(s+i)],
         label: "Recovered",
         borderColor: "#"+Math.floor(Math.random()*16777215).toString(16),
       },
@@ -319,7 +319,7 @@ function seird(c, rn, s, i, t, u, a, d, p) {
       borderColor: "#"+Math.floor(Math.random()*16777215).toString(16),
     },
     { 
-      data: [0],
+      data: [p-(s+i)],
       label: "Recovered",
       borderColor: "#"+Math.floor(Math.random()*16777215).toString(16),
     },
