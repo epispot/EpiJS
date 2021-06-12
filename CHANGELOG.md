@@ -1,3 +1,8 @@
+# v1.2.1
+
+## Bug Fixes
+- Add custom recovered population. Takes difference of population and sum of infected and susceptible populations, instead of automatically setting population to 0 at the beggining of the outbreak.
+
 # v1.2.0
 
 ## New Features
