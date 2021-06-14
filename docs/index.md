@@ -4,7 +4,7 @@ Welcome to the EpiJS Documentation!
 ## Installation
 
 ``` sh linenums="1"
-npm install epijs
+npm install @quantalabs/epijs
 ```
 Or, use it in your website:
 ``` HTML linenums="1"
