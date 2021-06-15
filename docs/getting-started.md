@@ -1,14 +1,18 @@
+---
+    title: Counter Component - Getting Started
+---
+
 # Getting Started
 
 Getting started with EpiJS
 
 ## Install
 
-```sh linenums="1"
+```sh
 npm install epijs
 ```
 Or use it in your webpage:
-``` HTML linenums="1"
+```HTML
 <script src="https://cdn.jsdelivr.net/gh/Quantalabs/EpiJS/web/pre.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"> <!-- Chart.js is required. -->
 ```

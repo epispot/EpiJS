@@ -4,7 +4,9 @@
     "description": "A disease modeling package.",
     "main": "EpiJS/index.js",
     "scripts": {
-        "test": "mocha tests/index.js"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "docs:dev": "documentation build EpiJS/pre.js -f md > docs/pre.md && cd scripts && python doc-update.py && cd .. && vuepress dev docs",
+        "docs:build": "documentation build EpiJS/pre.js -f md > docs/pre.md && cd scripts && python doc-update.py && cd .. && vuepress build docs"
     },
     "repository": {
         "type": "git",
@@ -23,7 +25,8 @@
     "homepage": "epi.js.org",
     "devDependencies": {
         "documentation": "^13.2.5",
-        "mocha": "^9.0.0"
+        "mocha": "^9.0.0",
+        "vuepress": "^1.8.2"
     },
     "dependencies": {
         "chart.js": "^3.0.2"
