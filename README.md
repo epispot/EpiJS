@@ -22,7 +22,7 @@
   </a>
   <a href="https://deepsource.io/gh/Quantalabs/EpiJS/?ref=repository-badge" target="_blank"><img alt="DeepSource" title="DeepSource" src="https://deepsource.io/gh/Quantalabs/EpiJS.svg/?label=active+issues"/></a>
   <a href="https://www.jsdelivr.com/package/gh/quantalabs/epijs"><img src="https://data.jsdelivr.com/v1/package/gh/quantalabs/epijs/badge" alt=""></a>
-
+  <a href="https://zenodo.org/badge/latestdoi/344988297"><img src="https://zenodo.org/badge/344988297.svg" alt="DOI"></a>
   <blockquote align="center">
   <p>A disease modeling package.</p>
   </blockquote>
@@ -91,8 +91,7 @@ This project is [GPL-3.0](https://github.com/Quantalabs/epijs/blob/master/LICENS
 - [CovaSim](https://covasim.org)
 
 ### Cite EpiJS in your research!
-[![DOI](https://zenodo.org/badge/344988297.svg)](https://zenodo.org/badge/latestdoi/344988297)
-QLabs. (2021, June 7). Quantalabs/EpiJS: v1.1.0 (Version v1.1.0). Zenodo. http://doi.org/10.5281/zenodo.4908921
+> QLabs. (2021, June 7). Quantalabs/EpiJS: v1.1.0 (Version v1.1.0). Zenodo. http://doi.org/10.5281/zenodo.4908921
 
 ***
 _This README was generated with ❤️ by [readme-md-generator](https://github.com/kefranabg/readme-md-generator)_

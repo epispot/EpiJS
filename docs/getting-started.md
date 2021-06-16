@@ -1,5 +1,5 @@
 ---
-    title: Counter Component - Getting Started
+    title: EpiJS - Getting Started
 ---
 
 # Getting Started
@@ -15,6 +15,14 @@ Or use it in your webpage:
 ```HTML
 <script src="https://cdn.jsdelivr.net/gh/Quantalabs/EpiJS/web/pre.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"> <!-- Chart.js is required. -->
+```
+
+## Metadata
+
+You can fetch metadata about the package with the following commands (this is only with the NPM Package, unfortunatley):
+```js
+epijs.about // General metadata
+epijs.version // Your current package version
 ```
 
 ## The `Pre` Module
