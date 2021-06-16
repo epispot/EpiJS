@@ -11,9 +11,6 @@ jobs:
       - uses: actions/setup-node@v1
         with:
             node-version: 12
-      - uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
       - name: Install Dependencies
         run: | # We install documentation.js globally so that we can use `documentation` instead of `node_modules/.../documentation`. We also then install it to save as a dependency.
           npm install
@@ -22,30 +19,37 @@ jobs:
           npm ci
       - name: Generate Docs
         run: |
-          npm docs:build
+          npm run docs:build
       - name: Commit changes
+        continue-on-error: true
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add .
           git commit -m "New docs"
           git push --set-upstream origin main
-      - name: Upload docs to GitHub Pages
+      - name: Deploy to gh pages
+        run: |
+          git fetch
+          git checkout gh-pages
+          git pull origin gh-pages
+          rm -rf ./*
+          git checkout main -- docs/.vuepress/dist/
+          rm -rf assets/
+          mv docs/.vuepress/dist/* ./
+          rm -rf docs/
+          git checkout main -- demo/
+          git checkout main -- web/
+          git checkout main -- tests/
+          echo "epi.js.org" > CNAME
+          echo "" > .nojekyll
+      - name: Push changes
+        continue-on-error: true
         run: |
           git switch gh-pages
-          echo epi.js.org >> CNAME
-          git checkout main tests/*
-          git checkout main web/*
-          git checkout main .gitignore
-          git checkout main demo/*
-          git checkout main docs/*
-          mv docs/.vuepress/dist/* vdocs/
-          rm -rf docs/
-          mv vdocs/ docs/
-      - name: Commit docs to GitHub Pages
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add .
           git commit -m "New docs"
           git push --set-upstream origin gh-pages
-      
+          
