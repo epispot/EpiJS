@@ -4,7 +4,7 @@ module.exports = {
     themeConfig: {
       nav: [
         { text: 'Documentation', link: '/getting-started' },
-        { text: 'Demo', link: '/demo'},
+        { text: 'Demo', link: '/demo/index.html'},
         { text: 'GitHub', link: 'https://github.com/Quantalabs/EpiJS'}
       ],
       sidebar: [
