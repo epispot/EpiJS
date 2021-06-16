@@ -20,37 +20,17 @@ jobs:
           npm install -g documentation
           npm install --save-dev documentation
           npm ci
-      - name: Generate .md files for documentation
+      - name: Generate Docs
         run: |
-          documentation build EpiJS/pre.js -f md > docs/pre.md
-          cd scripts
-          python doc-update.py
-      - name: Git configuration
+          npm docs:build
+      - name: Commit changes
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-      - name: Commit Changes
-        continue-on-error: true
-        run: |
           git add .
           git commit -m "New docs"
           git push --set-upstream origin main
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
-      - name: Install Dependencies
-        run: pip install mkdocs-material
-      - name: Generate docs
-        run: | 
-          git pull
-          mkdocs gh-deploy --force
-      - name: Add CNAME
+      - name: Upload docs to GitHub Pages
         run: |
           git switch gh-pages
           echo epi.js.org >> CNAME
@@ -58,16 +38,14 @@ jobs:
           git checkout main web/*
           git checkout main .gitignore
           git checkout main demo/*
-      - name: Git configuration
-        run: |
+          git checkout main docs/*
+          mv docs/.vuepress/dist/* vdocs/
+          rm -rf docs/
+          mv vdocs/ docs/
+      - name: Commit docs to GitHub Pages
           git config user.name github-actions
           git config user.email github-actions@github.com
-      - name: Commit Changes
-        continue-on-error: true
-        run: |
           git add .
-          git commit -m "Add CNAME"
+          git commit -m "New docs"
           git push --set-upstream origin gh-pages
-
-          
       
