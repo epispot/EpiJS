@@ -17,5 +17,9 @@ module.exports = {
           ]
         }
       ]
-    }
+    },
+    head: [
+      ['link', { rel: "shortcut icon", href: "https://i.ibb.co/HKt7Bn3/Logo-Makr-4sk-LGO.png"}],
+      ['meta', { name: "description", content: "A disease modelling package for JavaScript."}]
+    ]
   };

@@ -1,6 +1,6 @@
 ---
 home: true
-heroImage: https://camo.githubusercontent.com/aed3551fd6eed87ca40ff18a86e2a14430620809d4048174f6e92698ef5e59fb/68747470733a2f2f6465762d746f2d75706c6f6164732e73332e616d617a6f6e6177732e636f6d2f75706c6f6164732f61727469636c65732f6d65766535633061346c6b7936623676656966392e706e67
+heroImage: https://i.ibb.co/HKt7Bn3/Logo-Makr-4sk-LGO.png
 actionText: Get Started →
 actionLink: /getting-started.md
 features:
