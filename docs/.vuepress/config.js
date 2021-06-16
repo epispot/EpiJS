@@ -3,7 +3,9 @@ module.exports = {
     description: 'A disease modeling package for JS.',
     themeConfig: {
       nav: [
-        { text: 'Documentation', link: '/getting-started' }
+        { text: 'Documentation', link: '/getting-started' },
+        { text: 'Demo', link: '/demo'},
+        { text: 'GitHub', link: 'https://github.com/Quantalabs/EpiJS'}
       ],
       sidebar: [
         {
