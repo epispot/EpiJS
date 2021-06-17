@@ -9,11 +9,18 @@ module.exports = {
       ],
       sidebar: [
         {
-          title: 'EpiJS',
+          title: "Introduction",
           collapsable: false,
           children: [
-            ['getting-started', 'Getting Started'],
-            ['pre', 'Pre']
+            ['getting-started', 'Getting Started']
+          ]
+        },
+        {
+          title: 'Module Docs',
+          collapsable: false,
+          children: [
+            ['pre', 'Pre Module'],
+            ['com', 'Com Module']
           ]
         }
       ]
