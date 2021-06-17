@@ -123,8 +123,8 @@ class Community {
         datasets: []
     }
 
-    m1len = model1.datasets.length
-    m2len = model2.datasets.length
+    let m1len = model1.datasets.length
+    let m2len = model2.datasets.length
 
     for (var x = 0; x < days; x++) {
         data.labels.push("Day "+(x+1).toString())
@@ -135,11 +135,11 @@ class Community {
         data.datasets[y].label = model1.datasets[y].label+" ("+m1name+")"  
         data.datasets[y].borderColor = model1.datasets[y].borderColor
     }
-    for (var y = m1len; y < m2len+m1len; y++) {
-        data.datasets[y] = {}
-        data.datasets[y].data = model2.datasets[y-m1len].data
-        data.datasets[y].label = model2.datasets[y-m1len].label+" ("+m2name+")"
-        data.datasets[y].borderColor = model2.datasets[y-m1len].borderColor
+    for (var z = m1len; z < m2len+m1len; z++) {
+        data.datasets[z] = {}
+        data.datasets[z].data = model2.datasets[z-m1len].data
+        data.datasets[z].label = model2.datasets[z-m1len].label+" ("+m2name+")"
+        data.datasets[z].borderColor = model2.datasets[z-m1len].borderColor
     }
     
     let compareChart = new Chart(c, {
