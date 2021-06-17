@@ -4,27 +4,24 @@
 
 <p align="center">
   <a href="https://github.com/Quantalabs/epijs/graphs/commit-activity" target="_blank">
-    <img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" />
+    <img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-yes-green.svg?style=flat-square" />
   </a>
   <a href="https://github.com/Quantalabs/epijs/blob/main/LICENSE" target="_blank">
-    <img alt="License: GPL--3.0" src="https://img.shields.io/github/license/Quantalabs/EpiJS" />
+    <img alt="License: GPL--3.0" src="https://img.shields.io/github/license/Quantalabs/EpiJS?style=flat-square" />
   </a>
   <a href="https://npmjs.org/package/@quantalabs/epijs" target="_blank">
-    <img alt="npm version" src="https://img.shields.io/npm/v/@quantalabs/epijs">
-    <img alt="npm downloads" src="https://img.shields.io/npm/dt/@quantalabs/epijs?color=%232c5fde&label=npm%20downloads">
+    <img alt="npm version" src="https://img.shields.io/npm/v/@quantalabs/epijs?style=flat-square">
+    <img alt="npm downloads" src="https://img.shields.io/npm/dt/@quantalabs/epijs?color=%232c5fde&label=npm%20downloads&style=flat-square">
   </a>
   <a href="https://github.com/Quantalabs/epijs/issues/" target="_blank">
-    <img alt="GitHub issues" src="https://img.shields.io/github/issues/quantalabs/epijs">
+    <img alt="GitHub issues" src="https://img.shields.io/github/issues/quantalabs/epijs?style=flat-square">
   </a>
   <a href="https://github.com/Quantalabs/EpiJS/pulls" target="_blank">
-    <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/Quantalabs/epijs">
+    <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/Quantalabs/epijs?style=flat-square">
   </a>
   <a href="https://quantalabs.github.io/EpiJS/">
-    <img alt="GitHub Pages deployments" src="https://img.shields.io/github/deployments/quantalabs/epijs/github-pages?label=GitHub%20Pages%20Deployment">
+    <img alt="GitHub Pages deployments" src="https://img.shields.io/github/deployments/quantalabs/epijs/github-pages?label=GitHub%20Pages%20Deployment&style=flat-square">
   </a>
-  <a href="https://deepsource.io/gh/Quantalabs/EpiJS/?ref=repository-badge" target="_blank"><img alt="DeepSource" title="DeepSource" src="https://deepsource.io/gh/Quantalabs/EpiJS.svg/?label=active+issues"/></a>
-  <a href="https://www.jsdelivr.com/package/gh/quantalabs/epijs"><img src="https://data.jsdelivr.com/v1/package/gh/quantalabs/epijs/badge" alt=""></a>
-  <a href="https://zenodo.org/badge/latestdoi/344988297"><img src="https://zenodo.org/badge/344988297.svg" alt="DOI"></a>
   <blockquote align="center">
   <p>A disease modeling package.</p>
   </blockquote>
