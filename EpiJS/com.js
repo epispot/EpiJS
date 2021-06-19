@@ -25,13 +25,11 @@ class Virus {
      *
      *      let covid = new Virus(5.7, 2.1/100)
      */
-    constructor (rnaught, u, h=0, a=0, d=0, dh=0) {
+    constructor (rnaught, u, a=0, d=0) {
         this.rnaught = rnaught
         this.u = u
-        this.h = h
         this.a = a
         this.d = d
-        this.dh = dh
     }
 
 }
@@ -172,7 +170,7 @@ class Community {
           data.datasets[1].data.push(data.datasets[1].data[x]+((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)-(disease.a*data.datasets[1].data[x]))
           data.datasets[2].data.push(data.datasets[2].data[x]+(disease.a*data.datasets[1].data[x])-disease.u*data.datasets[2].data[x]-disease.d*data.datasets[2].data[x])
           data.datasets[3].data.push(data.datasets[3].data[x]+disease.u*data.datasets[2].data[x])
-          data.datasets[4].data.push(data.datasets[4].data[x]+disease.d*data.datasets[2].data[x])
+          data.datasets[4].data.push(data.datasets[4].data[x]+(disease.d*data.datasets[2].data[x]))
       }
 
       return data
