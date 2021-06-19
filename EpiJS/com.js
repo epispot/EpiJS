@@ -125,15 +125,46 @@ class Community {
         for(let x = 0; x<time; x++){
             data.datasets[0].data.push(data.datasets[0].data[x]-((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop))
             data.datasets[1].data.push(data.datasets[1].data[x]+((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)-(disease.a*data.datasets[1].data[x]))
-            data.datasets[2].data.push(data.datasets[1].data[x]+(disease.a*data.datasets[1].data[x])-disease.u*data.datasets[1].data[x])
-            data.datasets[3].data.push(data.datasets[2].data[x]+disease.u*data.datasets[1].data[x])
+            data.datasets[2].data.push(data.datasets[2].data[x]+(disease.a*data.datasets[1].data[x])-disease.u*data.datasets[2].data[x])
+            data.datasets[3].data.push(data.datasets[3].data[x]+disease.u*data.datasets[2].data[x])
         }
 
         return data
     }
 
     seird (disease, time) {
+      let data = {
+          datasets: [{
+              data: [this.s],
+              label: "Suseptible",
+          },
+          {
+              data: [this.i],
+              label: "Exposed",
+          },
+          {
+              data: [0],
+              label: "Infected",
+          },
+          {
+              data: [this.r],
+              label: "Recovered",
+          },
+          {
+              data: [0],
+              label: "Dead",
+          }]
+      }
 
+      for(let x = 0; x<time; x++){
+          data.datasets[0].data.push(data.datasets[0].data[x]-((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop))
+          data.datasets[1].data.push(data.datasets[1].data[x]+((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)-(disease.a*data.datasets[1].data[x]))
+          data.datasets[2].data.push(data.datasets[2].data[x]+(disease.a*data.datasets[1].data[x])-disease.u*data.datasets[2].data[x]-disease.d*data.datasets[2].data[x])
+          data.datasets[3].data.push(data.datasets[3].data[x]+disease.u*data.datasets[2].data[x])
+          data.datasets[4].data.push(data.datasets[4].data[x]+disease.d*data.datasets[2].data[x])
+      }
+
+      return data
     }
 
     seihrd (disease, time) {
