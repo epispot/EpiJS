@@ -166,10 +166,6 @@ class Community {
 
       return data
     }
-
-    seihrd (disease, time) {
-
-    }
 }
 
 /**
