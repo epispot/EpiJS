@@ -18,26 +18,4 @@ let anothervirus = new Virus(2, 1/10)
 let sirout = community.sir(covid, 100)
 let sirout2 = community.sir(anothervirus, 100)
 
-let sirChart = new Chart("c1", {
-    type: 'line',
-    data: sirout,
-    options: {
-      title: {
-        display: true,
-        text: 'Total Cases'
-      }
-    }      
-});
-
-let sirChart2 = new Chart("c2", {
-  type: 'line',
-  data: sirout,
-  options: {
-    title: {
-      display: true,
-      text: 'Total Cases'
-    }
-  }      
-});
-
 compare("compare", sirout, sirout2, "1", "2", 100)

@@ -19,12 +19,13 @@ class Virus {
      * @param {Number} u The disease's recovery rate
      * @param {Number} h The disease's hospitalization rate
      * @param {Number} a The disease's incubation period
-     * @param {Number} d The disease's death rate
+     * @param {Number} d The disease's death rate (for infected population)
+     * @param {Number} dh The disease's death rate (for hospitalized population)
      * @example
      * 
      *      let covid = new Virus(5.7, 2.1/100)
      */
-    constructor (rnaught, u, h=0, a=0, d=0) {
+    constructor (rnaught, u, h=0, a=0, d=0, dh=0) {
         this.rnaught = rnaught
         this.u = u
         this.h = h
@@ -66,21 +67,17 @@ class Community {
      */
     sir (disease, time) {
         let data = {
-            labels: [],
             datasets: [{ 
                 data: [this.s],
                 label: "Suseptible",
-                borderColor: "#"+Math.floor(Math.random()*16777215).toString(16)
             },
             { 
                 data: [this.i],
                 label: "Infected",
-                borderColor: "#"+Math.floor(Math.random()*16777215).toString(16),
             },
             { 
                 data: [this.r],
                 label: "Recovered",
-                borderColor: "#"+Math.floor(Math.random()*16777215).toString(16),
             }]
         }
 
@@ -88,7 +85,6 @@ class Community {
             data.datasets[0].data.push(data.datasets[0].data[x]-((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop))
             data.datasets[1].data.push(data.datasets[1].data[x]+((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)-disease.u*data.datasets[1].data[x])
             data.datasets[2].data.push(data.datasets[2].data[x]+disease.u*data.datasets[1].data[x])
-            data.labels.push("Day " +(x+1).toString())
         }
         
         return data
@@ -133,13 +129,13 @@ class Community {
         data.datasets[y] = {}
         data.datasets[y].data = model1.datasets[y].data
         data.datasets[y].label = model1.datasets[y].label+" ("+m1name+")"  
-        data.datasets[y].borderColor = model1.datasets[y].borderColor
+        data.datasets[y].borderColor = "#"+Math.floor(Math.random()*16777215).toString(16)
     }
     for (var z = m1len; z < m2len+m1len; z++) {
         data.datasets[z] = {}
         data.datasets[z].data = model2.datasets[z-m1len].data
         data.datasets[z].label = model2.datasets[z-m1len].label+" ("+m2name+")"
-        data.datasets[z].borderColor = model2.datasets[z-m1len].borderColor
+        data.datasets[z].borderColor = "#"+Math.floor(Math.random()*16777215).toString(16)
     }
     
     let compareChart = new Chart(c, {
