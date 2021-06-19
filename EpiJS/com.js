@@ -56,7 +56,7 @@ class Community {
     }
 
     /**
-     *
+     * SIR model for the community
      * @param {Number} disease A virus class. The virus to infect the community with and model for.
      * @param {Number} time Time to predict for.
      * @example
@@ -92,7 +92,7 @@ class Community {
     }
 
     /**
-     *
+     * SEIR model for the community
      * @param {Number} disease A virus class. The virus to infect the community with and model for.
      * @param {Number} time Time to predict for.
      * @example
@@ -100,7 +100,7 @@ class Community {
      *      let NewYorkCity = new Community(8419000, 300, 8418700)
      *      let covid = new Virus(5.7, 2.1/100, a=1/8)
      *
-     *      outbreak = NewYorkCity.sir(covid, 100)
+     *      outbreak = NewYorkCity.seir(covid, 100)
      */
      seir (disease, time) {
         let data = {
@@ -132,6 +132,17 @@ class Community {
         return data
     }
 
+    /**
+     * SEIRD model for the community
+     * @param {Number} disease A virus class. The virus to infect the community with and model for.
+     * @param {Number} time Time to predict for.
+     * @example
+     *
+     *      let NewYorkCity = new Community(8419000, 300, 8418700)
+     *      let covid = new Virus(5.7, 2.1/100, a=1/8, d=1/100)
+     *
+     *      outbreak = NewYorkCity.seird(covid, 100)
+     */
     seird (disease, time) {
       let data = {
           datasets: [{
