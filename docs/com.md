@@ -17,20 +17,20 @@ title: EpiJS Module - Com
         *   [Parameters][10]
         *   [Examples][11]
     *   [seird][12]
-# Com
+        *   [Parameters][13]
         *   [Examples][14]
 *   [compare][15]
     *   [Parameters][16]
     *   [Examples][17]
-```javascript
-## chart
-```
+
+# Com
+
 EpiJS module for representing communities
 
 Import it with:
-
+```javascript
        const com = require('@quantalabs/epijs').com
-
+```
 ## Virus
 
 Class representing a virus, which can infect a community.

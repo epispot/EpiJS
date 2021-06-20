@@ -13,10 +13,10 @@ with open('../docs/pre.md', 'w') as predoc:
 
 with open('../docs/com.md', 'r') as comdoc:
   doc = comdoc.readlines()
-  doc[16] = '# Com\n'
+  doc[22] = '# Com\n'
   doc[4] = '\n'
-  doc[21] = '```javascript\n'
-  doc[23] = '```\n'
+  doc[27] = '```javascript\n'
+  doc[29] = '```\n'
   doc1 = ['---\n', 'title: EpiJS Module - Com\n', '---\n']
   doc = doc1+doc
 

@@ -25,8 +25,3 @@ epijs.about // General metadata
 epijs.version // Your current package version
 ```
 
-## The `Pre` Module
-
-This is the only module EpiJs has currently, and you can use pre-compiled models 
-to generate graphs and charts. To check out the functions, see the `pre` docs 
-[here](pre.md)
