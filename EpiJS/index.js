@@ -1,5 +1,7 @@
 const pre = require('./pre')
 const com = require('./com')
+const comp = require('./comp')
+const model = require('./model')
 const package = require('../package.json');
 
 // Package info
@@ -11,3 +13,5 @@ exports.pre = pre
 exports.about = 'EpiJS \n'+description+'\n----------------------------------\n By @Quantalabs \n GitHub - https://github.com/Quantalabs/EpiJS \n Version - '+ version
 exports.version = version
 exports.com = com
+exports.comp = comp
+exports.model = model

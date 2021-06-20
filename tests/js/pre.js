@@ -24,8 +24,24 @@ let seirout2 = community.seir(anothervirus, 100)
 let seirdout = community.seird(covid, 200)
 let seirdout2 = community.seird(anothervirus, 200)
 
-console.log(seirdout)
-
 compare("sir_compare", sirout, sirout2, "1", "2", 100)
 compare("seir_compare", seirout, seirout2, "1", "2", 100)
 compare("seird_compare", seirdout, seirdout2, "1", "2", 200)
+
+
+let susceptible = new Idiom("S-(B*S*I/p)");
+let infected = new Idiom("I+(B*S*I/p)-(u*I)");
+let recovered = new Idiom("R+(u*I)");
+
+let key = {
+  "S": 10000,
+  "B": 0.3,
+  "I": 100,
+  "R": 0,
+  "p": 10100,
+  "u": 0.2
+};
+
+let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
+var data = sirm.get_data(100)
+console.log(data);
