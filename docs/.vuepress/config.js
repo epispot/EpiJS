@@ -20,7 +20,9 @@ module.exports = {
           collapsable: false,
           children: [
             ['pre', 'Pre Module'],
-            ['com', 'Com Module']
+            ['com', 'Com Module'],
+            ['comp', 'Comp Module'],
+            ['model', 'Model Module']
           ]
         }
       ]

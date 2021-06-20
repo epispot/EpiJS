@@ -18,6 +18,7 @@ class Idiom {
    * @example
    *
    *      let susceptible = new Idiom("S-(B*S*I)")
+   * 
    */
   constructor (equation) {
     this.equation = equation

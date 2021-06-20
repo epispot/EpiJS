@@ -6,36 +6,43 @@ title: EpiJS Module - Com
 ### Table of Contents
 
 
--   [Virus][2]
-    -   [Parameters][3]
--   [Community][4]
-    -   [Parameters][5]
-    -   [sir][6]
-        -   [Parameters][7]
-        -   [Examples][8]
--   [compare][9]
-    -   [Parameters][10]
-    -   [Examples][11]
-
+*   [Virus][2]
+    *   [Parameters][3]
+*   [Community][4]
+    *   [Parameters][5]
+    *   [sir][6]
+        *   [Parameters][7]
+        *   [Examples][8]
+    *   [seir][9]
+        *   [Parameters][10]
+        *   [Examples][11]
+    *   [seird][12]
 # Com
-
+        *   [Examples][14]
+*   [compare][15]
+    *   [Parameters][16]
+    *   [Examples][17]
+```javascript
+## chart
+```
 EpiJS module for representing communities
 
 Import it with:
-```javascript
+
        const com = require('@quantalabs/epijs').com
-```
+
 ## Virus
 
 Class representing a virus, which can infect a community.
 
 ### Parameters
 
--   `rnaught` **[Number][12]** The disease's R-Naught
--   `u` **[Number][12]** The disease's recovery rate
--   `h` **[Number][12]** The disease's hospitalization rate (optional, default `0`)
--   `a` **[Number][12]** The disease's incubation period (optional, default `0`)
--   `d` **[Number][12]** The disease's death rate (optional, default `0`)
+*   `rnaught` **[Number][18]** The disease's R-Naught
+*   `u` **[Number][18]** The disease's recovery rate
+*   `a` **[Number][18]** The disease's incubation period (optional, default `0`)
+*   `d` **[Number][18]** The disease's death rate (for infected population) (optional, default `0`)
+*   `h` **[Number][18]** The disease's hospitalization rate
+*   `dh` **[Number][18]** The disease's death rate (for hospitalized population)
 
 ## Community
 
@@ -43,16 +50,18 @@ Class representing a community, which can be infected with a disease, and compar
 
 ### Parameters
 
--   `pop` **[Number][12]** The population of the community
--   `i` **[Number][12]** The start infected population of the community.
--   `s` **[Number][12]** The start susceptible population of the community
+*   `pop` **[Number][18]** The population of the community
+*   `i` **[Number][18]** The start infected population of the community.
+*   `s` **[Number][18]** The start susceptible population of the community
 
 ### sir
 
+SIR model for the community
+
 #### Parameters
 
--   `disease` **[Number][12]** A virus class. The virus to infect the community with and model for.
--   `time` **[Number][12]** Time to predict for.
+*   `disease` **[Number][18]** A virus class. The virus to infect the community with and model for.
+*   `time` **[Number][18]** Time to predict for.
 
 #### Examples
 
@@ -63,18 +72,54 @@ let NewYorkCity = new Community(8419000, 300, 8418700)
      outbreak = NewYorkCity.sir(covid, 100)
 ```
 
+### seir
+
+SEIR model for the community
+
+#### Parameters
+
+*   `disease` **[Number][18]** A virus class. The virus to infect the community with and model for.
+*   `time` **[Number][18]** Time to predict for.
+
+#### Examples
+
+```javascript
+let NewYorkCity = new Community(8419000, 300, 8418700)
+     let covid = new Virus(5.7, 2.1/100, a=1/8)
+
+     outbreak = NewYorkCity.seir(covid, 100)
+```
+
+### seird
+
+SEIRD model for the community
+
+#### Parameters
+
+*   `disease` **[Number][18]** A virus class. The virus to infect the community with and model for.
+*   `time` **[Number][18]** Time to predict for.
+
+#### Examples
+
+```javascript
+let NewYorkCity = new Community(8419000, 300, 8418700)
+     let covid = new Virus(5.7, 2.1/100, a=1/8, d=1/100)
+
+     outbreak = NewYorkCity.seird(covid, 100)
+```
+
 ## compare
 
 Compare's two different outbreaks, communities, or anything else.
 
 ### Parameters
 
--   `c` **[HTMLCanvasElement][13]** The canvas element
--   `model1` **[Function][14]** The first model to compare.
--   `model2` **[Function][14]** The second model to compare.
--   `m1name` **[String][15]** The name of the first model
--   `m2name` **[String][15]** The name of the second model
--   `days` **[Number][12]** The total amount of days to compare for.
+*   `c` **[HTMLCanvasElement][19]** The canvas element
+*   `model1` **[Function][20]** The first model to compare.
+*   `model2` **[Function][20]** The second model to compare.
+*   `m1name` **[String][21]** The name of the first model
+*   `m2name` **[String][21]** The name of the second model
+*   `days` **[Number][18]** The total amount of days to compare for.
 
 ### Examples
 
@@ -82,7 +127,7 @@ Compare's two different outbreaks, communities, or anything else.
 let NewYorkCity = new Community(8419000, 300, 8418700)
      let covid = new Virus(5.7, 2.1/100)
      let covid_variant = new Virus(5, 4/100)
-     
+
      let chart = document.getElementById('model')
 
      covid_outbreak = NewYorkCity.sir(covid, 100)
@@ -107,16 +152,28 @@ let NewYorkCity = new Community(8419000, 300, 8418700)
 
 [8]: #examples
 
-[9]: #compare
+[9]: #seir
 
 [10]: #parameters-3
 
 [11]: #examples-1
 
-[12]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+[12]: #seird
 
-[13]: https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement
+[13]: #parameters-4
 
-[14]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+[14]: #examples-2
 
-[15]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+[15]: #compare
+
+[16]: #parameters-5
+
+[17]: #examples-3
+
+[18]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+
+[19]: https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement
+
+[20]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+
+[21]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
