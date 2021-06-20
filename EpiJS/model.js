@@ -59,15 +59,15 @@ class Model {
    *
    *      model.get_data(100) // Get data for 100 days.
    */
-   get_data (time) {
+   get_data (time) { // skipcq: JS-0045
      key = this.key
 
      for (var x = 0; x<time; x++) {
-       var y;
+       var y; // skipcq: JS-0119
        for (y in this.compartments) {
          key[this.compartments[y][1]] = this.compartments[y][0].get_data(key)
        }
-       if (x == time-1) {
+       if (x === time-1) {
          var return_val = {}
          for (y in this.compartments) {
            return_val[this.compartments[y][1]] = key[this.compartments[y][1]]

@@ -28,13 +28,13 @@ class Idiom {
 
     var x = 0;
     while (x<parsed.length) {
-      if (parsed[x] == " ") {
+      if (parsed[x] === " ") {
         parsed.splice(x, 1)
       }
       x++
     }
 
-    var y;
+    var y; // skipcq: JS-0119
     for (y in parsed) {
       if (parsed[y] in key) {
         parsed.splice(y, 1, key[parsed[y]])
