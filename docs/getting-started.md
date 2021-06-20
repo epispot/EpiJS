@@ -13,8 +13,9 @@ npm install epijs
 ```
 Or use it in your webpage:
 ```HTML
-<script src="https://cdn.jsdelivr.net/gh/Quantalabs/EpiJS/web/pre.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"> <!-- Chart.js is required. -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"></script> <!-- Chart.js is required. -->
+<script src="https://cdn.jsdelivr.net/npm/mathjs@9.4.2/lib/browser/math.min.js"></script> <!-- Math.js is required -->
+<script src="https://cdn.jsdelivr.net/gh/Quantalabs/EpiJS/web/index.min.js"></script>
 ```
 
 ## Metadata
