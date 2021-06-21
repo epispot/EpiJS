@@ -8,41 +8,49 @@ title: EpiJS Module - Com
 
 *   [Virus][2]
     *   [Parameters][3]
-*   [Community][4]
-    *   [Parameters][5]
-    *   [sir][6]
-        *   [Parameters][7]
-        *   [Examples][8]
-    *   [seir][9]
-        *   [Parameters][10]
-        *   [Examples][11]
-    *   [seird][12]
+    *   [Examples][4]
+*   [Community][5]
+    *   [Parameters][6]
+    *   [Examples][7]
+    *   [sir][8]
+        *   [Parameters][9]
+        *   [Examples][10]
+    *   [seir][11]
+        *   [Parameters][12]
+        *   [Examples][13]
+    *   [seird][14]
+        *   [Parameters][15]
+        *   [Examples][16]
+*   [compare][17]
+    *   [Parameters][18]
+    *   [Examples][19]
+
 # Com
-        *   [Examples][14]
-*   [compare][15]
-    *   [Parameters][16]
-    *   [Examples][17]
-```javascript
-## chart
-```
+
 EpiJS module for representing communities
 
 Import it with:
-
+```javascript
        const com = require('@quantalabs/epijs').com
-
+```
 ## Virus
 
 Class representing a virus, which can infect a community.
 
 ### Parameters
 
-*   `rnaught` **[Number][18]** The disease's R-Naught
-*   `u` **[Number][18]** The disease's recovery rate
-*   `a` **[Number][18]** The disease's incubation period (optional, default `0`)
-*   `d` **[Number][18]** The disease's death rate (for infected population) (optional, default `0`)
-*   `h` **[Number][18]** The disease's hospitalization rate
-*   `dh` **[Number][18]** The disease's death rate (for hospitalized population)
+*   `rnaught` **[Number][20]** The disease's R-Naught
+*   `u` **[Number][20]** The disease's recovery rate
+*   `a` **[Number][20]** The disease's incubation period (optional, default `0`)
+*   `d` **[Number][20]** The disease's death rate (for infected population) (optional, default `0`)
+*   `h` **[Number][20]** The disease's hospitalization rate
+*   `dh` **[Number][20]** The disease's death rate (for hospitalized population)
+
+### Examples
+
+```javascript
+let covid = new Virus(5.7, 2.1/100)
+```
 
 ## Community
 
@@ -50,9 +58,15 @@ Class representing a community, which can be infected with a disease, and compar
 
 ### Parameters
 
-*   `pop` **[Number][18]** The population of the community
-*   `i` **[Number][18]** The start infected population of the community.
-*   `s` **[Number][18]** The start susceptible population of the community
+*   `pop` **[Number][20]** The population of the community
+*   `i` **[Number][20]** The start infected population of the community.
+*   `s` **[Number][20]** The start susceptible population of the community
+
+### Examples
+
+```javascript
+let NewYorkCity = new Community(8419000, 300, 8418700)
+```
 
 ### sir
 
@@ -60,16 +74,16 @@ SIR model for the community
 
 #### Parameters
 
-*   `disease` **[Number][18]** A virus class. The virus to infect the community with and model for.
-*   `time` **[Number][18]** Time to predict for.
+*   `disease` **[Number][20]** A virus class. The virus to infect the community with and model for.
+*   `time` **[Number][20]** Time to predict for.
 
 #### Examples
 
 ```javascript
 let NewYorkCity = new Community(8419000, 300, 8418700)
-     let covid = new Virus(5.7, 2.1/100)
+let covid = new Virus(5.7, 2.1/100)
 
-     outbreak = NewYorkCity.sir(covid, 100)
+outbreak = NewYorkCity.sir(covid, 100)
 ```
 
 ### seir
@@ -78,16 +92,16 @@ SEIR model for the community
 
 #### Parameters
 
-*   `disease` **[Number][18]** A virus class. The virus to infect the community with and model for.
-*   `time` **[Number][18]** Time to predict for.
+*   `disease` **[Number][20]** A virus class. The virus to infect the community with and model for.
+*   `time` **[Number][20]** Time to predict for.
 
 #### Examples
 
 ```javascript
 let NewYorkCity = new Community(8419000, 300, 8418700)
-     let covid = new Virus(5.7, 2.1/100, a=1/8)
+let covid = new Virus(5.7, 2.1/100, a=1/8)
 
-     outbreak = NewYorkCity.seir(covid, 100)
+outbreak = NewYorkCity.seir(covid, 100)
 ```
 
 ### seird
@@ -96,16 +110,16 @@ SEIRD model for the community
 
 #### Parameters
 
-*   `disease` **[Number][18]** A virus class. The virus to infect the community with and model for.
-*   `time` **[Number][18]** Time to predict for.
+*   `disease` **[Number][20]** A virus class. The virus to infect the community with and model for.
+*   `time` **[Number][20]** Time to predict for.
 
 #### Examples
 
 ```javascript
 let NewYorkCity = new Community(8419000, 300, 8418700)
-     let covid = new Virus(5.7, 2.1/100, a=1/8, d=1/100)
+let covid = new Virus(5.7, 2.1/100, a=1/8, d=1/100)
 
-     outbreak = NewYorkCity.seird(covid, 100)
+outbreak = NewYorkCity.seird(covid, 100)
 ```
 
 ## compare
@@ -114,26 +128,26 @@ Compare's two different outbreaks, communities, or anything else.
 
 ### Parameters
 
-*   `c` **[HTMLCanvasElement][19]** The canvas element
-*   `model1` **[Function][20]** The first model to compare.
-*   `model2` **[Function][20]** The second model to compare.
-*   `m1name` **[String][21]** The name of the first model
-*   `m2name` **[String][21]** The name of the second model
-*   `days` **[Number][18]** The total amount of days to compare for.
+*   `c` **[HTMLCanvasElement][21]** The canvas element
+*   `model1` **[Function][22]** The first model to compare.
+*   `model2` **[Function][22]** The second model to compare.
+*   `m1name` **[String][23]** The name of the first model
+*   `m2name` **[String][23]** The name of the second model
+*   `days` **[Number][20]** The total amount of days to compare for.
 
 ### Examples
 
 ```javascript
 let NewYorkCity = new Community(8419000, 300, 8418700)
-     let covid = new Virus(5.7, 2.1/100)
-     let covid_variant = new Virus(5, 4/100)
+let covid = new Virus(5.7, 2.1/100)
+let covid_variant = new Virus(5, 4/100)
 
-     let chart = document.getElementById('model')
+let chart = document.getElementById('model')
 
-     covid_outbreak = NewYorkCity.sir(covid, 100)
-     variant_outbreak = NewYorkCity.sir(covid_variant, 100)
+covid_outbreak = NewYorkCity.sir(covid, 100)
+variant_outbreak = NewYorkCity.sir(covid_variant, 100)
 
-     compare(chart, covid_outbreak, variant_outbreak, "COVID-19", "COVID-19 Variant", 100) // We chose 100 as the amount of days, but it could be 50 or 25, not the lenght of the prediction that was in the model.
+compare(chart, covid_outbreak, variant_outbreak, "COVID-19", "COVID-19 Variant", 100) // We chose 100 as the amount of days, but it could be 50 or 25, not the lenght of the prediction that was in the model.
 ```
 
 [1]: #chart
@@ -142,38 +156,42 @@ let NewYorkCity = new Community(8419000, 300, 8418700)
 
 [3]: #parameters
 
-[4]: #community
+[4]: #examples
 
-[5]: #parameters-1
+[5]: #community
 
-[6]: #sir
+[6]: #parameters-1
 
-[7]: #parameters-2
+[7]: #examples-1
 
-[8]: #examples
+[8]: #sir
 
-[9]: #seir
+[9]: #parameters-2
 
-[10]: #parameters-3
+[10]: #examples-2
 
-[11]: #examples-1
+[11]: #seir
 
-[12]: #seird
+[12]: #parameters-3
 
-[13]: #parameters-4
+[13]: #examples-3
 
-[14]: #examples-2
+[14]: #seird
 
-[15]: #compare
+[15]: #parameters-4
 
-[16]: #parameters-5
+[16]: #examples-4
 
-[17]: #examples-3
+[17]: #compare
 
-[18]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+[18]: #parameters-5
 
-[19]: https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement
+[19]: #examples-5
 
-[20]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+[20]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
 
-[21]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+[21]: https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement
+
+[22]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+
+[23]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String

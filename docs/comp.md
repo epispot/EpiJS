@@ -8,6 +8,7 @@ title: EpiJS Module - Comp
 
 *   [Idiom][2]
     *   [Parameters][3]
+    *   [Examples][4]
 
 # Comp
 EpiJS module for creating compartments, which can be combined into models.
@@ -22,7 +23,13 @@ Class for custom compartments.
 
 ### Parameters
 
-*   `equation` **[String][4]** The equation for the compartment. This defines what to run to get a new value for the next day in the model. Use any variable in the equation (1 char max), but when making this a model, you need to define this in the key.
+*   `equation` **[String][5]** The equation for the compartment. This defines what to run to get a new value for the next day in the model. Use any variable in the equation (1 char max), but when making this a model, you need to define this in the key.
+
+### Examples
+
+```javascript
+let susceptible = new Idiom("S-(B*S*I)")
+```
 
 [1]: #math
 
@@ -30,4 +37,6 @@ Class for custom compartments.
 
 [3]: #parameters
 
-[4]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+[4]: #examples
+
+[5]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String

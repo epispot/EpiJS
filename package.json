@@ -6,7 +6,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "docs:dev": "bash scripts/doc.sh",
-        "docs:build": "documentation build EpiJS/pre.js -f md > docs/pre.md && documentation build EpiJS/com.js -f md > docs/com.md && cd scripts && python doc-update.py && cd .. && vuepress build docs"
+        "docs:build": "bash scripts/doc-build.sh"
     },
     "repository": {
         "type": "git",

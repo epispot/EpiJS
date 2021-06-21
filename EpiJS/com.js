@@ -10,21 +10,19 @@
 
 const chart = require('chart.js')
 
-/** Class representing a virus, which can infect a community. */
+/**
+ * Class representing a virus, which can infect a community.
+ * @param {Number} rnaught The disease's R-Naught
+ * @param {Number} u The disease's recovery rate
+ * @param {Number} h The disease's hospitalization rate
+ * @param {Number} a The disease's incubation period
+ * @param {Number} d The disease's death rate (for infected population)
+ * @param {Number} dh The disease's death rate (for hospitalized population)
+ * @example
+ *
+ *      let covid = new Virus(5.7, 2.1/100)
+ */
 class Virus {
-
-    /**
-     * Create a virus
-     * @param {Number} rnaught The disease's R-Naught
-     * @param {Number} u The disease's recovery rate
-     * @param {Number} h The disease's hospitalization rate
-     * @param {Number} a The disease's incubation period
-     * @param {Number} d The disease's death rate (for infected population)
-     * @param {Number} dh The disease's death rate (for hospitalized population)
-     * @example
-     *
-     *      let covid = new Virus(5.7, 2.1/100)
-     */
     constructor (rnaught, u, a=0, d=0) {
         this.rnaught = rnaught
         this.u = u
@@ -34,18 +32,16 @@ class Virus {
 
 }
 
-/** Class representing a community, which can be infected with a disease, and compared to other communities. */
+/**
+ * Class representing a community, which can be infected with a disease, and compared to other communities.
+ * @param {Number} pop The population of the community
+ * @param {Number} i The start infected population of the community.
+ * @param {Number} s The start susceptible population of the community
+ * @example
+ *
+ *      let NewYorkCity = new Community(8419000, 300, 8418700)
+ */
 class Community {
-
-    /**
-     * Create a community.
-     * @param {Number} pop The population of the community
-     * @param {Number} i The start infected population of the community.
-     * @param {Number} s The start susceptible population of the community
-     * @example
-     *
-     *      let NewYorkCity = new Community(8419000, 300, 8418700)
-     */
     constructor (pop, i, s) {
         this.pop = pop
         this.i = i
@@ -60,9 +56,9 @@ class Community {
      * @example
      *
      *      let NewYorkCity = new Community(8419000, 300, 8418700)
-     *      let covid = new Virus(5.7, 2.1/100)
+     *let covid = new Virus(5.7, 2.1/100)
      *
-     *      outbreak = NewYorkCity.sir(covid, 100)
+     *outbreak = NewYorkCity.sir(covid, 100)
      */
     sir (disease, time) {
         let data = {
@@ -96,9 +92,9 @@ class Community {
      * @example
      *
      *      let NewYorkCity = new Community(8419000, 300, 8418700)
-     *      let covid = new Virus(5.7, 2.1/100, a=1/8)
+     *let covid = new Virus(5.7, 2.1/100, a=1/8)
      *
-     *      outbreak = NewYorkCity.seir(covid, 100)
+     *outbreak = NewYorkCity.seir(covid, 100)
      */
      seir (disease, time) {
         let data = {
@@ -137,9 +133,9 @@ class Community {
      * @example
      *
      *      let NewYorkCity = new Community(8419000, 300, 8418700)
-     *      let covid = new Virus(5.7, 2.1/100, a=1/8, d=1/100)
+     *let covid = new Virus(5.7, 2.1/100, a=1/8, d=1/100)
      *
-     *      outbreak = NewYorkCity.seird(covid, 100)
+     *outbreak = NewYorkCity.seird(covid, 100)
      */
     seird (disease, time) {
       let data = {
@@ -188,15 +184,15 @@ class Community {
  * @example
  *
  *      let NewYorkCity = new Community(8419000, 300, 8418700)
- *      let covid = new Virus(5.7, 2.1/100)
- *      let covid_variant = new Virus(5, 4/100)
+ *let covid = new Virus(5.7, 2.1/100)
+ *let covid_variant = new Virus(5, 4/100)
  *
- *      let chart = document.getElementById('model')
+ *let chart = document.getElementById('model')
  *
- *      covid_outbreak = NewYorkCity.sir(covid, 100)
- *      variant_outbreak = NewYorkCity.sir(covid_variant, 100)
+ *covid_outbreak = NewYorkCity.sir(covid, 100)
+ *variant_outbreak = NewYorkCity.sir(covid_variant, 100)
  *
- *      compare(chart, covid_outbreak, variant_outbreak, "COVID-19", "COVID-19 Variant", 100) // We chose 100 as the amount of days, but it could be 50 or 25, not the lenght of the prediction that was in the model.
+ *compare(chart, covid_outbreak, variant_outbreak, "COVID-19", "COVID-19 Variant", 100) // We chose 100 as the amount of days, but it could be 50 or 25, not the lenght of the prediction that was in the model.
  *
  */
  function compare(c, model1, model2, m1name, m2name, days) {

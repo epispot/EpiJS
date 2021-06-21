@@ -43,8 +43,9 @@ const epijs = require("@quantalabs/epijs")
 
 Or in your website:
 ```html
-<script src="https://cdn.jsdelivr.net/combine/gh/Quantalabs/EpiJS@1.3.0/web/com.min.js,gh/Quantalabs/EpiJS@1.3.0/web/comp.min.js,gh/Quantalabs/EpiJS@1.3.0/web/model.min.js,gh/Quantalabs/EpiJS@1.3.0/web/pre.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"> <!-- Chart.js is required. -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"></script> <!-- Chart.js is required. -->
+<script src="https://cdn.jsdelivr.net/npm/mathjs@9.4.2/lib/browser/math.min.js"></script> <!-- Math.js is required -->
+<script src="https://cdn.jsdelivr.net/gh/Quantalabs/EpiJS/web/index.min.js"></script>
 ```
 
 Or get the latest version from git:

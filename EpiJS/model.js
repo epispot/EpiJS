@@ -7,31 +7,30 @@
  * ```
  */
 
-/** Create a model. **/
+/**
+ * Create a model.
+ * @param {Array} compartments Compartments in the model. Each should be a list, with the first value being the compartment, and the second being it's start value in the key.
+ * @param {Object} key The key of values for any variable used in the equation. If you use any variable which represents the population of a compartment, add the starting value into the key.
+ * @example
+ *
+ *      let susceptible = new Idiom("S-(B*S*I/p)");
+ *let infected = new Idiom("I+(B*S*I/p)-(u*I)");
+ *let recovered = new Idiom("R+(u*I)");
+ *
+ *let key = {
+ *  "S": 10000,
+ *  "B": 0.3,
+ *  "I": 100,
+ *  "R": 0,
+ *  "p": 10100,
+ *  "u": 0.2
+ *};
+ *
+ *let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
+ *
+ */
 class Model {
 
-  /**
-   * Create a custom compartment.
-   * @param {Array} compartments Compartments in the model. Each should be a list, with the first value being the compartment, and the second being it's start value in the key.
-   * @param {Object} key The key of values for any variable used in the equation. If you use any variable which represents the population of a compartment, add the starting value into the key.
-   * @example
-   *
-   *      let susceptible = new Idiom("S-(B*S*I/p)");
-   *      let infected = new Idiom("I+(B*S*I/p)-(u*I)");
-   *      let recovered = new Idiom("R+(u*I)");
-   *
-   *      let key = {
-   *        "S": 10000,
-   *        "B": 0.3,
-   *        "I": 100,
-   *        "R": 0,
-   *        "p": 10100,
-   *        "u": 0.2
-   *      };
-   *
-   *      let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
-   *
-   */
   constructor(compartments, key) {
     this.compartments = compartments
     this.key = key
@@ -43,21 +42,21 @@ class Model {
    * @example
    *
    *      let susceptible = new Idiom("S-(B*S*I/p)");
-   *      let infected = new Idiom("I+(B*S*I/p)-(u*I)");
-   *      let recovered = new Idiom("R+(u*I)");
+   *let infected = new Idiom("I+(B*S*I/p)-(u*I)");
+   *let recovered = new Idiom("R+(u*I)");
    *
-   *      let key = {
-   *        "S": 10000,
-   *        "B": 0.3,
-   *        "I": 100,
-   *        "R": 0,
-   *        "p": 10100,
-   *        "u": 0.2
-   *      };
+   *let key = {
+   *  "S": 10000,
+   *  "B": 0.3,
+   *  "I": 100,
+   *  "R": 0,
+   *  "p": 10100,
+   *  "u": 0.2
+   *};
    *
-   *      let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
+   *let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
    *
-   *      model.get_data(100) // Get data for 100 days.
+   *model.get_data(100) // Get data for 100 days.
    */
    get_data (time) { // skipcq: JS-0045
      key = this.key

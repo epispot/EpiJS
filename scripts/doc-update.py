@@ -13,10 +13,10 @@ with open('../docs/pre.md', 'w') as predoc:
 
 with open('../docs/com.md', 'r') as comdoc:
   doc = comdoc.readlines()
-  doc[16] = '# Com\n'
+  doc[24] = '# Com\n'
   doc[4] = '\n'
-  doc[21] = '```javascript\n'
-  doc[23] = '```\n'
+  doc[29] = '```javascript\n'
+  doc[31] = '```\n'
   doc1 = ['---\n', 'title: EpiJS Module - Com\n', '---\n']
   doc = doc1+doc
 
@@ -25,13 +25,17 @@ with open('../docs/com.md', 'w') as comdoc:
 
 with open('../docs/model.md', 'r') as mdoc:
   doc = mdoc.readlines()
-  doc[15] = '# Model\n'
-  doc[20] = '```javascript\n'
-  doc[22] = '```\n## Model\nCreate custom models from compartments.\n'
-  doc[95] = "[1]: #model-2\n"
+  doc[16] = '# Model\n'
+  doc[21] = '```javascript\n'
+  doc[23] = '```\n'
+  doc[115] = "[1]: #model-2\n"
+  doc[119] = '[3]: #get-data'
   doc1 = ['---\n', 'title: EpiJS Module - Model\n', '---\n']
   
-  for x in range(57, 95):
+  for x in range(24, 58):
+    doc[x] = ''
+  
+  for x in range(7, 14):
     doc[x] = ''
 
   doc = doc1+doc
@@ -43,10 +47,10 @@ with open('../docs/model.md', 'w') as mdoc:
 with open('../docs/comp.md', 'r') as compdoc:
   doc = compdoc.readlines()
   doc[4] = '\n'
-  doc[8] = '# Comp'
-  doc[13] = '```javascript\n'
-  doc[15] = '```\n'
-  doc[18] = 'Class for custom compartments.\n'
+  doc[9] = '# Comp'
+  doc[14] = '```javascript\n'
+  doc[16] = '```\n'
+  doc[19] = 'Class for custom compartments.\n'
   
   doc1 = ['---\n', 'title: EpiJS Module - Comp\n', '---\n']
   doc = doc1+doc

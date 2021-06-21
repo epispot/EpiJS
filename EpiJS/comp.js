@@ -9,17 +9,15 @@
 
 const math = require('mathjs')
 
-/** Class for a custom compartments. **/
+/**
+ * Class for a custom compartments.
+ * @param {String} equation The equation for the compartment. This defines what to run to get a new value for the next day in the model. Use any variable in the equation (1 char max), but when making this a model, you need to define this in the key.
+ * @example
+ *
+ *      let susceptible = new Idiom("S-(B*S*I)")
+ * 
+ */
 class Idiom {
-
-  /**
-   * Create a custom compartment.
-   * @param {String} equation The equation for the compartment. This defines what to run to get a new value for the next day in the model. Use any variable in the equation (1 char max), but when making this a model, you need to define this in the key.
-   * @example
-   *
-   *      let susceptible = new Idiom("S-(B*S*I)")
-   * 
-   */
   constructor (equation) {
     this.equation = equation
   }

@@ -8,13 +8,7 @@ title: EpiJS Module - Model
 *   [Model][1]
     *   [Parameters][2]
     *   [get_data][3]
-        *   [Parameters][4]
-        *   [Examples][5]
-*   [Model][6]
-    *   [Parameters][7]
-    *   [get_data][8]
-        *   [Parameters][9]
-        *   [Examples][10]
+        *   [Examples][11]
 
 # Model
 
@@ -25,11 +19,32 @@ Import it with:
        const comp = require('@quantalabs/epijs').model
 ```
 ## Model
-Create custom models from compartments.
+
+Create a model.
+
 ### Parameters
 
-*   `compartments`  
-*   `key`  
+*   `compartments` **[Array][13]** Compartments in the model. Each should be a list, with the first value being the compartment, and the second being it's start value in the key.
+*   `key` **[Object][14]** The key of values for any variable used in the equation. If you use any variable which represents the population of a compartment, add the starting value into the key.
+
+### Examples
+
+```javascript
+let susceptible = new Idiom("S-(B*S*I/p)");
+let infected = new Idiom("I+(B*S*I/p)-(u*I)");
+let recovered = new Idiom("R+(u*I)");
+
+let key = {
+ "S": 10000,
+ "B": 0.3,
+ "I": 100,
+ "R": 0,
+ "p": 10100,
+ "u": 0.2
+};
+
+let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
+```
 
 ### get_data
 
@@ -37,35 +52,34 @@ Get data for the outbreak.
 
 #### Parameters
 
-*   `time` **[Number][11]** The total time to model.
+*   `time` **[Number][12]** The total time to model.
 
 #### Examples
 
 ```javascript
 let susceptible = new Idiom("S-(B*S*I/p)");
-     let infected = new Idiom("I+(B*S*I/p)-(u*I)");
-     let recovered = new Idiom("R+(u*I)");
+let infected = new Idiom("I+(B*S*I/p)-(u*I)");
+let recovered = new Idiom("R+(u*I)");
 
-     let key = {
-       "S": 10000,
-       "B": 0.3,
-       "I": 100,
-       "R": 0,
-       "p": 10100,
-       "u": 0.2
-     };
+let key = {
+ "S": 10000,
+ "B": 0.3,
+ "I": 100,
+ "R": 0,
+ "p": 10100,
+ "u": 0.2
+};
 
-     let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
+let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
 
-     model.get_data(100) // Get data for 100 days.
+model.get_data(100) // Get data for 100 days.
 ```
 
 [1]: #model-2
 
 [2]: #parameters
 
-[3]: #get_data
-
+[3]: #get-data
 [4]: #parameters-1
 
 [5]: #examples
@@ -74,14 +88,16 @@ let susceptible = new Idiom("S-(B*S*I/p)");
 
 [7]: #parameters-2
 
-[8]: #get_data-1
+[8]: #examples-1
 
-[9]: #parameters-3
+[9]: #get_data-1
 
-[10]: #examples-1
+[10]: #parameters-3
 
-[11]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+[11]: #examples-2
 
-[12]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+[12]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
 
-[13]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+[13]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+
+[14]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
