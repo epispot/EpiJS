@@ -21,11 +21,10 @@ function generate() {
   var rn = document.getElementById("rn").value 
   var t = document.getElementById("time").value
   var u = document.getElementById("u").value
-  var pop = document.getElementById("population").value
+  var pop = Number(spop)+Number(ipop)
   var a = document.getElementById("a").value
-  var d = document.getElementById("d").value
   
   message.innerHTML = "Reload to generate again."
-  seird("model", rn, spop, ipop, t, u, 1/a, d, pop)
+  seir("model", rn, spop, ipop, t, u, 1/a, pop)
 
 }
