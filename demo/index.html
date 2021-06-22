@@ -30,36 +30,28 @@
         <br style="border: none; padding: 0; margin: 0;">
         <h1 style="margin-left: 10vw; margin-top: 20vh;">EpiJS</h1>
         <br style="height: 2vh;">
-        <input min="0" name="S" id='S' type="number" style="width: 3vw; margin-left: 10vw;">
+        <input min="0" name="S" id='S' type="number" step="any" style="width: 3vw; margin-left: 10vw;">
         <label for="S"> &nbsp; Susceptible Population</label>
         <br>
         <br>
-        <input min="0" name="I" id='I' type="number" style="width: 3vw; margin-left: 10vw;">
+        <input min="0" name="I" id='I' type="number" step="any" style="width: 3vw; margin-left: 10vw;">
         <label for="I"> &nbsp; Infected Population</label>
         <br>
         <br>
-        <input min="0" name='rn' id='rn' type="number" style="width: 3vw; margin-left: 10vw;">
+        <input min="0" name='rn' id='rn' type="number" step="any" style="width: 3vw; margin-left: 10vw;">
         <label for="rn"> &nbsp; R-Naught</label>
         <br>
         <br>
-        <input min="0" name='time' id='time' type="number" style="width: 3vw; margin-left: 10vw;">
+        <input min="0" name='time' id='time' type="number" step="any" style="width: 3vw; margin-left: 10vw;">
         <label for='time'>Time (days)</label>
         <br>
         <br>
-        <input min="0" name="u" id="u" type="number" style="width: 3vw; margin-left: 10vw;">
+        <input min="0" name="u" id="u" type="number" step="any" style="width: 3vw; margin-left: 10vw;">
         <label for="u">Recovery Rate (decimal, not percent)</label>
         <br>
         <br>
-        <input min="0" name="a" id="a" type="number" style="width: 3vw; margin-left: 10vw;">
+        <input min="0" name="a" id="a" type="number" step="any" style="width: 3vw; margin-left: 10vw;">
         <label for="a">Incubation period (days)</label>
-        <br>
-        <br>
-        <input min="0" name="d" id="d" type="number" style="width: 3vw; margin-left: 10vw;">
-        <label for="d">Death rate (decimal, not percent)</label>
-        <br>
-        <br>
-        <input min="0" name="population" id="population" type="number" style="width: 3vw; margin-left: 10vw;">
-        <label for="population">Population</label>
         <br>
         <br>
         <br>
@@ -69,7 +61,7 @@
         <button style="margin-left: 10vw;" onclick="generate()">Generate!</button>
         <p style="margin-left: 10vw;" id="message"></p>
     </section>
-    <script src="https://cdn.jsdelivr.net/gh/Quantalabs/EpiJS/web/pre.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/quantalabs/epijs@1.1.0/web/pre.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"></script> <!-- Chart.js is required. -->
     <script src="./assets/javascript/demo.js"></script>
 </body>
