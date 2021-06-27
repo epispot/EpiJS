@@ -1,0 +1,21 @@
+name: Publish GPR only
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish-gpr:
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v1
+              with:
+                  node-version: 12
+                  registry-url: "https://npm.pkg.github.com"
+                  scope: "@quantalabs"
+            - run: npm install
+            - run: echo "registry=https://npm.pkg.github.com/@quantalabs" >> .npmrc
+            - run: npm publish --access=public
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
