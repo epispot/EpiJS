@@ -61,12 +61,14 @@ class Model {
    */
    get_data (time) { // skipcq: JS-0045
      key = this.key
-
+     newkey = key
+     
      for (var x = 0; x<time; x++) {
        var y; // skipcq: JS-0119
        for (y in this.compartments) {
-         key[this.compartments[y][1]] = this.compartments[y][0].get_data(key)
+         newkey[this.compartments[y][1]] = this.compartments[y][0].get_data(key)
        }
+       key = newkey
        if (x === time-1) {
          var return_val = {}
          for (y in this.compartments) {
