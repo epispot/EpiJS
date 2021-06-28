@@ -1,0 +1,26 @@
+name: Publish package to gpr only for certain branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to publish to GPR'     
+        required: true
+
+jobs:
+  publish_gpr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@quantalabs"
+      - name: Git config
+        run:
+          git checkout -b ${{ github.event.inputs.branch }} ## Switch to branch.
+      - run: echo "registry=https://npm.pkg.github.com/@quantalabs" >> .npmrc
+      - run: npm publish --access=public
+        env:
+            NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
