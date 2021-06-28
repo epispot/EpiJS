@@ -4,8 +4,6 @@ on:
   workflow_run:
     types:
       - completed
-    workflows:
-      - 'Integrate'
 
 jobs:
   merge-me:
