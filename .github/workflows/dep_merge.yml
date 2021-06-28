@@ -4,6 +4,8 @@ on:
   workflow_run:
     types:
       - completed
+    workflows:
+      - 'CodeQL / Analyze (javascript) (pull_request)'
 
 jobs:
   merge-me:
