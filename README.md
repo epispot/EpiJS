@@ -71,6 +71,7 @@ SEIRD Model: \
 * Github: [@Quantalabs](https://github.com/Quantalabs)
 
 ## 🤝 Contributing
+<a href="https://open.vscode.dev/Quantalabs/EpiJS"><img src="https://open.vscode.dev/badges/open-in-vscode.svg" alt="Open in Visual Studio Code"></a>
 
 Contributions, issues and feature requests are welcome!<br />Feel free to check [issues page](https://github.com/Quantalabs/epijs/issues). You can also take a look at the [contributing guide](https://github.com/Quantalabs/epijs/blob/master/CONTRIBUTING.md).
 
