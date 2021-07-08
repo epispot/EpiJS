@@ -171,6 +171,76 @@ class Community {
 
       return data
     }
+
+    /** 
+     * Custom model for the community
+     * @param {Array} compartments The compartments for the model. Pass in as an array with sub arrays of the form [compartment, name in key].
+     *      Note that the 'name in key' is a string with the same value that is stored in your extra key, otherwise it should be the same name that we store it as. You can find these names below.
+     *         
+     *         - Susceptible - stored as 'S'
+     *         - Infected - stored as 'I'
+     *         - Recovered - stored as 'R'
+     *
+     *      Make sure that you use the same names that are stored in the key in the equations for the compartments. These values are found from parameters passed into the virus class and the community class.
+     * @param {Number} time The time to predict for.
+     * @param virus The virus class to infect the community with.
+     * @param {Object} extrakey Any extra parameters for the compartments equations.
+     *      We already have the following parameters:
+     * 
+     *        - Population - stored as 'p' in our key.
+     *        - Susceptible Population - stored as 'S' in our key.
+     *        - R-naught - stored as 'rn' in our key.
+     *        - Recovery rate - stored as 'u' in our key.
+     *        - Recovered - stored as 'R' in our key.
+     *        - Infected - stored as 'I' in our key.
+     *        - Death Rate - stored as 'd' in our key.
+     *        - Incubation Period - stored as 'a' in our key.
+     * 
+     * @example
+     * 
+     *     let susceptible = new Idiom("S-(B*S*I/p)");
+     *let infected = new Idiom("I+(B*S*I/p)-(u*I)");
+     *let recovered = new Idiom("R+(u*I)");
+     * 
+     *let NewYorkCity = new Community(8419000, 300, 8418700)
+     *let covid = new Virus(5.7, 2.1/100, a=1/8, d=1/100)
+     * 
+     *outbreak = NewYorkCity.custom([[susceptible, 'S'], [infected, 'I'], [recovered, 'R']], {B: covid.rnaught*covid.u})
+     */
+    custom(compartments, time, virus, extrakey={}) {
+        key = Object.assign({
+            S: this.s,
+            I: this.i,
+            R: this.r,
+            rn: virus.rnaught,
+            u: virus.u,
+            a: virus.a,
+            d: virus.d,
+            p: this.pop,
+        }, extrakey)
+
+        let data = {
+            datasets: []
+        }
+
+        // Add the compartments to data.datasets
+        for (let x = 0; x < compartments.length; x++) {
+            data.datasets.push({
+                data: [],
+                label: compartments[x].id
+            })
+        }
+
+        // Push compartments[x][0].get_data(y) for y in range(time)
+        for (let x = 0; x < compartments.length; x++) {
+            for (let y = 0; y < time; y++) {
+                data.datasets[x].data.push(compartments[x][0].get_data(y))
+                key[compartments[x][1]] = compartments[x][0].get_data(y)
+            }
+        }
+        
+        return data
+    }
 }
 
 /**
