@@ -208,7 +208,18 @@ class Community {
      *outbreak = NewYorkCity.custom([[susceptible, 'S'], [infected, 'I'], [recovered, 'R']], {B: covid.rnaught*covid.u})
      */
     custom(compartments, time, virus, extrakey={}) {
-        key = Object.assign({
+        let key = Object.assign({
+            S: this.s,
+            I: this.i,
+            R: this.r,
+            rn: virus.rnaught,
+            u: virus.u,
+            a: virus.a,
+            d: virus.d,
+            p: this.pop,
+        }, extrakey)
+        
+        let newkey = Object.assign({
             S: this.s,
             I: this.i,
             R: this.r,
@@ -227,16 +238,17 @@ class Community {
         for (let x = 0; x < compartments.length; x++) {
             data.datasets.push({
                 data: [],
-                label: compartments[x].id
+                label: compartments[x][1]
             })
         }
 
         // Push compartments[x][0].get_data(y) for y in range(time)
-        for (let x = 0; x < compartments.length; x++) {
-            for (let y = 0; y < time; y++) {
-                data.datasets[x].data.push(compartments[x][0].get_data(y))
-                key[compartments[x][1]] = compartments[x][0].get_data(y)
+        for (let y = 0; y < time; y++) {
+            for (let x = 0; x < compartments.length; x++) {
+                data.datasets[x].data.push(compartments[x][0].get_data(key))
+                newkey[compartments[x][1]] = compartments[x][0].get_data(key)
             }
+            key = newkey
         }
         
         return data
