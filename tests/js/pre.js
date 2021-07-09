@@ -45,3 +45,9 @@ let key = {
 let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
 var data = sirm.get_data(100)
 console.log(data);
+
+NewYorkCity = new Community(8419000, 300, 8418700)
+covid = new Virus(5.7, 2.1/100)
+
+let newoutbreak = NewYorkCity.custom([[susceptible, "S"], [infected, "I"], [recovered, "R"]], 100, covid, {B: covid.rnaught*covid.u})
+console.log(newoutbreak)
