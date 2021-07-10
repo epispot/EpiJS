@@ -28,5 +28,26 @@
     <script src="../web/model.min.js"></script>
     <script src="js/chart.min.js"></script>
     <script src="js/pre.js"></script>
+
+    <!-- Testing browserify code -->
+    <script src="../web/index.min.js"></script>
+    <script>
+        susceptible = new EpiJS.comp.Idiom("S-(B*S*I/p)");
+        infected = new EpiJS.comp.Idiom("I+(B*S*I/p)-(u*I)");
+        recovered = new EpiJS.comp.Idiom("R+(u*I)")
+
+        key = {
+            "S": 10000,
+            "B": 0.3,
+            "I": 100,
+            "R": 0,
+            "p": 10100,
+            "u": 0.2
+        };
+
+        sirm = new EpiJS.model.Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
+        data = sirm.get_data(100)
+        console.log(data);
+    </script>
 </body>
 </html>
