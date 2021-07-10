@@ -40,6 +40,9 @@ On the web:
 - Stochastic Modelling ([#37](https://github.com/Quantalabs/EpiJS/issues/37))
 - Pre-built customizable compartments ([#28](https://github.com/Quantalabs/EpiJS/issues/28))
 ## Contributing
+
+<a href="https://open.vscode.dev/Quantalabs/EpiJS"><img src="https://open.vscode.dev/badges/open-in-vscode.svg" alt="Open in Visual Studio Code"></a>
+
 Clone the repo:
 ```sh
 git clone https://github.com/Quantalabs/epijs.git 

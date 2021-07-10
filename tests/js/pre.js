@@ -45,3 +45,13 @@ let key = {
 let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
 var data = sirm.get_data(100)
 console.log(data);
+
+NewYorkCity = new Community(8419000, 300, 8418700)
+covid = new Virus(5.7, 2.1/100)
+covid2 = new Virus(6, 2.1/100)
+
+let newoutbreak = NewYorkCity.custom([[susceptible, "S"], [infected, "I"], [recovered, "R"]], 200, covid, {B: covid.rnaught*covid.u})
+let newoutbreak2 = NewYorkCity.custom([[susceptible, "S"], [infected, "I"], [recovered, "R"]], 200, covid2, {B: covid2.rnaught*covid.u})
+compare("new_compare", newoutbreak, newoutbreak2, "1", "2", 200)
+console.log(newoutbreak)
+console.log(newoutbreak2)
