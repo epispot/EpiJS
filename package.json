@@ -7,7 +7,7 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "docs:dev": "bash scripts/doc.sh",
         "docs:build": "bash scripts/doc-build.sh",
-        "build": "browserify EpiJS --s EpiJS -o web/index.min.js"
+        "build": "browserify EpiJS --s EpiJS -o web/index.min.js && cd web && cat funcs.js >> index.min.js"
     },
     "repository": {
         "type": "git",

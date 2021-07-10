@@ -32,9 +32,9 @@
     <!-- Testing browserify code -->
     <script src="../web/index.min.js"></script>
     <script>
-        susceptible = new EpiJS.comp.Idiom("S-(B*S*I/p)");
-        infected = new EpiJS.comp.Idiom("I+(B*S*I/p)-(u*I)");
-        recovered = new EpiJS.comp.Idiom("R+(u*I)")
+        susceptible = new Idiom("S-(B*S*I/p)");
+        infected = new Idiom("I+(B*S*I/p)-(u*I)");
+        recovered = new Idiom("R+(u*I)")
 
         key = {
             "S": 10000,
@@ -45,7 +45,7 @@
             "u": 0.2
         };
 
-        sirm = new EpiJS.model.Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
+        sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
         data = sirm.get_data(100)
         console.log(data);
     </script>
