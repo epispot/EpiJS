@@ -17,7 +17,7 @@ const puppeteer = require('puppeteer');
   });
 
   if (errors > 1) {
-    Promise.reject('More than one error occurred. See log for details.');
+    Promise.reject(new Error('More than one error occurred. See log for details.'));
   }
 
   await browser.close();
