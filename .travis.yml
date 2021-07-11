@@ -1,0 +1,19 @@
+language: node_js
+
+node_js:
+  - 14
+  - 15
+  - 16
+
+before_install:
+  - npm update -g npm
+
+install:
+  - npm i
+
+before_script:
+  - npm run build
+
+script:
+  - npm run test
+
