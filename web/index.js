@@ -103610,10 +103610,10 @@ module.exports={
     "description": "A disease modeling package.",
     "main": "EpiJS/index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "node tests/index.js",
         "docs:dev": "bash scripts/doc.sh",
         "docs:build": "bash scripts/doc-build.sh",
-        "build": "browserify EpiJS --s EpiJS -o web/index.min.js"
+        "build": "browserify EpiJS --s EpiJS -o web/index.js && cd web && cat funcs.js >> index.js"
     },
     "repository": {
         "type": "git",
@@ -103633,6 +103633,7 @@ module.exports={
     "devDependencies": {
         "documentation": "^13.2.5",
         "mocha": "^9.0.0",
+        "puppeteer": "^10.1.0",
         "vuepress": "^1.8.2",
         "webpack": "^5.40.0",
         "webpack-cli": "^4.7.2"
@@ -103645,6 +103646,7 @@ module.exports={
 
 },{}]},{},[6])(6)
 });
+
 let sir = EpiJS.pre.sir
 let seir = EpiJS.pre.seir
 let seird = EpiJS.pre.seird

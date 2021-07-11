@@ -1,9 +1,6 @@
 name: Build
 
-on:
-  push:
-    paths:
-      - EpiJS/
+on: [push, pull_request]
 
 jobs:
   build:
@@ -20,7 +17,9 @@ jobs:
     - name: Install Dependencies
       run:  |
         npm install
+    - name: Run Browserify
+      run: |
+        npm run build
     - name: Run Tests
       run: |
         npm run test
-        npm run build

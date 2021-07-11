@@ -7,7 +7,7 @@
         "test": "node tests/index.js",
         "docs:dev": "bash scripts/doc.sh",
         "docs:build": "bash scripts/doc-build.sh",
-        "build": "browserify EpiJS --s EpiJS -o web/index.min.js && cd web && cat funcs.js >> index.min.js"
+        "build": "browserify EpiJS --s EpiJS -o web/index.js && cd web && cat funcs.js >> index.js"
     },
     "repository": {
         "type": "git",
