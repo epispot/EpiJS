@@ -6,6 +6,7 @@ The epidemiology package for JavaScript
 ![npm downloads](https://img.shields.io/npm/dt/@quantalabs/epijs?color=%232c5fde&label=npm%20downloads&style=flat-square) ](https://npmjs.org/package/@quantalabs/epijs) 
 [![GitHub issues](https://img.shields.io/github/issues/quantalabs/epijs?style=flat-square) ](https://github.com/Quantalabs/epijs/issues/) 
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/Quantalabs/epijs?style=flat-square) ](https://github.com/Quantalabs/EpiJS/pulls) 
+[![Build Status](https://img.shields.io/github/workflow/status/Quantalabs/EpiJS/build?label=Build&logo=GitHub&logoColor=white&style=flat-square)](https://github.com/Quantalabs/EpiJS/actions/workflows/build.yml)
 
 ## About
 EpiJS is a epidemiological modelling package for JavaScript with built-in support
