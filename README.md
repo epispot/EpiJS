@@ -1,96 +1,78 @@
-<div align="center"><img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/meve5c0a4lky6b6veif9.png" alt="EpiJS Logo"></div>
+# EpiJS
+The epidemiology package for JavaScript
 
----
+[![License: GPL--3.0](https://img.shields.io/github/license/Quantalabs/EpiJS?style=flat-square)](https://github.com/Quantalabs/epijs/blob/main/LICENSE)
+[![npm version](https://img.shields.io/npm/v/@quantalabs/epijs?style=flat-square)
+![npm downloads](https://img.shields.io/npm/dt/@quantalabs/epijs?color=%232c5fde&label=npm%20downloads&style=flat-square) ](https://npmjs.org/package/@quantalabs/epijs) 
+[![GitHub issues](https://img.shields.io/github/issues/quantalabs/epijs?style=flat-square) ](https://github.com/Quantalabs/epijs/issues/) 
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/Quantalabs/epijs?style=flat-square) ](https://github.com/Quantalabs/EpiJS/pulls) 
+[![Build Status](https://img.shields.io/github/workflow/status/Quantalabs/EpiJS/build?label=Build&logo=GitHub&logoColor=white&style=flat-square)](https://github.com/Quantalabs/EpiJS/actions/workflows/build.yml)
 
-<p align="center">
-  <a href="https://github.com/Quantalabs/epijs/graphs/commit-activity" target="_blank">
-    <img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-yes-green.svg?style=flat-square" />
-  </a>
-  <a href="https://github.com/Quantalabs/epijs/blob/main/LICENSE" target="_blank">
-    <img alt="License: GPL--3.0" src="https://img.shields.io/github/license/Quantalabs/EpiJS?style=flat-square" />
-  </a>
-  <a href="https://npmjs.org/package/@quantalabs/epijs" target="_blank">
-    <img alt="npm version" src="https://img.shields.io/npm/v/@quantalabs/epijs?style=flat-square">
-    <img alt="npm downloads" src="https://img.shields.io/npm/dt/@quantalabs/epijs?color=%232c5fde&label=npm%20downloads&style=flat-square">
-  </a>
-  <a href="https://github.com/Quantalabs/epijs/issues/" target="_blank">
-    <img alt="GitHub issues" src="https://img.shields.io/github/issues/quantalabs/epijs?style=flat-square">
-  </a>
-  <a href="https://github.com/Quantalabs/EpiJS/pulls" target="_blank">
-    <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/Quantalabs/epijs?style=flat-square">
-  </a>
-  <a href="https://quantalabs.github.io/EpiJS/">
-    <img alt="GitHub Pages deployments" src="https://img.shields.io/github/deployments/quantalabs/epijs/github-pages?label=GitHub%20Pages%20Deployment&style=flat-square">
-  </a>
-  <blockquote align="center">
-  <p>A disease modeling package.</p>
-  </blockquote>
-  <h4 id="-homepage-https-github-com-quantalabs-epijs-readme-" align="center">🏠 <a href="https://github.com/Quantalabs/epijs#readme">Homepage</a></h4>
-  <h4 id="-demo-https-npm-runkit-com-epijs-" align="center">✨ <a href="https://epi.js.org/demo/index.html">Demo</a></h4>
-</p>
+## About
+EpiJS is a epidemiological modelling package for JavaScript with built-in support
+for SIR-based models including SIR, SEIR, SEIRD, and other models, along with allowing
+you to create custom models, model community spread through SIR based models, and more.
+## Installation
 
-## Install
-
+NodeJS:
 ```sh
 npm install @quantalabs/epijs
+yarn add @quantalabs/epijs
 ```
-
-## Usage
-
-```js
-const epijs = require("@quantalabs/epijs")
+Require:
+```javascript
+const epijs = require('@quantalabs/epijs')
 ```
-
-Or in your website:
+\
+On the web:
 ```html
 <script src="https://cdn.jsdelivr.net/gh/Quantalabs/EpiJS/web/index.min.js"></script>
 ```
+## Features
 
-Or get the latest version from git:
+- Pre-built SIR-based models and plotting
+- Community Spread
+    - Create Viruses
+    - Create Communities
+    - Compare two outbreaks 
+- Custom models
+## Roadmap
 
+- Stochastic Modelling ([#37](https://github.com/Quantalabs/EpiJS/issues/37))
+- Pre-built customizable compartments ([#28](https://github.com/Quantalabs/EpiJS/issues/28))
+## Contributing
+
+<a href="https://open.vscode.dev/Quantalabs/EpiJS"><img src="https://open.vscode.dev/badges/open-in-vscode.svg" alt="Open in Visual Studio Code"></a>
+
+Clone the repo:
 ```sh
 git clone https://github.com/Quantalabs/epijs.git 
 cd EpiJS
 npm install
 ```
 
-## Screenshots
+See [`CONTRIBUTING.md`](https://github.com/Quantalabs/EpiJS/blob/main/CONTRIBUTING.md) for details.
 
-SIR Model: \
-![image](https://user-images.githubusercontent.com/55121845/110269885-81c6ec80-7f79-11eb-98bd-9964db28d371.png) \
-SEIR Model: \
-![SEIR Model graph](https://user-images.githubusercontent.com/55121845/110269735-2e549e80-7f79-11eb-862e-d248533f0bc1.jpg) \
-SEIRD Model: \
-![SEIRD Model graph](https://user-images.githubusercontent.com/55121845/110269786-4b896d00-7f79-11eb-8844-6f0df85faa3f.png) \
+## Running Tests
 
-## Author
+To run tests, run the following command
 
-👤 **QLabs (@Quantalabs)**
+```sh
+npm run test
+```
 
-* Website: https://quantalabs.github.io/
-* Github: [@Quantalabs](https://github.com/Quantalabs)
+  
+## Related
 
-## 🤝 Contributing
-<a href="https://open.vscode.dev/Quantalabs/EpiJS"><img src="https://open.vscode.dev/badges/open-in-vscode.svg" alt="Open in Visual Studio Code"></a>
+- epispot - https://github.com/epispot/epispot
+- CovaSim - https://covasim.org
+## Appendix
 
-Contributions, issues and feature requests are welcome!<br />Feel free to check [issues page](https://github.com/Quantalabs/epijs/issues). You can also take a look at the [contributing guide](https://github.com/Quantalabs/epijs/blob/master/CONTRIBUTING.md).
+- Homepage - https://epi.js.org
+- Docs - https://epi.js.org/getting-started.html
+- Demo - https://epi.js.org/demo/
 
-## Show your support
+### Support
 
-Give a ⭐️ if this project helped you!
+For support, consult the [docs](https://epi.js.org) or submit a [discussion](https://github.com/Quantalabs/EpiJS/discussions/new) on the repo
 
-## 📝 License
-
-Copyright © 2021 [QLabs (@Quantalabs)](https://github.com/Quantalabs).<br />
-This project is [GPL-3.0](https://github.com/Quantalabs/epijs/blob/master/LICENSE) licensed.
-
-## Related work
-
-- [epispot](https://github.com/epispot/epispot)
-- [CovaSim](https://covasim.org)
-
-### Cite EpiJS in your research!
-> QLabs. (2021, June 7). Quantalabs/EpiJS: v1.1.0 (Version v1.1.0). Zenodo. http://doi.org/10.5281/zenodo.4908921
-
-***
-_This README was generated with ❤️ by [readme-md-generator](https://github.com/kefranabg/readme-md-generator)_

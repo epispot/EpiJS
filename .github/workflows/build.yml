@@ -1,30 +1,27 @@
-name: Node.js CI
+name: Build
 
-on:
-  push:
-    paths:
-      - EpiJS/
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x, 15.x]
+        node-version: [10.x, 12.x, 14.x, 15.x, 16.x]
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm ci
-    - run: npm run build
-    - name: Configure Git
+    - name: Install Dependencies
+      continue-on-error: true  
+      run:  |
+        npm install
+        npm audit fix
+    - name: Run Browserify
       run: |
-        git config user.name github-actions
-        git config user.email github-actions@github.com
-    - name: Push changes (if necassary)
+        npm run build
+    - name: Run Tests
       run: |
-        git add .
-        git commit -m "Update minified JS"
-        git push --set-upstream origin main
+        npm run test
