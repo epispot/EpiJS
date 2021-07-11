@@ -1,4 +1,4 @@
-name: Node.js CI
+name: Build
 
 on:
   push:
@@ -10,21 +10,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x, 15.x]
+        node-version: [10.x, 12.x, 14.x, 15.x, 16.x]
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm ci
-    - run: npm run build
-    - name: Configure Git
+    - name: Install Dependencies
+      run:  |
+        npm install
+    - name: Run Tests
       run: |
-        git config user.name github-actions
-        git config user.email github-actions@github.com
-    - name: Push changes (if necassary)
-      run: |
-        git add .
-        git commit -m "Update minified JS"
-        git push --set-upstream origin main
+        npm run test
+        npm run build

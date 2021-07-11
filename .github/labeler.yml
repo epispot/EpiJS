@@ -2,21 +2,10 @@ tests:
   - tests/*
 
 src:
-  - epijs/*
-  - bin/*
+  - EpiJS/*
   - package.json
   - package-lock.json
-  - README.md
+  - web/*
 
-repo:
+CI/CD:
   - .github/*
-
-workflows:
-  - .github/workflows
-  - .github/labeler.yml
-
-issue templates:
-  - .github/ISSUE_TEMPLATES/*
-
-pull request:
-  - .github/PULL_REQUEST.md
