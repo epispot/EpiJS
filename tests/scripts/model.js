@@ -9,4 +9,4 @@ let key = {
 
 let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
 var data = sirm.get_data(100)
-document.getElementById('model').innerHTML = 'S: '+data['S']+'<br>'+'I: '+data['I']+'<br>'+'R: '+data['R']
+document.getElementById('model').innerHTML = 'S: '+data.S+'<br>'+'I: '+data.I+'<br>'+'R: '+data.R // skipcq: JS-0096
