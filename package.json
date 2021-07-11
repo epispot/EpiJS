@@ -25,6 +25,7 @@
     },
     "homepage": "epi.js.org",
     "devDependencies": {
+        "browserify": "^17.0.0",
         "documentation": "^13.2.5",
         "mocha": "^9.0.0",
         "puppeteer": "^10.1.0",

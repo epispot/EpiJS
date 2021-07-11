@@ -17,6 +17,7 @@ jobs:
     - name: Install Dependencies
       run:  |
         npm install
+        npm audit fix
     - name: Run Browserify
       run: |
         npm run build
