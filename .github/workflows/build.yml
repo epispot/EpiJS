@@ -15,6 +15,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - name: Install Dependencies
+      continue-on-error: true  
       run:  |
         npm install
         npm audit fix
