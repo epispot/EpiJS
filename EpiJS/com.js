@@ -14,10 +14,8 @@ const chart = require('chart.js')
  * Class representing a virus, which can infect a community.
  * @param {Number} rnaught The disease's R-Naught
  * @param {Number} u The disease's recovery rate
- * @param {Number} h The disease's hospitalization rate
  * @param {Number} a The disease's incubation period
  * @param {Number} d The disease's death rate (for infected population)
- * @param {Number} dh The disease's death rate (for hospitalized population)
  * @example
  *
  *      let covid = new Virus(5.7, 2.1/100)

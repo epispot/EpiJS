@@ -35,6 +35,6 @@ function calcu (rn1, b1) {
     return b1/rn1
 };
 
-exports.calcrn = rn;
-exports.calcb = b;
-exports.calcu = u;
+exports.calcrn = calcrn;
+exports.calcb = calcb;
+exports.calcu = calcu;

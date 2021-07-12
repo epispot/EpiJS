@@ -20,15 +20,3 @@ footer: GPL-3.0 Licensed | Copyright © 2021-present Quantalabs
 <br>
 <br>
 <br>
-
-## 🤝 Contributing
-
-Contributions, issues and feature requests are welcome!<br />Feel free to check [issues page](https://github.com/Quantalabs/epijs/issues). You can also take a look at the [contributing guide](https://github.com/Quantalabs/epijs/blob/master/CONTRIBUTING.md).
-
-## Related work
-
-- [epispot](https://github.com/epispot/epispot)
-- [CovaSim](https://covasim.org)
-
-### Cite EpiJS in your research!
-> QLabs. (2021, June 7). Quantalabs/EpiJS: v1.1.0 (Version v1.1.0). Zenodo. http://doi.org/10.5281/zenodo.4908921

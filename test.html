@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+    </head>
+    <body>
+        <canvas id="our-model"></canvas>
+        <script src="web/index.min.js"></script>
+        <script>
+            let NewYorkCity = new Community(8419000, 300, 8418700)
+            let covid = new Virus(5.7, 2.1/100)
+            let covid_variant = new Virus(5, 4/100)
+
+            let chart = document.getElementById('our-model')
+
+            covid_outbreak = NewYorkCity.sir(covid, 100)
+            variant_outbreak = NewYorkCity.sir(covid_variant, 100)
+
+            compare(chart, covid_outbreak, variant_outbreak, "COVID-19", "COVID-19 Variant", 100)
+        </script>
+    </body>
+</html>
