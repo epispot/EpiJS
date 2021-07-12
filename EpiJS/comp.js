@@ -364,8 +364,8 @@ class Vaccinated {
       this.equation += "-(V*" + String(next[x]) + ")"
     }
 
-    for (var x in prev) {
-      this.equation += "+("+String(prev[x][0])+"*" + String(prev[x][1])+")"
+    for (var y in prev) {
+      this.equation += "+("+String(prev[y][0])+"*" + String(prev[y][1])+")"
     }
   }
 

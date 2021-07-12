@@ -12,29 +12,29 @@
  * @param {Number} b The infection rate
  * @param {Number} u The recovery rate
  */
-function rn (b, u) { // skipcq: JS-0085
+function calcrn (b, u) { 
     return b/u
 };
 
 /** 
  * Calculate Infection rate
  * @param {Number} rn R-Naught Value
- * @param {Number} u The recovery rate
+ * @param {Number} u1 The recovery rate
  */
-function b (rn, u) { // skipcq: JS-0085
-    return rn*u
+function calcb (rn, u1) {
+    return rn*u1
 };
 
 
 /** 
  * Calculate Recovery Rate
- * @param {Number} rn R-Naught Value
- * @param {Number} b The infection rate
+ * @param {Number} rn1 R-Naught Value
+ * @param {Number} b1 The infection rate
  */
-function u (rn, b) { // skipcq: JS-0085
-    return b/rn
+function calcu (rn1, b1) {
+    return b1/rn1
 };
 
-exports.rn = rn;
-exports.b = b;
-exports.u = u;
+exports.calcrn = rn;
+exports.calcb = b;
+exports.calcu = u;
