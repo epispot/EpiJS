@@ -25,7 +25,8 @@ module.exports = {
             ['pre', 'Pre Module'],
             ['com', 'Com Module'],
             ['comp', 'Comp Module'],
-            ['model', 'Model Module']
+            ['model', 'Model Module'],
+            ['utils', 'Utils Module']
           ]
         },
         {
