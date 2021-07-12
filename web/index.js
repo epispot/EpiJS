@@ -1,6 +1,4 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.EpiJS = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-
-},{}],2:[function(require,module,exports){
 /**
  * @file EpiJS module for representing communities
  *
@@ -321,7 +319,7 @@ exports.Community = Community
 exports.compare = compare
 exports.Virus = Virus
 
-},{"chart.js":24}],3:[function(require,module,exports){
+},{"chart.js":25}],2:[function(require,module,exports){
 /**
  * @file EpiJS module for creating compartments, which can be combined into models.
  *
@@ -336,6 +334,15 @@ const math = require('mathjs')
 /**
  * Class for a custom compartments.
  * @param {String} equation The equation for the compartment. This defines what to run to get a new value for the next day in the model. Use any variable in the equation (1 char max), but when making this a model, you need to define this in the key.
+ *      If using other compartment classes, they each have their own corresponding variable:
+ *         - 'S' - Susceptible
+ *         - 'E' - Exposed
+ *         - 'I' - Infectious
+ *         - 'R' - Recovered
+ *         - 'D' - Dead
+ *         - 'C' - Critical
+ *         - 'H' - Hospitalized
+ *         - 'V' - Vaccinated
  * @example
  *
  *      let susceptible = new Idiom("S-(B*S*I)")
@@ -368,9 +375,402 @@ class Idiom {
   }
 }
 
-exports.Idiom = Idiom
+/** 
+ * Class for Suscepible compartment.
+ * @param {Array} next List of rates of the next compartments This is multiplied by the current susceptible population.
+ * @param {Array} prev List of rates of the previous compartments, which include sub-arrays
+ *       with the compartment id (one letter only), as a string, and the rate for the compartment.
+ *       If reffering to this compartment's population, use "S" as the id. This parameter is useful
+ *       if you want to model a disease with re-susceptibility.
+ * @example
+ * 
+ *      // Note that you can pass in a number as a rate too, 
+ *      // but we use a string because we want to multiply 
+ *      // by other compartment populations. This applies to the prev parameter too. 
+ *      let S = new Susceptible(["I*0.4/N"], []) 
+*/
+class Susceptible {
+  constructor (next, prev) {
+    this.equation = "S"
+    
+    for (var x in next) {
+      this.equation += "-(S*" + String(next[x]) + ")"
+    }
 
-},{"mathjs":872}],4:[function(require,module,exports){
+    for (var x in prev) {
+      this.equation += "+("+String(prev[x][0])+"*" + String(prev[x][1])+")"
+    }
+  }
+
+  get_data (key) {
+    var parsed = this.equation.split('')
+
+    var x = 0;
+    while (x<parsed.length) {
+      if (parsed[x] === " ") {
+        parsed.splice(x, 1)
+      }
+      x++
+    }
+
+    var y; // skipcq: JS-0119
+    for (y in parsed) {
+      if (parsed[y] in key) {
+        parsed.splice(y, 1, key[parsed[y]])
+      }
+    }
+
+    return math.evaluate(parsed.join(''))
+  }
+}
+
+/** 
+ * Class for Infected compartment.
+ * @param {Array} next List of rates of the next compartments This is multiplied by the current infected population.
+ * @param {Array} prev List of rates of the previous compartments, which include sub-arrays
+ *       with the compartment id (one letter only), as a string, and the rate for the compartment.
+ *       If reffering to this compartment's population, use "I" as the id.
+ * @example
+ * 
+ *      // Note that you can pass in a string as a rate too, 
+ *      // but we use a number in this case because we don't need to multiply 
+ *      // by other compartment populations. We do actually do this for the prev parameter, though.
+ *      let I = new Infected([0.3], [["S", "I*0.4/N"]]) 
+*/
+class Infected {
+  constructor (next, prev) {
+    this.equation = "I"
+    
+    for (var x in next) {
+      this.equation += "-(I*" + String(next[x]) + ")"
+    }
+
+    for (var x in prev) {
+      this.equation += "+("+String(prev[x][0])+"*" + String(prev[x][1])+")"
+    }
+  }
+
+  get_data (key) {
+    var parsed = this.equation.split('')
+
+    var x = 0;
+    while (x<parsed.length) {
+      if (parsed[x] === " ") {
+        parsed.splice(x, 1)
+      }
+      x++
+    }
+
+    var y; // skipcq: JS-0119
+    for (y in parsed) {
+      if (parsed[y] in key) {
+        parsed.splice(y, 1, key[parsed[y]])
+      }
+    }
+
+    return math.evaluate(parsed.join(''))
+  }
+}
+
+/** 
+ * Class for Exposed compartment.
+ * @param {Array} next List of rates of the next compartments This is multiplied by the current exposed population.
+ * @param {Array} prev List of rates of the previous compartments, which include sub-arrays
+ *       with the compartment id (one letter only), as a string, and the rate for the compartment.
+ *       If reffering to this compartment's population, use "E" as the id.
+ * @example
+ * 
+ *      // Note that you can pass in a string as a rate too, 
+ *      // but we use a number in this case because we don't need to multiply 
+ *      // by other compartment populations. We do actually do this for the prev parameter, though.
+ *      let E = new Exposed([1/14], ["S*0.4/N"]) 
+*/
+class Exposed {
+  constructor (next, prev) {
+    this.equation = "E"
+    
+    for (var x in next) {
+      this.equation += "-(E*" + String(next[x]) + ")"
+    }
+
+    for (var x in prev) {
+      this.equation += "+("+String(prev[x][0])+"*" + String(prev[x][1])+")"
+    }
+  }
+
+  get_data (key) {
+    var parsed = this.equation.split('')
+
+    var x = 0;
+    while (x<parsed.length) {
+      if (parsed[x] === " ") {
+        parsed.splice(x, 1)
+      }
+      x++
+    }
+
+    var y; // skipcq: JS-0119
+    for (y in parsed) {
+      if (parsed[y] in key) {
+        parsed.splice(y, 1, key[parsed[y]])
+      }
+    }
+
+    return math.evaluate(parsed.join(''))
+  }
+}
+
+/** 
+ * Class for Critical compartment.
+ * @param {Array} next List of rates of the next compartments This is multiplied by the current critical population.
+ * @param {Array} prev List of rates of the previous compartments, which include sub-arrays
+ *       with the compartment id (one letter only), as a string, and the rate for the compartment.
+ *       If reffering to this compartment's population, use "C" as the id.
+ * @example
+ * 
+ *      // Note that you can pass in a string as a rate too, 
+ *      // but we use a number in this case because we don't need to multiply 
+ *      // by other compartment populations.
+ *      let C = new Critical([0.14, 0.1], [["H", 0.3]]) 
+*/
+class Critical {
+  constructor (next, prev) {
+    this.equation = "C"
+    
+    for (var x in next) {
+      this.equation += "-(C*" + String(next[x]) + ")"
+    }
+
+    for (var x in prev) {
+      this.equation += "+("+String(prev[x][0])+"*" + String(prev[x][1])+")"
+    }
+  }
+
+  get_data (key) {
+    var parsed = this.equation.split('')
+
+    var x = 0;
+    while (x<parsed.length) {
+      if (parsed[x] === " ") {
+        parsed.splice(x, 1)
+      }
+      x++
+    }
+
+    var y; // skipcq: JS-0119
+    for (y in parsed) {
+      if (parsed[y] in key) {
+        parsed.splice(y, 1, key[parsed[y]])
+      }
+    }
+
+    return math.evaluate(parsed.join(''))
+  }
+}
+
+/** 
+ * Class for Hospitalized compartment.
+ * @param {Array} next List of rates of the next compartments This is multiplied by the current hospitalized population.
+ * @param {Array} prev List of rates of the previous compartments, which include sub-arrays
+ *       with the compartment id (one letter only), as a string, and the rate for the compartment.
+ *       If reffering to this compartment's population, use "H" as the id.
+ * @example
+ * 
+ *      // Note that you can pass in a string as a rate too, 
+ *      // but we use a number in this case because we don't need to multiply 
+ *      // by other compartment populations.
+ *      let H = new Hospitalized([0.3], [["I", 0.1], ["E", 0.2]])
+*/
+class Hospitalized {
+  constructor (next, prev) {
+    this.equation = "H"
+    
+    for (var x in next) {
+      this.equation += "-(H*" + String(next[x]) + ")"
+    }
+
+    for (var x in prev) {
+      this.equation += "+("+String(prev[x][0])+"*" + String(prev[x][1])+")"
+    }
+  }
+
+  get_data (key) {
+    var parsed = this.equation.split('')
+
+    var x = 0;
+    while (x<parsed.length) {
+      if (parsed[x] === " ") {
+        parsed.splice(x, 1)
+      }
+      x++
+    }
+
+    var y; // skipcq: JS-0119
+    for (y in parsed) {
+      if (parsed[y] in key) {
+        parsed.splice(y, 1, key[parsed[y]])
+      }
+    }
+
+    return math.evaluate(parsed.join(''))
+  }
+}
+
+/** 
+ * Class for the Dead compartment.
+ * @param {Array} next List of rates of the next compartments. This is multiplied by the current dead population.
+ *       Useful if you want to have a dead population that can also be the walking dead.
+ * @param {Array} prev List of rates of the previous compartments, which include sub-arrays
+ *       with the compartment id (one letter only), as a string, and the rate for the compartment.
+ *       If reffering to this compartment's population, use "D" as the id.
+ * @example
+ * 
+ *      // Note that you can pass in a string as a rate too, 
+ *      // but we use a number in this case because we don't need to multiply 
+ *      // by other compartment populations. We do actually do this for the prev parameter, though.
+ *      let D = new Dead([0.3], [["I", 0.3]]) // This disease also gives you a 3/10 chance to come alive after death.
+*/
+class Dead {
+  constructor (next, prev) {
+    this.equation = "D"
+    
+    for (var x in next) {
+      this.equation += "-(D*" + String(next[x]) + ")"
+    }
+
+    for (var x in prev) {
+      this.equation += "+("+String(prev[x][0])+"*" + String(prev[x][1])+")"
+    }
+  }
+
+  get_data (key) {
+    var parsed = this.equation.split('')
+
+    var x = 0;
+    while (x<parsed.length) {
+      if (parsed[x] === " ") {
+        parsed.splice(x, 1)
+      }
+      x++
+    }
+
+    var y; // skipcq: JS-0119
+    for (y in parsed) {
+      if (parsed[y] in key) {
+        parsed.splice(y, 1, key[parsed[y]])
+      }
+    }
+
+    return math.evaluate(parsed.join(''))
+  }
+}
+
+/** 
+ * Class for Vaccinated compartment.
+ * @param {Array} next List of rates of the next compartments, good if the vaccine isn't 100% effective. This is multiplied by the current vaccinated population.
+ * @param {Array} prev List of rates of the previous compartments, which include sub-arrays
+ *       with the compartment id (one letter only), as a string, and the rate for the compartment.
+ *       If reffering to this compartment's population, use "V" as the id.
+ * @example
+ * 
+ *      // Note that you can pass in a string as a rate too, 
+ *      // but we use a number in this case because we don't need to multiply 
+ *      // by other compartment populations. We do actually do this for the prev parameter, though.
+ *      let I = new Infected([0.001], ["S*0.4"])
+*/
+class Vaccinated {
+  constructor (next, prev) {
+    this.equation = "V"
+    
+    for (var x in next) {
+      this.equation += "-(V*" + String(next[x]) + ")"
+    }
+
+    for (var x in prev) {
+      this.equation += "+("+String(prev[x][0])+"*" + String(prev[x][1])+")"
+    }
+  }
+
+  get_data (key) {
+    var parsed = this.equation.split('')
+
+    var x = 0;
+    while (x<parsed.length) {
+      if (parsed[x] === " ") {
+        parsed.splice(x, 1)
+      }
+      x++
+    }
+
+    var y; // skipcq: JS-0119
+    for (y in parsed) {
+      if (parsed[y] in key) {
+        parsed.splice(y, 1, key[parsed[y]])
+      }
+    }
+
+    return math.evaluate(parsed.join(''))
+  }
+}
+
+/** 
+ * Class for Recovered compartment.
+ * @param {Array} next List of rates of the next compartments, good if the vaccine isn't 100% effective. This is multiplied by the current vaccinated population.
+ * @param {Array} prev List of rates of the previous compartments, which include sub-arrays
+ *       with the compartment id (one letter only), as a string, and the rate for the compartment.
+ *       If reffering to this compartment's population, use "V" as the id.
+ * @example
+ * 
+ *      // Note that you can pass in a string as a rate too, 
+ *      // but we use a number in this case because we don't need to multiply 
+ *      // by other compartment populations. We do actually do this for the prev parameter, though.
+ *      let R = new Recovered([ ], [["I", 0.1]])
+*/
+class Recovered {
+  constructor (next, prev) {
+    this.equation = "R"
+    
+    for (var x in next) {
+      this.equation += "-(R*" + String(next[x]) + ")"
+    }
+
+    for (var x in prev) {
+      this.equation += "+("+String(prev[x][0])+"*" + String(prev[x][1])+")"
+    }
+  }
+
+  get_data (key) {
+    var parsed = this.equation.split('')
+
+    var x = 0;
+    while (x<parsed.length) {
+      if (parsed[x] === " ") {
+        parsed.splice(x, 1)
+      }
+      x++
+    }
+
+    var y; // skipcq: JS-0119
+    for (y in parsed) {
+      if (parsed[y] in key) {
+        parsed.splice(y, 1, key[parsed[y]])
+      }
+    }
+
+    return math.evaluate(parsed.join(''))
+  }
+}
+
+exports.Idiom = Idiom;
+exports.Susceptible = Susceptible;
+exports.Exposed = Exposed;
+exports.Infected = Infected;
+exports.Critical = Critical;
+exports.Hospitalized = Hospitalized;
+exports.Dead = Dead;
+exports.Vaccinated = Vaccinated;
+exports.Recovered = Recovered;
+},{"mathjs":873}],3:[function(require,module,exports){
 /**
  * @file EpiJS module for creating custom models, which are made of compartments.
  *
@@ -454,7 +854,7 @@ class Model {
 
 exports.Model = Model
 
-},{}],5:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 /**
  * @file Pre-made graphs for modelling outbreaks.
  * 
@@ -817,26 +1217,69 @@ exports.seird = seird
 exports.seihrd = seihrd
 exports.seihcrd = seihcrd
 
-},{"chart.js":24}],6:[function(require,module,exports){
+},{"chart.js":25}],5:[function(require,module,exports){
+/**
+ * @file Epidemiological Utilities, like calculating the R-Naught and the infection rate of a disease.
+ *
+ * Import it with:
+ * ```
+ *    const comp = require('@quantalabs/epijs').comp
+ * ```
+ */
+
+/**
+ * Calculate R-Naught
+ * @param {Number} b The infection rate
+ * @param {Number} u The recovery rate
+ */
+function rn (b, u) {
+    return b/u
+};
+
+/** 
+ * Calculate Infection rate
+ * @param {Number} rn R-Naught Value
+ * @param {Number} u The recovery rate
+ */
+function b (rn, u) {
+    return rn*u
+};
+
+
+/** 
+ * Calculate Recovery Rate
+ * @param {Number} rn R-Naught Value
+ * @param {Number} b The infection rate
+ */
+function u (rn, b) {
+    return b/rn
+};
+
+exports.rn = rn;
+exports.b = b;
+exports.u = u;
+},{}],6:[function(require,module,exports){
 const pre = require('./pre')
 const com = require('./com')
 const comp = require('./comp')
 const model = require('./model')
 const package = require('../package.json');
+const utils = require('./utils')
 
 // Package info
 let version     = package.version;
 let description = package.description;
 
 
-exports.pre = pre
-exports.about = 'EpiJS \n'+description+'\n----------------------------------\n By @Quantalabs \n GitHub - https://github.com/Quantalabs/EpiJS \n Version - '+ version
-exports.version = version
-exports.com = com
-exports.comp = comp
-exports.model = model
+exports.pre = pre;
+exports.about = 'EpiJS \n'+description+'\n----------------------------------\n By @Quantalabs \n GitHub - https://github.com/Quantalabs/EpiJS \n Version - '+ version;
+exports.version = version;
+exports.com = com;
+exports.comp = comp;
+exports.model = model;
+exports.utils = utils;
 
-},{"../package.json":961,"./com":2,"./comp":3,"./model":4,"./pre":5}],7:[function(require,module,exports){
+},{"../package.json":962,"./com":1,"./comp":2,"./model":3,"./pre":4,"./utils":5}],7:[function(require,module,exports){
 function _arrayLikeToArray(arr, len) {
   if (len == null || len > arr.length) len = arr.length;
 
@@ -1066,7 +1509,9 @@ module.exports["default"] = module.exports, module.exports.__esModule = true;
 },{"./arrayLikeToArray.js":7}],23:[function(require,module,exports){
 module.exports = require("regenerator-runtime");
 
-},{"regenerator-runtime":950}],24:[function(require,module,exports){
+},{"regenerator-runtime":951}],24:[function(require,module,exports){
+
+},{}],25:[function(require,module,exports){
 /*!
  * Chart.js v3.4.1
  * https://www.chartjs.org
@@ -14118,7 +14563,7 @@ return Chart;
 
 })));
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 /**
  * @license Complex.js v2.0.15 12/05/2020
  *
@@ -15536,7 +15981,7 @@ return Chart;
 
 })(this);
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 ;(function (globalScope) {
   'use strict';
 
@@ -20472,7 +20917,7 @@ return Chart;
   }
 })(this);
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 "use strict";
 
 // Map the characters to escape to their escaped values. The list is derived
@@ -20553,7 +20998,7 @@ module.exports = function (str) {
   }
   return result;
 };
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 /**
  * @license Fraction.js v4.1.1 23/05/2021
  * https://www.xarg.org/2014/03/rational-numbers-in-javascript/
@@ -21466,7 +21911,7 @@ module.exports = function (str) {
 
 })(this);
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 /*
  * Natural Sort algorithm for Javascript - Version 0.7 - Released under MIT license
  * Author: Jim Palmer (based on chunking idea from Dave Koelle)
@@ -21513,7 +21958,7 @@ module.exports = function naturalSort (a, b) {
 	return 0;
 };
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21643,7 +22088,7 @@ function recreateFactory(name, dependencies, create) {
     recreateOnConfigChange: true
   });
 }
-},{"./plain/number/index.js":879,"./utils/bignumber/constants.js":929,"./utils/factory.js":936,"./version.js":949}],31:[function(require,module,exports){
+},{"./plain/number/index.js":880,"./utils/bignumber/constants.js":930,"./utils/factory.js":937,"./version.js":950}],32:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21670,7 +22115,7 @@ var DEFAULT_CONFIG = {
   randomSeed: null
 };
 exports.DEFAULT_CONFIG = DEFAULT_CONFIG;
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -21894,7 +22339,7 @@ function create(factories, config) {
   math.IndexError = _IndexError.IndexError;
   return math;
 }
-},{"../error/ArgumentsError.js":376,"../error/DimensionError.js":377,"../error/IndexError.js":378,"../utils/factory.js":936,"../utils/is.js":938,"../utils/object.js":944,"./../utils/emitter.js":935,"./../utils/polyfills.js":945,"./config.js":31,"./function/config.js":33,"./function/import.js":34,"@babel/runtime/helpers/extends":13,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],33:[function(require,module,exports){
+},{"../error/ArgumentsError.js":377,"../error/DimensionError.js":378,"../error/IndexError.js":379,"../utils/factory.js":937,"../utils/is.js":939,"../utils/object.js":945,"./../utils/emitter.js":936,"./../utils/polyfills.js":946,"./config.js":32,"./function/config.js":34,"./function/import.js":35,"@babel/runtime/helpers/extends":13,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],34:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22017,7 +22462,7 @@ function validateOption(options, name, values) {
     }).join(', ') + '.');
   }
 }
-},{"../../utils/object.js":944,"../config.js":31}],34:[function(require,module,exports){
+},{"../../utils/object.js":945,"../config.js":32}],35:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -22413,7 +22858,7 @@ function importFactory(typed, load, math, importedFactories) {
   };
   return mathImport;
 }
-},{"../../error/ArgumentsError.js":376,"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/object.js":944,"@babel/runtime/helpers/defineProperty":12,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],35:[function(require,module,exports){
+},{"../../error/ArgumentsError.js":377,"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/object.js":945,"@babel/runtime/helpers/defineProperty":12,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],36:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -22816,7 +23261,7 @@ function throwNoMatrix() {
 function throwNoFraction(x) {
   throw new Error("Cannot convert value ".concat(x, " into a Fraction, no class 'Fraction' provided."));
 }
-},{"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/map.js":941,"../../utils/number.js":943,"@babel/runtime/helpers/interopRequireDefault":14,"typed-function":960}],36:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/map.js":942,"../../utils/number.js":944,"@babel/runtime/helpers/interopRequireDefault":14,"typed-function":961}],37:[function(require,module,exports){
 "use strict";
 
 var _typeof = require("@babel/runtime/helpers/typeof");
@@ -22835,7 +23280,7 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 // creating all factories here in a separate file is needed to get tree-shaking working
 var all = allFactories;
 exports.all = all;
-},{"../factoriesAny.js":649,"@babel/runtime/helpers/typeof":21}],37:[function(require,module,exports){
+},{"../factoriesAny.js":650,"@babel/runtime/helpers/typeof":21}],38:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -22865,7 +23310,7 @@ exports.config = config;
   MATRIX_OPTIONS: _config2.MATRIX_OPTIONS,
   NUMBER_OPTIONS: _config2.NUMBER_OPTIONS
 });
-},{"../core/config.js":31,"../core/function/config.js":33,"@babel/runtime/helpers/extends":13,"@babel/runtime/helpers/interopRequireDefault":14}],38:[function(require,module,exports){
+},{"../core/config.js":32,"../core/function/config.js":34,"@babel/runtime/helpers/extends":13,"@babel/runtime/helpers/interopRequireDefault":14}],39:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25543,7 +25988,7 @@ var _dependenciesSumTransformGenerated = require("./dependenciesAny/dependencies
 var _dependenciesVarianceTransformGenerated = require("./dependenciesAny/dependenciesVarianceTransform.generated.js");
 
 var _allFactoriesAny = require("./allFactoriesAny.js");
-},{"./allFactoriesAny.js":36,"./dependenciesAny/dependenciesAbs.generated.js":39,"./dependenciesAny/dependenciesAccessorNode.generated.js":40,"./dependenciesAny/dependenciesAcos.generated.js":41,"./dependenciesAny/dependenciesAcosh.generated.js":42,"./dependenciesAny/dependenciesAcot.generated.js":43,"./dependenciesAny/dependenciesAcoth.generated.js":44,"./dependenciesAny/dependenciesAcsc.generated.js":45,"./dependenciesAny/dependenciesAcsch.generated.js":46,"./dependenciesAny/dependenciesAdd.generated.js":47,"./dependenciesAny/dependenciesAddScalar.generated.js":48,"./dependenciesAny/dependenciesAnd.generated.js":49,"./dependenciesAny/dependenciesApply.generated.js":50,"./dependenciesAny/dependenciesApplyTransform.generated.js":51,"./dependenciesAny/dependenciesArg.generated.js":52,"./dependenciesAny/dependenciesArrayNode.generated.js":53,"./dependenciesAny/dependenciesAsec.generated.js":54,"./dependenciesAny/dependenciesAsech.generated.js":55,"./dependenciesAny/dependenciesAsin.generated.js":56,"./dependenciesAny/dependenciesAsinh.generated.js":57,"./dependenciesAny/dependenciesAssignmentNode.generated.js":58,"./dependenciesAny/dependenciesAtan.generated.js":59,"./dependenciesAny/dependenciesAtan2.generated.js":60,"./dependenciesAny/dependenciesAtanh.generated.js":61,"./dependenciesAny/dependenciesAtomicMass.generated.js":62,"./dependenciesAny/dependenciesAvogadro.generated.js":63,"./dependenciesAny/dependenciesBellNumbers.generated.js":64,"./dependenciesAny/dependenciesBigNumberClass.generated.js":65,"./dependenciesAny/dependenciesBignumber.generated.js":66,"./dependenciesAny/dependenciesBin.generated.js":67,"./dependenciesAny/dependenciesBitAnd.generated.js":68,"./dependenciesAny/dependenciesBitNot.generated.js":69,"./dependenciesAny/dependenciesBitOr.generated.js":70,"./dependenciesAny/dependenciesBitXor.generated.js":71,"./dependenciesAny/dependenciesBlockNode.generated.js":72,"./dependenciesAny/dependenciesBohrMagneton.generated.js":73,"./dependenciesAny/dependenciesBohrRadius.generated.js":74,"./dependenciesAny/dependenciesBoltzmann.generated.js":75,"./dependenciesAny/dependenciesBoolean.generated.js":76,"./dependenciesAny/dependenciesCatalan.generated.js":77,"./dependenciesAny/dependenciesCbrt.generated.js":78,"./dependenciesAny/dependenciesCeil.generated.js":79,"./dependenciesAny/dependenciesChain.generated.js":80,"./dependenciesAny/dependenciesChainClass.generated.js":81,"./dependenciesAny/dependenciesClassicalElectronRadius.generated.js":82,"./dependenciesAny/dependenciesClone.generated.js":83,"./dependenciesAny/dependenciesColumn.generated.js":84,"./dependenciesAny/dependenciesColumnTransform.generated.js":85,"./dependenciesAny/dependenciesCombinations.generated.js":86,"./dependenciesAny/dependenciesCombinationsWithRep.generated.js":87,"./dependenciesAny/dependenciesCompare.generated.js":88,"./dependenciesAny/dependenciesCompareNatural.generated.js":89,"./dependenciesAny/dependenciesCompareText.generated.js":90,"./dependenciesAny/dependenciesCompile.generated.js":91,"./dependenciesAny/dependenciesComplex.generated.js":92,"./dependenciesAny/dependenciesComplexClass.generated.js":93,"./dependenciesAny/dependenciesComposition.generated.js":94,"./dependenciesAny/dependenciesConcat.generated.js":95,"./dependenciesAny/dependenciesConcatTransform.generated.js":96,"./dependenciesAny/dependenciesConditionalNode.generated.js":97,"./dependenciesAny/dependenciesConductanceQuantum.generated.js":98,"./dependenciesAny/dependenciesConj.generated.js":99,"./dependenciesAny/dependenciesConstantNode.generated.js":100,"./dependenciesAny/dependenciesCos.generated.js":101,"./dependenciesAny/dependenciesCosh.generated.js":102,"./dependenciesAny/dependenciesCot.generated.js":103,"./dependenciesAny/dependenciesCoth.generated.js":104,"./dependenciesAny/dependenciesCoulomb.generated.js":105,"./dependenciesAny/dependenciesCount.generated.js":106,"./dependenciesAny/dependenciesCreateUnit.generated.js":107,"./dependenciesAny/dependenciesCross.generated.js":108,"./dependenciesAny/dependenciesCsc.generated.js":109,"./dependenciesAny/dependenciesCsch.generated.js":110,"./dependenciesAny/dependenciesCtranspose.generated.js":111,"./dependenciesAny/dependenciesCube.generated.js":112,"./dependenciesAny/dependenciesDeepEqual.generated.js":113,"./dependenciesAny/dependenciesDenseMatrixClass.generated.js":114,"./dependenciesAny/dependenciesDerivative.generated.js":115,"./dependenciesAny/dependenciesDet.generated.js":116,"./dependenciesAny/dependenciesDeuteronMass.generated.js":117,"./dependenciesAny/dependenciesDiag.generated.js":118,"./dependenciesAny/dependenciesDiff.generated.js":119,"./dependenciesAny/dependenciesDiffTransform.generated.js":120,"./dependenciesAny/dependenciesDistance.generated.js":121,"./dependenciesAny/dependenciesDivide.generated.js":122,"./dependenciesAny/dependenciesDivideScalar.generated.js":123,"./dependenciesAny/dependenciesDot.generated.js":124,"./dependenciesAny/dependenciesDotDivide.generated.js":125,"./dependenciesAny/dependenciesDotMultiply.generated.js":126,"./dependenciesAny/dependenciesDotPow.generated.js":127,"./dependenciesAny/dependenciesE.generated.js":128,"./dependenciesAny/dependenciesEfimovFactor.generated.js":129,"./dependenciesAny/dependenciesEigs.generated.js":130,"./dependenciesAny/dependenciesElectricConstant.generated.js":131,"./dependenciesAny/dependenciesElectronMass.generated.js":132,"./dependenciesAny/dependenciesElementaryCharge.generated.js":133,"./dependenciesAny/dependenciesEqual.generated.js":134,"./dependenciesAny/dependenciesEqualScalar.generated.js":135,"./dependenciesAny/dependenciesEqualText.generated.js":136,"./dependenciesAny/dependenciesErf.generated.js":137,"./dependenciesAny/dependenciesEvaluate.generated.js":138,"./dependenciesAny/dependenciesExp.generated.js":139,"./dependenciesAny/dependenciesExpm.generated.js":140,"./dependenciesAny/dependenciesExpm1.generated.js":141,"./dependenciesAny/dependenciesFactorial.generated.js":142,"./dependenciesAny/dependenciesFalse.generated.js":143,"./dependenciesAny/dependenciesFaraday.generated.js":144,"./dependenciesAny/dependenciesFermiCoupling.generated.js":145,"./dependenciesAny/dependenciesFibonacciHeapClass.generated.js":146,"./dependenciesAny/dependenciesFilter.generated.js":147,"./dependenciesAny/dependenciesFilterTransform.generated.js":148,"./dependenciesAny/dependenciesFineStructure.generated.js":149,"./dependenciesAny/dependenciesFirstRadiation.generated.js":150,"./dependenciesAny/dependenciesFix.generated.js":151,"./dependenciesAny/dependenciesFlatten.generated.js":152,"./dependenciesAny/dependenciesFloor.generated.js":153,"./dependenciesAny/dependenciesForEach.generated.js":154,"./dependenciesAny/dependenciesForEachTransform.generated.js":155,"./dependenciesAny/dependenciesFormat.generated.js":156,"./dependenciesAny/dependenciesFraction.generated.js":157,"./dependenciesAny/dependenciesFractionClass.generated.js":158,"./dependenciesAny/dependenciesFunctionAssignmentNode.generated.js":159,"./dependenciesAny/dependenciesFunctionNode.generated.js":160,"./dependenciesAny/dependenciesGamma.generated.js":161,"./dependenciesAny/dependenciesGasConstant.generated.js":162,"./dependenciesAny/dependenciesGcd.generated.js":163,"./dependenciesAny/dependenciesGetMatrixDataType.generated.js":164,"./dependenciesAny/dependenciesGravitationConstant.generated.js":165,"./dependenciesAny/dependenciesGravity.generated.js":166,"./dependenciesAny/dependenciesHartreeEnergy.generated.js":167,"./dependenciesAny/dependenciesHasNumericValue.generated.js":168,"./dependenciesAny/dependenciesHelp.generated.js":169,"./dependenciesAny/dependenciesHelpClass.generated.js":170,"./dependenciesAny/dependenciesHex.generated.js":171,"./dependenciesAny/dependenciesHypot.generated.js":172,"./dependenciesAny/dependenciesI.generated.js":173,"./dependenciesAny/dependenciesIdentity.generated.js":174,"./dependenciesAny/dependenciesIm.generated.js":175,"./dependenciesAny/dependenciesImmutableDenseMatrixClass.generated.js":176,"./dependenciesAny/dependenciesIndex.generated.js":177,"./dependenciesAny/dependenciesIndexClass.generated.js":178,"./dependenciesAny/dependenciesIndexNode.generated.js":179,"./dependenciesAny/dependenciesIndexTransform.generated.js":180,"./dependenciesAny/dependenciesInfinity.generated.js":181,"./dependenciesAny/dependenciesIntersect.generated.js":182,"./dependenciesAny/dependenciesInv.generated.js":183,"./dependenciesAny/dependenciesInverseConductanceQuantum.generated.js":184,"./dependenciesAny/dependenciesIsInteger.generated.js":185,"./dependenciesAny/dependenciesIsNaN.generated.js":186,"./dependenciesAny/dependenciesIsNegative.generated.js":187,"./dependenciesAny/dependenciesIsNumeric.generated.js":188,"./dependenciesAny/dependenciesIsPositive.generated.js":189,"./dependenciesAny/dependenciesIsPrime.generated.js":190,"./dependenciesAny/dependenciesIsZero.generated.js":191,"./dependenciesAny/dependenciesKldivergence.generated.js":192,"./dependenciesAny/dependenciesKlitzing.generated.js":193,"./dependenciesAny/dependenciesKron.generated.js":194,"./dependenciesAny/dependenciesLN10.generated.js":195,"./dependenciesAny/dependenciesLN2.generated.js":196,"./dependenciesAny/dependenciesLOG10E.generated.js":197,"./dependenciesAny/dependenciesLOG2E.generated.js":198,"./dependenciesAny/dependenciesLarger.generated.js":199,"./dependenciesAny/dependenciesLargerEq.generated.js":200,"./dependenciesAny/dependenciesLcm.generated.js":201,"./dependenciesAny/dependenciesLeftShift.generated.js":202,"./dependenciesAny/dependenciesLog.generated.js":203,"./dependenciesAny/dependenciesLog10.generated.js":204,"./dependenciesAny/dependenciesLog1p.generated.js":205,"./dependenciesAny/dependenciesLog2.generated.js":206,"./dependenciesAny/dependenciesLoschmidt.generated.js":207,"./dependenciesAny/dependenciesLsolve.generated.js":208,"./dependenciesAny/dependenciesLsolveAll.generated.js":209,"./dependenciesAny/dependenciesLup.generated.js":210,"./dependenciesAny/dependenciesLusolve.generated.js":211,"./dependenciesAny/dependenciesMad.generated.js":212,"./dependenciesAny/dependenciesMagneticConstant.generated.js":213,"./dependenciesAny/dependenciesMagneticFluxQuantum.generated.js":214,"./dependenciesAny/dependenciesMap.generated.js":215,"./dependenciesAny/dependenciesMapTransform.generated.js":216,"./dependenciesAny/dependenciesMatrix.generated.js":217,"./dependenciesAny/dependenciesMatrixClass.generated.js":218,"./dependenciesAny/dependenciesMatrixFromColumns.generated.js":219,"./dependenciesAny/dependenciesMatrixFromFunction.generated.js":220,"./dependenciesAny/dependenciesMatrixFromRows.generated.js":221,"./dependenciesAny/dependenciesMax.generated.js":222,"./dependenciesAny/dependenciesMaxTransform.generated.js":223,"./dependenciesAny/dependenciesMean.generated.js":224,"./dependenciesAny/dependenciesMeanTransform.generated.js":225,"./dependenciesAny/dependenciesMedian.generated.js":226,"./dependenciesAny/dependenciesMin.generated.js":227,"./dependenciesAny/dependenciesMinTransform.generated.js":228,"./dependenciesAny/dependenciesMod.generated.js":229,"./dependenciesAny/dependenciesMode.generated.js":230,"./dependenciesAny/dependenciesMolarMass.generated.js":231,"./dependenciesAny/dependenciesMolarMassC12.generated.js":232,"./dependenciesAny/dependenciesMolarPlanckConstant.generated.js":233,"./dependenciesAny/dependenciesMolarVolume.generated.js":234,"./dependenciesAny/dependenciesMultinomial.generated.js":235,"./dependenciesAny/dependenciesMultiply.generated.js":236,"./dependenciesAny/dependenciesMultiplyScalar.generated.js":237,"./dependenciesAny/dependenciesNaN.generated.js":238,"./dependenciesAny/dependenciesNeutronMass.generated.js":239,"./dependenciesAny/dependenciesNode.generated.js":240,"./dependenciesAny/dependenciesNorm.generated.js":241,"./dependenciesAny/dependenciesNot.generated.js":242,"./dependenciesAny/dependenciesNthRoot.generated.js":243,"./dependenciesAny/dependenciesNthRoots.generated.js":244,"./dependenciesAny/dependenciesNuclearMagneton.generated.js":245,"./dependenciesAny/dependenciesNull.generated.js":246,"./dependenciesAny/dependenciesNumber.generated.js":247,"./dependenciesAny/dependenciesNumeric.generated.js":248,"./dependenciesAny/dependenciesObjectNode.generated.js":249,"./dependenciesAny/dependenciesOct.generated.js":250,"./dependenciesAny/dependenciesOnes.generated.js":251,"./dependenciesAny/dependenciesOperatorNode.generated.js":252,"./dependenciesAny/dependenciesOr.generated.js":253,"./dependenciesAny/dependenciesParenthesisNode.generated.js":254,"./dependenciesAny/dependenciesParse.generated.js":255,"./dependenciesAny/dependenciesParser.generated.js":256,"./dependenciesAny/dependenciesParserClass.generated.js":257,"./dependenciesAny/dependenciesPartitionSelect.generated.js":258,"./dependenciesAny/dependenciesPermutations.generated.js":259,"./dependenciesAny/dependenciesPhi.generated.js":260,"./dependenciesAny/dependenciesPi.generated.js":261,"./dependenciesAny/dependenciesPickRandom.generated.js":262,"./dependenciesAny/dependenciesPlanckCharge.generated.js":263,"./dependenciesAny/dependenciesPlanckConstant.generated.js":264,"./dependenciesAny/dependenciesPlanckLength.generated.js":265,"./dependenciesAny/dependenciesPlanckMass.generated.js":266,"./dependenciesAny/dependenciesPlanckTemperature.generated.js":267,"./dependenciesAny/dependenciesPlanckTime.generated.js":268,"./dependenciesAny/dependenciesPow.generated.js":269,"./dependenciesAny/dependenciesPrint.generated.js":270,"./dependenciesAny/dependenciesProd.generated.js":271,"./dependenciesAny/dependenciesProtonMass.generated.js":272,"./dependenciesAny/dependenciesQr.generated.js":273,"./dependenciesAny/dependenciesQuantileSeq.generated.js":274,"./dependenciesAny/dependenciesQuantumOfCirculation.generated.js":275,"./dependenciesAny/dependenciesRandom.generated.js":276,"./dependenciesAny/dependenciesRandomInt.generated.js":277,"./dependenciesAny/dependenciesRange.generated.js":278,"./dependenciesAny/dependenciesRangeClass.generated.js":279,"./dependenciesAny/dependenciesRangeNode.generated.js":280,"./dependenciesAny/dependenciesRangeTransform.generated.js":281,"./dependenciesAny/dependenciesRationalize.generated.js":282,"./dependenciesAny/dependenciesRe.generated.js":283,"./dependenciesAny/dependenciesReducedPlanckConstant.generated.js":284,"./dependenciesAny/dependenciesRelationalNode.generated.js":285,"./dependenciesAny/dependenciesReplacer.generated.js":286,"./dependenciesAny/dependenciesReshape.generated.js":287,"./dependenciesAny/dependenciesResize.generated.js":288,"./dependenciesAny/dependenciesResultSet.generated.js":289,"./dependenciesAny/dependenciesReviver.generated.js":290,"./dependenciesAny/dependenciesRightArithShift.generated.js":291,"./dependenciesAny/dependenciesRightLogShift.generated.js":292,"./dependenciesAny/dependenciesRotate.generated.js":293,"./dependenciesAny/dependenciesRotationMatrix.generated.js":294,"./dependenciesAny/dependenciesRound.generated.js":295,"./dependenciesAny/dependenciesRow.generated.js":296,"./dependenciesAny/dependenciesRowTransform.generated.js":297,"./dependenciesAny/dependenciesRydberg.generated.js":298,"./dependenciesAny/dependenciesSQRT1_2.generated.js":299,"./dependenciesAny/dependenciesSQRT2.generated.js":300,"./dependenciesAny/dependenciesSackurTetrode.generated.js":301,"./dependenciesAny/dependenciesSec.generated.js":302,"./dependenciesAny/dependenciesSech.generated.js":303,"./dependenciesAny/dependenciesSecondRadiation.generated.js":304,"./dependenciesAny/dependenciesSetCartesian.generated.js":305,"./dependenciesAny/dependenciesSetDifference.generated.js":306,"./dependenciesAny/dependenciesSetDistinct.generated.js":307,"./dependenciesAny/dependenciesSetIntersect.generated.js":308,"./dependenciesAny/dependenciesSetIsSubset.generated.js":309,"./dependenciesAny/dependenciesSetMultiplicity.generated.js":310,"./dependenciesAny/dependenciesSetPowerset.generated.js":311,"./dependenciesAny/dependenciesSetSize.generated.js":312,"./dependenciesAny/dependenciesSetSymDifference.generated.js":313,"./dependenciesAny/dependenciesSetUnion.generated.js":314,"./dependenciesAny/dependenciesSign.generated.js":315,"./dependenciesAny/dependenciesSimplify.generated.js":316,"./dependenciesAny/dependenciesSin.generated.js":317,"./dependenciesAny/dependenciesSinh.generated.js":318,"./dependenciesAny/dependenciesSize.generated.js":319,"./dependenciesAny/dependenciesSlu.generated.js":320,"./dependenciesAny/dependenciesSmaller.generated.js":321,"./dependenciesAny/dependenciesSmallerEq.generated.js":322,"./dependenciesAny/dependenciesSort.generated.js":323,"./dependenciesAny/dependenciesSpaClass.generated.js":324,"./dependenciesAny/dependenciesSparse.generated.js":325,"./dependenciesAny/dependenciesSparseMatrixClass.generated.js":326,"./dependenciesAny/dependenciesSpeedOfLight.generated.js":327,"./dependenciesAny/dependenciesSplitUnit.generated.js":328,"./dependenciesAny/dependenciesSqrt.generated.js":329,"./dependenciesAny/dependenciesSqrtm.generated.js":330,"./dependenciesAny/dependenciesSquare.generated.js":331,"./dependenciesAny/dependenciesSqueeze.generated.js":332,"./dependenciesAny/dependenciesStd.generated.js":333,"./dependenciesAny/dependenciesStdTransform.generated.js":334,"./dependenciesAny/dependenciesStefanBoltzmann.generated.js":335,"./dependenciesAny/dependenciesStirlingS2.generated.js":336,"./dependenciesAny/dependenciesString.generated.js":337,"./dependenciesAny/dependenciesSubset.generated.js":338,"./dependenciesAny/dependenciesSubsetTransform.generated.js":339,"./dependenciesAny/dependenciesSubtract.generated.js":340,"./dependenciesAny/dependenciesSum.generated.js":341,"./dependenciesAny/dependenciesSumTransform.generated.js":342,"./dependenciesAny/dependenciesSymbolNode.generated.js":343,"./dependenciesAny/dependenciesTan.generated.js":344,"./dependenciesAny/dependenciesTanh.generated.js":345,"./dependenciesAny/dependenciesTau.generated.js":346,"./dependenciesAny/dependenciesThomsonCrossSection.generated.js":347,"./dependenciesAny/dependenciesTo.generated.js":348,"./dependenciesAny/dependenciesTrace.generated.js":349,"./dependenciesAny/dependenciesTranspose.generated.js":350,"./dependenciesAny/dependenciesTrue.generated.js":351,"./dependenciesAny/dependenciesTypeOf.generated.js":352,"./dependenciesAny/dependenciesTyped.generated.js":353,"./dependenciesAny/dependenciesUnaryMinus.generated.js":354,"./dependenciesAny/dependenciesUnaryPlus.generated.js":355,"./dependenciesAny/dependenciesUnequal.generated.js":356,"./dependenciesAny/dependenciesUnitClass.generated.js":357,"./dependenciesAny/dependenciesUnitFunction.generated.js":358,"./dependenciesAny/dependenciesUppercaseE.generated.js":359,"./dependenciesAny/dependenciesUppercasePi.generated.js":360,"./dependenciesAny/dependenciesUsolve.generated.js":361,"./dependenciesAny/dependenciesUsolveAll.generated.js":362,"./dependenciesAny/dependenciesVacuumImpedance.generated.js":363,"./dependenciesAny/dependenciesVariance.generated.js":364,"./dependenciesAny/dependenciesVarianceTransform.generated.js":365,"./dependenciesAny/dependenciesVersion.generated.js":366,"./dependenciesAny/dependenciesWeakMixingAngle.generated.js":367,"./dependenciesAny/dependenciesWienDisplacement.generated.js":368,"./dependenciesAny/dependenciesXgcd.generated.js":369,"./dependenciesAny/dependenciesXor.generated.js":370,"./dependenciesAny/dependenciesZeros.generated.js":371}],39:[function(require,module,exports){
+},{"./allFactoriesAny.js":37,"./dependenciesAny/dependenciesAbs.generated.js":40,"./dependenciesAny/dependenciesAccessorNode.generated.js":41,"./dependenciesAny/dependenciesAcos.generated.js":42,"./dependenciesAny/dependenciesAcosh.generated.js":43,"./dependenciesAny/dependenciesAcot.generated.js":44,"./dependenciesAny/dependenciesAcoth.generated.js":45,"./dependenciesAny/dependenciesAcsc.generated.js":46,"./dependenciesAny/dependenciesAcsch.generated.js":47,"./dependenciesAny/dependenciesAdd.generated.js":48,"./dependenciesAny/dependenciesAddScalar.generated.js":49,"./dependenciesAny/dependenciesAnd.generated.js":50,"./dependenciesAny/dependenciesApply.generated.js":51,"./dependenciesAny/dependenciesApplyTransform.generated.js":52,"./dependenciesAny/dependenciesArg.generated.js":53,"./dependenciesAny/dependenciesArrayNode.generated.js":54,"./dependenciesAny/dependenciesAsec.generated.js":55,"./dependenciesAny/dependenciesAsech.generated.js":56,"./dependenciesAny/dependenciesAsin.generated.js":57,"./dependenciesAny/dependenciesAsinh.generated.js":58,"./dependenciesAny/dependenciesAssignmentNode.generated.js":59,"./dependenciesAny/dependenciesAtan.generated.js":60,"./dependenciesAny/dependenciesAtan2.generated.js":61,"./dependenciesAny/dependenciesAtanh.generated.js":62,"./dependenciesAny/dependenciesAtomicMass.generated.js":63,"./dependenciesAny/dependenciesAvogadro.generated.js":64,"./dependenciesAny/dependenciesBellNumbers.generated.js":65,"./dependenciesAny/dependenciesBigNumberClass.generated.js":66,"./dependenciesAny/dependenciesBignumber.generated.js":67,"./dependenciesAny/dependenciesBin.generated.js":68,"./dependenciesAny/dependenciesBitAnd.generated.js":69,"./dependenciesAny/dependenciesBitNot.generated.js":70,"./dependenciesAny/dependenciesBitOr.generated.js":71,"./dependenciesAny/dependenciesBitXor.generated.js":72,"./dependenciesAny/dependenciesBlockNode.generated.js":73,"./dependenciesAny/dependenciesBohrMagneton.generated.js":74,"./dependenciesAny/dependenciesBohrRadius.generated.js":75,"./dependenciesAny/dependenciesBoltzmann.generated.js":76,"./dependenciesAny/dependenciesBoolean.generated.js":77,"./dependenciesAny/dependenciesCatalan.generated.js":78,"./dependenciesAny/dependenciesCbrt.generated.js":79,"./dependenciesAny/dependenciesCeil.generated.js":80,"./dependenciesAny/dependenciesChain.generated.js":81,"./dependenciesAny/dependenciesChainClass.generated.js":82,"./dependenciesAny/dependenciesClassicalElectronRadius.generated.js":83,"./dependenciesAny/dependenciesClone.generated.js":84,"./dependenciesAny/dependenciesColumn.generated.js":85,"./dependenciesAny/dependenciesColumnTransform.generated.js":86,"./dependenciesAny/dependenciesCombinations.generated.js":87,"./dependenciesAny/dependenciesCombinationsWithRep.generated.js":88,"./dependenciesAny/dependenciesCompare.generated.js":89,"./dependenciesAny/dependenciesCompareNatural.generated.js":90,"./dependenciesAny/dependenciesCompareText.generated.js":91,"./dependenciesAny/dependenciesCompile.generated.js":92,"./dependenciesAny/dependenciesComplex.generated.js":93,"./dependenciesAny/dependenciesComplexClass.generated.js":94,"./dependenciesAny/dependenciesComposition.generated.js":95,"./dependenciesAny/dependenciesConcat.generated.js":96,"./dependenciesAny/dependenciesConcatTransform.generated.js":97,"./dependenciesAny/dependenciesConditionalNode.generated.js":98,"./dependenciesAny/dependenciesConductanceQuantum.generated.js":99,"./dependenciesAny/dependenciesConj.generated.js":100,"./dependenciesAny/dependenciesConstantNode.generated.js":101,"./dependenciesAny/dependenciesCos.generated.js":102,"./dependenciesAny/dependenciesCosh.generated.js":103,"./dependenciesAny/dependenciesCot.generated.js":104,"./dependenciesAny/dependenciesCoth.generated.js":105,"./dependenciesAny/dependenciesCoulomb.generated.js":106,"./dependenciesAny/dependenciesCount.generated.js":107,"./dependenciesAny/dependenciesCreateUnit.generated.js":108,"./dependenciesAny/dependenciesCross.generated.js":109,"./dependenciesAny/dependenciesCsc.generated.js":110,"./dependenciesAny/dependenciesCsch.generated.js":111,"./dependenciesAny/dependenciesCtranspose.generated.js":112,"./dependenciesAny/dependenciesCube.generated.js":113,"./dependenciesAny/dependenciesDeepEqual.generated.js":114,"./dependenciesAny/dependenciesDenseMatrixClass.generated.js":115,"./dependenciesAny/dependenciesDerivative.generated.js":116,"./dependenciesAny/dependenciesDet.generated.js":117,"./dependenciesAny/dependenciesDeuteronMass.generated.js":118,"./dependenciesAny/dependenciesDiag.generated.js":119,"./dependenciesAny/dependenciesDiff.generated.js":120,"./dependenciesAny/dependenciesDiffTransform.generated.js":121,"./dependenciesAny/dependenciesDistance.generated.js":122,"./dependenciesAny/dependenciesDivide.generated.js":123,"./dependenciesAny/dependenciesDivideScalar.generated.js":124,"./dependenciesAny/dependenciesDot.generated.js":125,"./dependenciesAny/dependenciesDotDivide.generated.js":126,"./dependenciesAny/dependenciesDotMultiply.generated.js":127,"./dependenciesAny/dependenciesDotPow.generated.js":128,"./dependenciesAny/dependenciesE.generated.js":129,"./dependenciesAny/dependenciesEfimovFactor.generated.js":130,"./dependenciesAny/dependenciesEigs.generated.js":131,"./dependenciesAny/dependenciesElectricConstant.generated.js":132,"./dependenciesAny/dependenciesElectronMass.generated.js":133,"./dependenciesAny/dependenciesElementaryCharge.generated.js":134,"./dependenciesAny/dependenciesEqual.generated.js":135,"./dependenciesAny/dependenciesEqualScalar.generated.js":136,"./dependenciesAny/dependenciesEqualText.generated.js":137,"./dependenciesAny/dependenciesErf.generated.js":138,"./dependenciesAny/dependenciesEvaluate.generated.js":139,"./dependenciesAny/dependenciesExp.generated.js":140,"./dependenciesAny/dependenciesExpm.generated.js":141,"./dependenciesAny/dependenciesExpm1.generated.js":142,"./dependenciesAny/dependenciesFactorial.generated.js":143,"./dependenciesAny/dependenciesFalse.generated.js":144,"./dependenciesAny/dependenciesFaraday.generated.js":145,"./dependenciesAny/dependenciesFermiCoupling.generated.js":146,"./dependenciesAny/dependenciesFibonacciHeapClass.generated.js":147,"./dependenciesAny/dependenciesFilter.generated.js":148,"./dependenciesAny/dependenciesFilterTransform.generated.js":149,"./dependenciesAny/dependenciesFineStructure.generated.js":150,"./dependenciesAny/dependenciesFirstRadiation.generated.js":151,"./dependenciesAny/dependenciesFix.generated.js":152,"./dependenciesAny/dependenciesFlatten.generated.js":153,"./dependenciesAny/dependenciesFloor.generated.js":154,"./dependenciesAny/dependenciesForEach.generated.js":155,"./dependenciesAny/dependenciesForEachTransform.generated.js":156,"./dependenciesAny/dependenciesFormat.generated.js":157,"./dependenciesAny/dependenciesFraction.generated.js":158,"./dependenciesAny/dependenciesFractionClass.generated.js":159,"./dependenciesAny/dependenciesFunctionAssignmentNode.generated.js":160,"./dependenciesAny/dependenciesFunctionNode.generated.js":161,"./dependenciesAny/dependenciesGamma.generated.js":162,"./dependenciesAny/dependenciesGasConstant.generated.js":163,"./dependenciesAny/dependenciesGcd.generated.js":164,"./dependenciesAny/dependenciesGetMatrixDataType.generated.js":165,"./dependenciesAny/dependenciesGravitationConstant.generated.js":166,"./dependenciesAny/dependenciesGravity.generated.js":167,"./dependenciesAny/dependenciesHartreeEnergy.generated.js":168,"./dependenciesAny/dependenciesHasNumericValue.generated.js":169,"./dependenciesAny/dependenciesHelp.generated.js":170,"./dependenciesAny/dependenciesHelpClass.generated.js":171,"./dependenciesAny/dependenciesHex.generated.js":172,"./dependenciesAny/dependenciesHypot.generated.js":173,"./dependenciesAny/dependenciesI.generated.js":174,"./dependenciesAny/dependenciesIdentity.generated.js":175,"./dependenciesAny/dependenciesIm.generated.js":176,"./dependenciesAny/dependenciesImmutableDenseMatrixClass.generated.js":177,"./dependenciesAny/dependenciesIndex.generated.js":178,"./dependenciesAny/dependenciesIndexClass.generated.js":179,"./dependenciesAny/dependenciesIndexNode.generated.js":180,"./dependenciesAny/dependenciesIndexTransform.generated.js":181,"./dependenciesAny/dependenciesInfinity.generated.js":182,"./dependenciesAny/dependenciesIntersect.generated.js":183,"./dependenciesAny/dependenciesInv.generated.js":184,"./dependenciesAny/dependenciesInverseConductanceQuantum.generated.js":185,"./dependenciesAny/dependenciesIsInteger.generated.js":186,"./dependenciesAny/dependenciesIsNaN.generated.js":187,"./dependenciesAny/dependenciesIsNegative.generated.js":188,"./dependenciesAny/dependenciesIsNumeric.generated.js":189,"./dependenciesAny/dependenciesIsPositive.generated.js":190,"./dependenciesAny/dependenciesIsPrime.generated.js":191,"./dependenciesAny/dependenciesIsZero.generated.js":192,"./dependenciesAny/dependenciesKldivergence.generated.js":193,"./dependenciesAny/dependenciesKlitzing.generated.js":194,"./dependenciesAny/dependenciesKron.generated.js":195,"./dependenciesAny/dependenciesLN10.generated.js":196,"./dependenciesAny/dependenciesLN2.generated.js":197,"./dependenciesAny/dependenciesLOG10E.generated.js":198,"./dependenciesAny/dependenciesLOG2E.generated.js":199,"./dependenciesAny/dependenciesLarger.generated.js":200,"./dependenciesAny/dependenciesLargerEq.generated.js":201,"./dependenciesAny/dependenciesLcm.generated.js":202,"./dependenciesAny/dependenciesLeftShift.generated.js":203,"./dependenciesAny/dependenciesLog.generated.js":204,"./dependenciesAny/dependenciesLog10.generated.js":205,"./dependenciesAny/dependenciesLog1p.generated.js":206,"./dependenciesAny/dependenciesLog2.generated.js":207,"./dependenciesAny/dependenciesLoschmidt.generated.js":208,"./dependenciesAny/dependenciesLsolve.generated.js":209,"./dependenciesAny/dependenciesLsolveAll.generated.js":210,"./dependenciesAny/dependenciesLup.generated.js":211,"./dependenciesAny/dependenciesLusolve.generated.js":212,"./dependenciesAny/dependenciesMad.generated.js":213,"./dependenciesAny/dependenciesMagneticConstant.generated.js":214,"./dependenciesAny/dependenciesMagneticFluxQuantum.generated.js":215,"./dependenciesAny/dependenciesMap.generated.js":216,"./dependenciesAny/dependenciesMapTransform.generated.js":217,"./dependenciesAny/dependenciesMatrix.generated.js":218,"./dependenciesAny/dependenciesMatrixClass.generated.js":219,"./dependenciesAny/dependenciesMatrixFromColumns.generated.js":220,"./dependenciesAny/dependenciesMatrixFromFunction.generated.js":221,"./dependenciesAny/dependenciesMatrixFromRows.generated.js":222,"./dependenciesAny/dependenciesMax.generated.js":223,"./dependenciesAny/dependenciesMaxTransform.generated.js":224,"./dependenciesAny/dependenciesMean.generated.js":225,"./dependenciesAny/dependenciesMeanTransform.generated.js":226,"./dependenciesAny/dependenciesMedian.generated.js":227,"./dependenciesAny/dependenciesMin.generated.js":228,"./dependenciesAny/dependenciesMinTransform.generated.js":229,"./dependenciesAny/dependenciesMod.generated.js":230,"./dependenciesAny/dependenciesMode.generated.js":231,"./dependenciesAny/dependenciesMolarMass.generated.js":232,"./dependenciesAny/dependenciesMolarMassC12.generated.js":233,"./dependenciesAny/dependenciesMolarPlanckConstant.generated.js":234,"./dependenciesAny/dependenciesMolarVolume.generated.js":235,"./dependenciesAny/dependenciesMultinomial.generated.js":236,"./dependenciesAny/dependenciesMultiply.generated.js":237,"./dependenciesAny/dependenciesMultiplyScalar.generated.js":238,"./dependenciesAny/dependenciesNaN.generated.js":239,"./dependenciesAny/dependenciesNeutronMass.generated.js":240,"./dependenciesAny/dependenciesNode.generated.js":241,"./dependenciesAny/dependenciesNorm.generated.js":242,"./dependenciesAny/dependenciesNot.generated.js":243,"./dependenciesAny/dependenciesNthRoot.generated.js":244,"./dependenciesAny/dependenciesNthRoots.generated.js":245,"./dependenciesAny/dependenciesNuclearMagneton.generated.js":246,"./dependenciesAny/dependenciesNull.generated.js":247,"./dependenciesAny/dependenciesNumber.generated.js":248,"./dependenciesAny/dependenciesNumeric.generated.js":249,"./dependenciesAny/dependenciesObjectNode.generated.js":250,"./dependenciesAny/dependenciesOct.generated.js":251,"./dependenciesAny/dependenciesOnes.generated.js":252,"./dependenciesAny/dependenciesOperatorNode.generated.js":253,"./dependenciesAny/dependenciesOr.generated.js":254,"./dependenciesAny/dependenciesParenthesisNode.generated.js":255,"./dependenciesAny/dependenciesParse.generated.js":256,"./dependenciesAny/dependenciesParser.generated.js":257,"./dependenciesAny/dependenciesParserClass.generated.js":258,"./dependenciesAny/dependenciesPartitionSelect.generated.js":259,"./dependenciesAny/dependenciesPermutations.generated.js":260,"./dependenciesAny/dependenciesPhi.generated.js":261,"./dependenciesAny/dependenciesPi.generated.js":262,"./dependenciesAny/dependenciesPickRandom.generated.js":263,"./dependenciesAny/dependenciesPlanckCharge.generated.js":264,"./dependenciesAny/dependenciesPlanckConstant.generated.js":265,"./dependenciesAny/dependenciesPlanckLength.generated.js":266,"./dependenciesAny/dependenciesPlanckMass.generated.js":267,"./dependenciesAny/dependenciesPlanckTemperature.generated.js":268,"./dependenciesAny/dependenciesPlanckTime.generated.js":269,"./dependenciesAny/dependenciesPow.generated.js":270,"./dependenciesAny/dependenciesPrint.generated.js":271,"./dependenciesAny/dependenciesProd.generated.js":272,"./dependenciesAny/dependenciesProtonMass.generated.js":273,"./dependenciesAny/dependenciesQr.generated.js":274,"./dependenciesAny/dependenciesQuantileSeq.generated.js":275,"./dependenciesAny/dependenciesQuantumOfCirculation.generated.js":276,"./dependenciesAny/dependenciesRandom.generated.js":277,"./dependenciesAny/dependenciesRandomInt.generated.js":278,"./dependenciesAny/dependenciesRange.generated.js":279,"./dependenciesAny/dependenciesRangeClass.generated.js":280,"./dependenciesAny/dependenciesRangeNode.generated.js":281,"./dependenciesAny/dependenciesRangeTransform.generated.js":282,"./dependenciesAny/dependenciesRationalize.generated.js":283,"./dependenciesAny/dependenciesRe.generated.js":284,"./dependenciesAny/dependenciesReducedPlanckConstant.generated.js":285,"./dependenciesAny/dependenciesRelationalNode.generated.js":286,"./dependenciesAny/dependenciesReplacer.generated.js":287,"./dependenciesAny/dependenciesReshape.generated.js":288,"./dependenciesAny/dependenciesResize.generated.js":289,"./dependenciesAny/dependenciesResultSet.generated.js":290,"./dependenciesAny/dependenciesReviver.generated.js":291,"./dependenciesAny/dependenciesRightArithShift.generated.js":292,"./dependenciesAny/dependenciesRightLogShift.generated.js":293,"./dependenciesAny/dependenciesRotate.generated.js":294,"./dependenciesAny/dependenciesRotationMatrix.generated.js":295,"./dependenciesAny/dependenciesRound.generated.js":296,"./dependenciesAny/dependenciesRow.generated.js":297,"./dependenciesAny/dependenciesRowTransform.generated.js":298,"./dependenciesAny/dependenciesRydberg.generated.js":299,"./dependenciesAny/dependenciesSQRT1_2.generated.js":300,"./dependenciesAny/dependenciesSQRT2.generated.js":301,"./dependenciesAny/dependenciesSackurTetrode.generated.js":302,"./dependenciesAny/dependenciesSec.generated.js":303,"./dependenciesAny/dependenciesSech.generated.js":304,"./dependenciesAny/dependenciesSecondRadiation.generated.js":305,"./dependenciesAny/dependenciesSetCartesian.generated.js":306,"./dependenciesAny/dependenciesSetDifference.generated.js":307,"./dependenciesAny/dependenciesSetDistinct.generated.js":308,"./dependenciesAny/dependenciesSetIntersect.generated.js":309,"./dependenciesAny/dependenciesSetIsSubset.generated.js":310,"./dependenciesAny/dependenciesSetMultiplicity.generated.js":311,"./dependenciesAny/dependenciesSetPowerset.generated.js":312,"./dependenciesAny/dependenciesSetSize.generated.js":313,"./dependenciesAny/dependenciesSetSymDifference.generated.js":314,"./dependenciesAny/dependenciesSetUnion.generated.js":315,"./dependenciesAny/dependenciesSign.generated.js":316,"./dependenciesAny/dependenciesSimplify.generated.js":317,"./dependenciesAny/dependenciesSin.generated.js":318,"./dependenciesAny/dependenciesSinh.generated.js":319,"./dependenciesAny/dependenciesSize.generated.js":320,"./dependenciesAny/dependenciesSlu.generated.js":321,"./dependenciesAny/dependenciesSmaller.generated.js":322,"./dependenciesAny/dependenciesSmallerEq.generated.js":323,"./dependenciesAny/dependenciesSort.generated.js":324,"./dependenciesAny/dependenciesSpaClass.generated.js":325,"./dependenciesAny/dependenciesSparse.generated.js":326,"./dependenciesAny/dependenciesSparseMatrixClass.generated.js":327,"./dependenciesAny/dependenciesSpeedOfLight.generated.js":328,"./dependenciesAny/dependenciesSplitUnit.generated.js":329,"./dependenciesAny/dependenciesSqrt.generated.js":330,"./dependenciesAny/dependenciesSqrtm.generated.js":331,"./dependenciesAny/dependenciesSquare.generated.js":332,"./dependenciesAny/dependenciesSqueeze.generated.js":333,"./dependenciesAny/dependenciesStd.generated.js":334,"./dependenciesAny/dependenciesStdTransform.generated.js":335,"./dependenciesAny/dependenciesStefanBoltzmann.generated.js":336,"./dependenciesAny/dependenciesStirlingS2.generated.js":337,"./dependenciesAny/dependenciesString.generated.js":338,"./dependenciesAny/dependenciesSubset.generated.js":339,"./dependenciesAny/dependenciesSubsetTransform.generated.js":340,"./dependenciesAny/dependenciesSubtract.generated.js":341,"./dependenciesAny/dependenciesSum.generated.js":342,"./dependenciesAny/dependenciesSumTransform.generated.js":343,"./dependenciesAny/dependenciesSymbolNode.generated.js":344,"./dependenciesAny/dependenciesTan.generated.js":345,"./dependenciesAny/dependenciesTanh.generated.js":346,"./dependenciesAny/dependenciesTau.generated.js":347,"./dependenciesAny/dependenciesThomsonCrossSection.generated.js":348,"./dependenciesAny/dependenciesTo.generated.js":349,"./dependenciesAny/dependenciesTrace.generated.js":350,"./dependenciesAny/dependenciesTranspose.generated.js":351,"./dependenciesAny/dependenciesTrue.generated.js":352,"./dependenciesAny/dependenciesTypeOf.generated.js":353,"./dependenciesAny/dependenciesTyped.generated.js":354,"./dependenciesAny/dependenciesUnaryMinus.generated.js":355,"./dependenciesAny/dependenciesUnaryPlus.generated.js":356,"./dependenciesAny/dependenciesUnequal.generated.js":357,"./dependenciesAny/dependenciesUnitClass.generated.js":358,"./dependenciesAny/dependenciesUnitFunction.generated.js":359,"./dependenciesAny/dependenciesUppercaseE.generated.js":360,"./dependenciesAny/dependenciesUppercasePi.generated.js":361,"./dependenciesAny/dependenciesUsolve.generated.js":362,"./dependenciesAny/dependenciesUsolveAll.generated.js":363,"./dependenciesAny/dependenciesVacuumImpedance.generated.js":364,"./dependenciesAny/dependenciesVariance.generated.js":365,"./dependenciesAny/dependenciesVarianceTransform.generated.js":366,"./dependenciesAny/dependenciesVersion.generated.js":367,"./dependenciesAny/dependenciesWeakMixingAngle.generated.js":368,"./dependenciesAny/dependenciesWienDisplacement.generated.js":369,"./dependenciesAny/dependenciesXgcd.generated.js":370,"./dependenciesAny/dependenciesXor.generated.js":371,"./dependenciesAny/dependenciesZeros.generated.js":372}],40:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25564,7 +26009,7 @@ var absDependencies = {
   createAbs: _factoriesAny.createAbs
 };
 exports.absDependencies = absDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],40:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],41:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25588,7 +26033,7 @@ var AccessorNodeDependencies = {
   createAccessorNode: _factoriesAny.createAccessorNode
 };
 exports.AccessorNodeDependencies = AccessorNodeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesNode.generated.js":240,"./dependenciesSubset.generated.js":338}],41:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesNode.generated.js":241,"./dependenciesSubset.generated.js":339}],42:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25612,7 +26057,7 @@ var acosDependencies = {
   createAcos: _factoriesAny.createAcos
 };
 exports.acosDependencies = acosDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesComplexClass.generated.js":93,"./dependenciesTyped.generated.js":353}],42:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesComplexClass.generated.js":94,"./dependenciesTyped.generated.js":354}],43:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25636,7 +26081,7 @@ var acoshDependencies = {
   createAcosh: _factoriesAny.createAcosh
 };
 exports.acoshDependencies = acoshDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesComplexClass.generated.js":93,"./dependenciesTyped.generated.js":353}],43:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesComplexClass.generated.js":94,"./dependenciesTyped.generated.js":354}],44:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25660,7 +26105,7 @@ var acotDependencies = {
   createAcot: _factoriesAny.createAcot
 };
 exports.acotDependencies = acotDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesTyped.generated.js":353}],44:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesTyped.generated.js":354}],45:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25687,7 +26132,7 @@ var acothDependencies = {
   createAcoth: _factoriesAny.createAcoth
 };
 exports.acothDependencies = acothDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesComplexClass.generated.js":93,"./dependenciesTyped.generated.js":353}],45:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesComplexClass.generated.js":94,"./dependenciesTyped.generated.js":354}],46:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25714,7 +26159,7 @@ var acscDependencies = {
   createAcsc: _factoriesAny.createAcsc
 };
 exports.acscDependencies = acscDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesComplexClass.generated.js":93,"./dependenciesTyped.generated.js":353}],46:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesComplexClass.generated.js":94,"./dependenciesTyped.generated.js":354}],47:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25738,7 +26183,7 @@ var acschDependencies = {
   createAcsch: _factoriesAny.createAcsch
 };
 exports.acschDependencies = acschDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesTyped.generated.js":353}],47:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesTyped.generated.js":354}],48:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25774,7 +26219,7 @@ var addDependencies = {
   createAdd: _factoriesAny.createAdd
 };
 exports.addDependencies = addDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAddScalar.generated.js":48,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesSparseMatrixClass.generated.js":326,"./dependenciesTyped.generated.js":353}],48:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAddScalar.generated.js":49,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesSparseMatrixClass.generated.js":327,"./dependenciesTyped.generated.js":354}],49:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25795,7 +26240,7 @@ var addScalarDependencies = {
   createAddScalar: _factoriesAny.createAddScalar
 };
 exports.addScalarDependencies = addScalarDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],49:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],50:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25828,7 +26273,7 @@ var andDependencies = {
   createAnd: _factoriesAny.createAnd
 };
 exports.andDependencies = andDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesNot.generated.js":242,"./dependenciesTyped.generated.js":353,"./dependenciesZeros.generated.js":371}],50:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesNot.generated.js":243,"./dependenciesTyped.generated.js":354,"./dependenciesZeros.generated.js":372}],51:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25852,7 +26297,7 @@ var applyDependencies = {
   createApply: _factoriesAny.createApply
 };
 exports.applyDependencies = applyDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesIsInteger.generated.js":185,"./dependenciesTyped.generated.js":353}],51:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesIsInteger.generated.js":186,"./dependenciesTyped.generated.js":354}],52:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25876,7 +26321,7 @@ var applyTransformDependencies = {
   createApplyTransform: _factoriesAny.createApplyTransform
 };
 exports.applyTransformDependencies = applyTransformDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesIsInteger.generated.js":185,"./dependenciesTyped.generated.js":353}],52:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesIsInteger.generated.js":186,"./dependenciesTyped.generated.js":354}],53:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25897,7 +26342,7 @@ var argDependencies = {
   createArg: _factoriesAny.createArg
 };
 exports.argDependencies = argDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],53:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],54:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25918,7 +26363,7 @@ var ArrayNodeDependencies = {
   createArrayNode: _factoriesAny.createArrayNode
 };
 exports.ArrayNodeDependencies = ArrayNodeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesNode.generated.js":240}],54:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesNode.generated.js":241}],55:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25945,7 +26390,7 @@ var asecDependencies = {
   createAsec: _factoriesAny.createAsec
 };
 exports.asecDependencies = asecDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesComplexClass.generated.js":93,"./dependenciesTyped.generated.js":353}],55:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesComplexClass.generated.js":94,"./dependenciesTyped.generated.js":354}],56:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25972,7 +26417,7 @@ var asechDependencies = {
   createAsech: _factoriesAny.createAsech
 };
 exports.asechDependencies = asechDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesComplexClass.generated.js":93,"./dependenciesTyped.generated.js":353}],56:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesComplexClass.generated.js":94,"./dependenciesTyped.generated.js":354}],57:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25996,7 +26441,7 @@ var asinDependencies = {
   createAsin: _factoriesAny.createAsin
 };
 exports.asinDependencies = asinDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesComplexClass.generated.js":93,"./dependenciesTyped.generated.js":353}],57:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesComplexClass.generated.js":94,"./dependenciesTyped.generated.js":354}],58:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26017,7 +26462,7 @@ var asinhDependencies = {
   createAsinh: _factoriesAny.createAsinh
 };
 exports.asinhDependencies = asinhDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],58:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],59:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26044,7 +26489,7 @@ var AssignmentNodeDependencies = {
   createAssignmentNode: _factoriesAny.createAssignmentNode
 };
 exports.AssignmentNodeDependencies = AssignmentNodeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesMatrix.generated.js":217,"./dependenciesNode.generated.js":240,"./dependenciesSubset.generated.js":338}],59:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesMatrix.generated.js":218,"./dependenciesNode.generated.js":241,"./dependenciesSubset.generated.js":339}],60:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26065,7 +26510,7 @@ var atanDependencies = {
   createAtan: _factoriesAny.createAtan
 };
 exports.atanDependencies = atanDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],60:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],61:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26098,7 +26543,7 @@ var atan2Dependencies = {
   createAtan2: _factoriesAny.createAtan2
 };
 exports.atan2Dependencies = atan2Dependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],61:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],62:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26122,7 +26567,7 @@ var atanhDependencies = {
   createAtanh: _factoriesAny.createAtanh
 };
 exports.atanhDependencies = atanhDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesComplexClass.generated.js":93,"./dependenciesTyped.generated.js":353}],62:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesComplexClass.generated.js":94,"./dependenciesTyped.generated.js":354}],63:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26146,7 +26591,7 @@ var atomicMassDependencies = {
   createAtomicMass: _factoriesAny.createAtomicMass
 };
 exports.atomicMassDependencies = atomicMassDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],63:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],64:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26170,7 +26615,7 @@ var avogadroDependencies = {
   createAvogadro: _factoriesAny.createAvogadro
 };
 exports.avogadroDependencies = avogadroDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],64:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],65:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26203,7 +26648,7 @@ var bellNumbersDependencies = {
   createBellNumbers: _factoriesAny.createBellNumbers
 };
 exports.bellNumbersDependencies = bellNumbersDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAddScalar.generated.js":48,"./dependenciesIsInteger.generated.js":185,"./dependenciesIsNegative.generated.js":187,"./dependenciesStirlingS2.generated.js":336,"./dependenciesTyped.generated.js":353}],65:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAddScalar.generated.js":49,"./dependenciesIsInteger.generated.js":186,"./dependenciesIsNegative.generated.js":188,"./dependenciesStirlingS2.generated.js":337,"./dependenciesTyped.generated.js":354}],66:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26221,7 +26666,7 @@ var BigNumberDependencies = {
   createBigNumberClass: _factoriesAny.createBigNumberClass
 };
 exports.BigNumberDependencies = BigNumberDependencies;
-},{"../../factoriesAny.js":649}],66:[function(require,module,exports){
+},{"../../factoriesAny.js":650}],67:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26245,7 +26690,7 @@ var bignumberDependencies = {
   createBignumber: _factoriesAny.createBignumber
 };
 exports.bignumberDependencies = bignumberDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesTyped.generated.js":353}],67:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesTyped.generated.js":354}],68:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26269,7 +26714,7 @@ var binDependencies = {
   createBin: _factoriesAny.createBin
 };
 exports.binDependencies = binDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesFormat.generated.js":156,"./dependenciesTyped.generated.js":353}],68:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesFormat.generated.js":157,"./dependenciesTyped.generated.js":354}],69:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26296,7 +26741,7 @@ var bitAndDependencies = {
   createBitAnd: _factoriesAny.createBitAnd
 };
 exports.bitAndDependencies = bitAndDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],69:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],70:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26317,7 +26762,7 @@ var bitNotDependencies = {
   createBitNot: _factoriesAny.createBitNot
 };
 exports.bitNotDependencies = bitNotDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],70:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],71:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26347,7 +26792,7 @@ var bitOrDependencies = {
   createBitOr: _factoriesAny.createBitOr
 };
 exports.bitOrDependencies = bitOrDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],71:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],72:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26374,7 +26819,7 @@ var bitXorDependencies = {
   createBitXor: _factoriesAny.createBitXor
 };
 exports.bitXorDependencies = bitXorDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],72:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],73:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26398,7 +26843,7 @@ var BlockNodeDependencies = {
   createBlockNode: _factoriesAny.createBlockNode
 };
 exports.BlockNodeDependencies = BlockNodeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesNode.generated.js":240,"./dependenciesResultSet.generated.js":289}],73:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesNode.generated.js":241,"./dependenciesResultSet.generated.js":290}],74:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26422,7 +26867,7 @@ var bohrMagnetonDependencies = {
   createBohrMagneton: _factoriesAny.createBohrMagneton
 };
 exports.bohrMagnetonDependencies = bohrMagnetonDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],74:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],75:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26446,7 +26891,7 @@ var bohrRadiusDependencies = {
   createBohrRadius: _factoriesAny.createBohrRadius
 };
 exports.bohrRadiusDependencies = bohrRadiusDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],75:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],76:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26470,7 +26915,7 @@ var boltzmannDependencies = {
   createBoltzmann: _factoriesAny.createBoltzmann
 };
 exports.boltzmannDependencies = boltzmannDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],76:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],77:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26491,7 +26936,7 @@ var booleanDependencies = {
   createBoolean: _factoriesAny.createBoolean
 };
 exports.booleanDependencies = booleanDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],77:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],78:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26530,7 +26975,7 @@ var catalanDependencies = {
   createCatalan: _factoriesAny.createCatalan
 };
 exports.catalanDependencies = catalanDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAddScalar.generated.js":48,"./dependenciesCombinations.generated.js":86,"./dependenciesDivideScalar.generated.js":123,"./dependenciesIsInteger.generated.js":185,"./dependenciesIsNegative.generated.js":187,"./dependenciesMultiplyScalar.generated.js":237,"./dependenciesTyped.generated.js":353}],78:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAddScalar.generated.js":49,"./dependenciesCombinations.generated.js":87,"./dependenciesDivideScalar.generated.js":124,"./dependenciesIsInteger.generated.js":186,"./dependenciesIsNegative.generated.js":188,"./dependenciesMultiplyScalar.generated.js":238,"./dependenciesTyped.generated.js":354}],79:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26569,7 +27014,7 @@ var cbrtDependencies = {
   createCbrt: _factoriesAny.createCbrt
 };
 exports.cbrtDependencies = cbrtDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesComplexClass.generated.js":93,"./dependenciesFractionClass.generated.js":158,"./dependenciesIsNegative.generated.js":187,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353,"./dependenciesUnaryMinus.generated.js":354}],79:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesComplexClass.generated.js":94,"./dependenciesFractionClass.generated.js":159,"./dependenciesIsNegative.generated.js":188,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354,"./dependenciesUnaryMinus.generated.js":355}],80:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26599,7 +27044,7 @@ var ceilDependencies = {
   createCeil: _factoriesAny.createCeil
 };
 exports.ceilDependencies = ceilDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesRound.generated.js":295,"./dependenciesTyped.generated.js":353}],80:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesRound.generated.js":296,"./dependenciesTyped.generated.js":354}],81:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26623,7 +27068,7 @@ var chainDependencies = {
   createChain: _factoriesAny.createChain
 };
 exports.chainDependencies = chainDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesChainClass.generated.js":81,"./dependenciesTyped.generated.js":353}],81:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesChainClass.generated.js":82,"./dependenciesTyped.generated.js":354}],82:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26641,7 +27086,7 @@ var ChainDependencies = {
   createChainClass: _factoriesAny.createChainClass
 };
 exports.ChainDependencies = ChainDependencies;
-},{"../../factoriesAny.js":649}],82:[function(require,module,exports){
+},{"../../factoriesAny.js":650}],83:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26665,7 +27110,7 @@ var classicalElectronRadiusDependencies = {
   createClassicalElectronRadius: _factoriesAny.createClassicalElectronRadius
 };
 exports.classicalElectronRadiusDependencies = classicalElectronRadiusDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],83:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],84:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26686,7 +27131,7 @@ var cloneDependencies = {
   createClone: _factoriesAny.createClone
 };
 exports.cloneDependencies = cloneDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],84:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],85:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26716,7 +27161,7 @@ var columnDependencies = {
   createColumn: _factoriesAny.createColumn
 };
 exports.columnDependencies = columnDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesIndexClass.generated.js":178,"./dependenciesMatrix.generated.js":217,"./dependenciesRange.generated.js":278,"./dependenciesTyped.generated.js":353}],85:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesIndexClass.generated.js":179,"./dependenciesMatrix.generated.js":218,"./dependenciesRange.generated.js":279,"./dependenciesTyped.generated.js":354}],86:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26746,7 +27191,7 @@ var columnTransformDependencies = {
   createColumnTransform: _factoriesAny.createColumnTransform
 };
 exports.columnTransformDependencies = columnTransformDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesIndexClass.generated.js":178,"./dependenciesMatrix.generated.js":217,"./dependenciesRange.generated.js":278,"./dependenciesTyped.generated.js":353}],86:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesIndexClass.generated.js":179,"./dependenciesMatrix.generated.js":218,"./dependenciesRange.generated.js":279,"./dependenciesTyped.generated.js":354}],87:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26767,7 +27212,7 @@ var combinationsDependencies = {
   createCombinations: _factoriesAny.createCombinations
 };
 exports.combinationsDependencies = combinationsDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],87:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],88:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26788,7 +27233,7 @@ var combinationsWithRepDependencies = {
   createCombinationsWithRep: _factoriesAny.createCombinationsWithRep
 };
 exports.combinationsWithRepDependencies = combinationsWithRepDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],88:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],89:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26824,7 +27269,7 @@ var compareDependencies = {
   createCompare: _factoriesAny.createCompare
 };
 exports.compareDependencies = compareDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesEqualScalar.generated.js":135,"./dependenciesFractionClass.generated.js":158,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],89:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesEqualScalar.generated.js":136,"./dependenciesFractionClass.generated.js":159,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],90:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26848,7 +27293,7 @@ var compareNaturalDependencies = {
   createCompareNatural: _factoriesAny.createCompareNatural
 };
 exports.compareNaturalDependencies = compareNaturalDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesCompare.generated.js":88,"./dependenciesTyped.generated.js":353}],90:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesCompare.generated.js":89,"./dependenciesTyped.generated.js":354}],91:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26872,7 +27317,7 @@ var compareTextDependencies = {
   createCompareText: _factoriesAny.createCompareText
 };
 exports.compareTextDependencies = compareTextDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],91:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],92:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26896,7 +27341,7 @@ var compileDependencies = {
   createCompile: _factoriesAny.createCompile
 };
 exports.compileDependencies = compileDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesParse.generated.js":255,"./dependenciesTyped.generated.js":353}],92:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesParse.generated.js":256,"./dependenciesTyped.generated.js":354}],93:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26920,7 +27365,7 @@ var complexDependencies = {
   createComplex: _factoriesAny.createComplex
 };
 exports.complexDependencies = complexDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesComplexClass.generated.js":93,"./dependenciesTyped.generated.js":353}],93:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesComplexClass.generated.js":94,"./dependenciesTyped.generated.js":354}],94:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26938,7 +27383,7 @@ var ComplexDependencies = {
   createComplexClass: _factoriesAny.createComplexClass
 };
 exports.ComplexDependencies = ComplexDependencies;
-},{"../../factoriesAny.js":649}],94:[function(require,module,exports){
+},{"../../factoriesAny.js":650}],95:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26977,7 +27422,7 @@ var compositionDependencies = {
   createComposition: _factoriesAny.createComposition
 };
 exports.compositionDependencies = compositionDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAddScalar.generated.js":48,"./dependenciesCombinations.generated.js":86,"./dependenciesIsInteger.generated.js":185,"./dependenciesIsNegative.generated.js":187,"./dependenciesIsPositive.generated.js":189,"./dependenciesLarger.generated.js":199,"./dependenciesTyped.generated.js":353}],95:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAddScalar.generated.js":49,"./dependenciesCombinations.generated.js":87,"./dependenciesIsInteger.generated.js":186,"./dependenciesIsNegative.generated.js":188,"./dependenciesIsPositive.generated.js":190,"./dependenciesLarger.generated.js":200,"./dependenciesTyped.generated.js":354}],96:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27004,7 +27449,7 @@ var concatDependencies = {
   createConcat: _factoriesAny.createConcat
 };
 exports.concatDependencies = concatDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesIsInteger.generated.js":185,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],96:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesIsInteger.generated.js":186,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],97:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27031,7 +27476,7 @@ var concatTransformDependencies = {
   createConcatTransform: _factoriesAny.createConcatTransform
 };
 exports.concatTransformDependencies = concatTransformDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesIsInteger.generated.js":185,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],97:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesIsInteger.generated.js":186,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],98:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27052,7 +27497,7 @@ var ConditionalNodeDependencies = {
   createConditionalNode: _factoriesAny.createConditionalNode
 };
 exports.ConditionalNodeDependencies = ConditionalNodeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesNode.generated.js":240}],98:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesNode.generated.js":241}],99:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27076,7 +27521,7 @@ var conductanceQuantumDependencies = {
   createConductanceQuantum: _factoriesAny.createConductanceQuantum
 };
 exports.conductanceQuantumDependencies = conductanceQuantumDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],99:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],100:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27097,7 +27542,7 @@ var conjDependencies = {
   createConj: _factoriesAny.createConj
 };
 exports.conjDependencies = conjDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],100:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],101:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27118,7 +27563,7 @@ var ConstantNodeDependencies = {
   createConstantNode: _factoriesAny.createConstantNode
 };
 exports.ConstantNodeDependencies = ConstantNodeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesNode.generated.js":240}],101:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesNode.generated.js":241}],102:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27139,7 +27584,7 @@ var cosDependencies = {
   createCos: _factoriesAny.createCos
 };
 exports.cosDependencies = cosDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],102:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],103:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27160,7 +27605,7 @@ var coshDependencies = {
   createCosh: _factoriesAny.createCosh
 };
 exports.coshDependencies = coshDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],103:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],104:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27184,7 +27629,7 @@ var cotDependencies = {
   createCot: _factoriesAny.createCot
 };
 exports.cotDependencies = cotDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesTyped.generated.js":353}],104:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesTyped.generated.js":354}],105:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27208,7 +27653,7 @@ var cothDependencies = {
   createCoth: _factoriesAny.createCoth
 };
 exports.cothDependencies = cothDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesTyped.generated.js":353}],105:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesTyped.generated.js":354}],106:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27232,7 +27677,7 @@ var coulombDependencies = {
   createCoulomb: _factoriesAny.createCoulomb
 };
 exports.coulombDependencies = coulombDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],106:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],107:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27259,7 +27704,7 @@ var countDependencies = {
   createCount: _factoriesAny.createCount
 };
 exports.countDependencies = countDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesProd.generated.js":271,"./dependenciesSize.generated.js":319,"./dependenciesTyped.generated.js":353}],107:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesProd.generated.js":272,"./dependenciesSize.generated.js":320,"./dependenciesTyped.generated.js":354}],108:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27283,7 +27728,7 @@ var createUnitDependencies = {
   createCreateUnit: _factoriesAny.createCreateUnit
 };
 exports.createUnitDependencies = createUnitDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353,"./dependenciesUnitClass.generated.js":357}],108:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354,"./dependenciesUnitClass.generated.js":358}],109:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27313,7 +27758,7 @@ var crossDependencies = {
   createCross: _factoriesAny.createCross
 };
 exports.crossDependencies = crossDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesMatrix.generated.js":217,"./dependenciesMultiply.generated.js":236,"./dependenciesSubtract.generated.js":340,"./dependenciesTyped.generated.js":353}],109:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesMatrix.generated.js":218,"./dependenciesMultiply.generated.js":237,"./dependenciesSubtract.generated.js":341,"./dependenciesTyped.generated.js":354}],110:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27337,7 +27782,7 @@ var cscDependencies = {
   createCsc: _factoriesAny.createCsc
 };
 exports.cscDependencies = cscDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesTyped.generated.js":353}],110:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesTyped.generated.js":354}],111:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27361,7 +27806,7 @@ var cschDependencies = {
   createCsch: _factoriesAny.createCsch
 };
 exports.cschDependencies = cschDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesTyped.generated.js":353}],111:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesTyped.generated.js":354}],112:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27388,7 +27833,7 @@ var ctransposeDependencies = {
   createCtranspose: _factoriesAny.createCtranspose
 };
 exports.ctransposeDependencies = ctransposeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesConj.generated.js":99,"./dependenciesTranspose.generated.js":350,"./dependenciesTyped.generated.js":353}],112:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesConj.generated.js":100,"./dependenciesTranspose.generated.js":351,"./dependenciesTyped.generated.js":354}],113:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27409,7 +27854,7 @@ var cubeDependencies = {
   createCube: _factoriesAny.createCube
 };
 exports.cubeDependencies = cubeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],113:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],114:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27433,7 +27878,7 @@ var deepEqualDependencies = {
   createDeepEqual: _factoriesAny.createDeepEqual
 };
 exports.deepEqualDependencies = deepEqualDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesEqual.generated.js":134,"./dependenciesTyped.generated.js":353}],114:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesEqual.generated.js":135,"./dependenciesTyped.generated.js":354}],115:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27454,7 +27899,7 @@ var DenseMatrixDependencies = {
   createDenseMatrixClass: _factoriesAny.createDenseMatrixClass
 };
 exports.DenseMatrixDependencies = DenseMatrixDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesMatrixClass.generated.js":218}],115:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesMatrixClass.generated.js":219}],116:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27505,7 +27950,7 @@ var derivativeDependencies = {
   createDerivative: _factoriesAny.createDerivative
 };
 exports.derivativeDependencies = derivativeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesConstantNode.generated.js":100,"./dependenciesEqual.generated.js":134,"./dependenciesFunctionNode.generated.js":160,"./dependenciesIsZero.generated.js":191,"./dependenciesNumeric.generated.js":248,"./dependenciesOperatorNode.generated.js":252,"./dependenciesParenthesisNode.generated.js":254,"./dependenciesParse.generated.js":255,"./dependenciesSimplify.generated.js":316,"./dependenciesSymbolNode.generated.js":343,"./dependenciesTyped.generated.js":353}],116:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesConstantNode.generated.js":101,"./dependenciesEqual.generated.js":135,"./dependenciesFunctionNode.generated.js":161,"./dependenciesIsZero.generated.js":192,"./dependenciesNumeric.generated.js":249,"./dependenciesOperatorNode.generated.js":253,"./dependenciesParenthesisNode.generated.js":255,"./dependenciesParse.generated.js":256,"./dependenciesSimplify.generated.js":317,"./dependenciesSymbolNode.generated.js":344,"./dependenciesTyped.generated.js":354}],117:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27541,7 +27986,7 @@ var detDependencies = {
   createDet: _factoriesAny.createDet
 };
 exports.detDependencies = detDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesLup.generated.js":210,"./dependenciesMatrix.generated.js":217,"./dependenciesMultiply.generated.js":236,"./dependenciesSubtract.generated.js":340,"./dependenciesTyped.generated.js":353,"./dependenciesUnaryMinus.generated.js":354}],117:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesLup.generated.js":211,"./dependenciesMatrix.generated.js":218,"./dependenciesMultiply.generated.js":237,"./dependenciesSubtract.generated.js":341,"./dependenciesTyped.generated.js":354,"./dependenciesUnaryMinus.generated.js":355}],118:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27565,7 +28010,7 @@ var deuteronMassDependencies = {
   createDeuteronMass: _factoriesAny.createDeuteronMass
 };
 exports.deuteronMassDependencies = deuteronMassDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],118:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],119:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27595,7 +28040,7 @@ var diagDependencies = {
   createDiag: _factoriesAny.createDiag
 };
 exports.diagDependencies = diagDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesMatrix.generated.js":217,"./dependenciesSparseMatrixClass.generated.js":326,"./dependenciesTyped.generated.js":353}],119:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesMatrix.generated.js":218,"./dependenciesSparseMatrixClass.generated.js":327,"./dependenciesTyped.generated.js":354}],120:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27625,7 +28070,7 @@ var diffDependencies = {
   createDiff: _factoriesAny.createDiff
 };
 exports.diffDependencies = diffDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesMatrix.generated.js":217,"./dependenciesNumber.generated.js":247,"./dependenciesSubtract.generated.js":340,"./dependenciesTyped.generated.js":353}],120:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesMatrix.generated.js":218,"./dependenciesNumber.generated.js":248,"./dependenciesSubtract.generated.js":341,"./dependenciesTyped.generated.js":354}],121:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27658,7 +28103,7 @@ var diffTransformDependencies = {
   createDiffTransform: _factoriesAny.createDiffTransform
 };
 exports.diffTransformDependencies = diffTransformDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBignumber.generated.js":66,"./dependenciesMatrix.generated.js":217,"./dependenciesNumber.generated.js":247,"./dependenciesSubtract.generated.js":340,"./dependenciesTyped.generated.js":353}],121:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBignumber.generated.js":67,"./dependenciesMatrix.generated.js":218,"./dependenciesNumber.generated.js":248,"./dependenciesSubtract.generated.js":341,"./dependenciesTyped.generated.js":354}],122:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27700,7 +28145,7 @@ var distanceDependencies = {
   createDistance: _factoriesAny.createDistance
 };
 exports.distanceDependencies = distanceDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAbs.generated.js":39,"./dependenciesAddScalar.generated.js":48,"./dependenciesDivideScalar.generated.js":123,"./dependenciesMultiplyScalar.generated.js":237,"./dependenciesSqrt.generated.js":329,"./dependenciesSubtract.generated.js":340,"./dependenciesTyped.generated.js":353,"./dependenciesUnaryMinus.generated.js":354}],122:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAbs.generated.js":40,"./dependenciesAddScalar.generated.js":49,"./dependenciesDivideScalar.generated.js":124,"./dependenciesMultiplyScalar.generated.js":238,"./dependenciesSqrt.generated.js":330,"./dependenciesSubtract.generated.js":341,"./dependenciesTyped.generated.js":354,"./dependenciesUnaryMinus.generated.js":355}],123:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27736,7 +28181,7 @@ var divideDependencies = {
   createDivide: _factoriesAny.createDivide
 };
 exports.divideDependencies = divideDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDivideScalar.generated.js":123,"./dependenciesEqualScalar.generated.js":135,"./dependenciesInv.generated.js":183,"./dependenciesMatrix.generated.js":217,"./dependenciesMultiply.generated.js":236,"./dependenciesTyped.generated.js":353}],123:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDivideScalar.generated.js":124,"./dependenciesEqualScalar.generated.js":136,"./dependenciesInv.generated.js":184,"./dependenciesMatrix.generated.js":218,"./dependenciesMultiply.generated.js":237,"./dependenciesTyped.generated.js":354}],124:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27760,7 +28205,7 @@ var divideScalarDependencies = {
   createDivideScalar: _factoriesAny.createDivideScalar
 };
 exports.divideScalarDependencies = divideScalarDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesNumeric.generated.js":248,"./dependenciesTyped.generated.js":353}],124:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesNumeric.generated.js":249,"./dependenciesTyped.generated.js":354}],125:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27793,7 +28238,7 @@ var dotDependencies = {
   createDot: _factoriesAny.createDot
 };
 exports.dotDependencies = dotDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAddScalar.generated.js":48,"./dependenciesConj.generated.js":99,"./dependenciesMultiplyScalar.generated.js":237,"./dependenciesSize.generated.js":319,"./dependenciesTyped.generated.js":353}],125:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAddScalar.generated.js":49,"./dependenciesConj.generated.js":100,"./dependenciesMultiplyScalar.generated.js":238,"./dependenciesSize.generated.js":320,"./dependenciesTyped.generated.js":354}],126:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27826,7 +28271,7 @@ var dotDivideDependencies = {
   createDotDivide: _factoriesAny.createDotDivide
 };
 exports.dotDivideDependencies = dotDivideDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesDivideScalar.generated.js":123,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],126:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesDivideScalar.generated.js":124,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],127:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27856,7 +28301,7 @@ var dotMultiplyDependencies = {
   createDotMultiply: _factoriesAny.createDotMultiply
 };
 exports.dotMultiplyDependencies = dotMultiplyDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesMultiplyScalar.generated.js":237,"./dependenciesTyped.generated.js":353}],127:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesMultiplyScalar.generated.js":238,"./dependenciesTyped.generated.js":354}],128:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27889,7 +28334,7 @@ var dotPowDependencies = {
   createDotPow: _factoriesAny.createDotPow
 };
 exports.dotPowDependencies = dotPowDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesPow.generated.js":269,"./dependenciesTyped.generated.js":353}],128:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesPow.generated.js":270,"./dependenciesTyped.generated.js":354}],129:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27910,7 +28355,7 @@ var eDependencies = {
   createE: _factoriesAny.createE
 };
 exports.eDependencies = eDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65}],129:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66}],130:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27931,7 +28376,7 @@ var efimovFactorDependencies = {
   createEfimovFactor: _factoriesAny.createEfimovFactor
 };
 exports.efimovFactorDependencies = efimovFactorDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65}],130:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66}],131:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28039,7 +28484,7 @@ var eigsDependencies = {
   createEigs: _factoriesAny.createEigs
 };
 exports.eigsDependencies = eigsDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAbs.generated.js":39,"./dependenciesAdd.generated.js":47,"./dependenciesAddScalar.generated.js":48,"./dependenciesAtan.generated.js":59,"./dependenciesBignumber.generated.js":66,"./dependenciesColumn.generated.js":84,"./dependenciesComplex.generated.js":92,"./dependenciesCos.generated.js":101,"./dependenciesDiag.generated.js":118,"./dependenciesDivideScalar.generated.js":123,"./dependenciesDot.generated.js":124,"./dependenciesEqual.generated.js":134,"./dependenciesFlatten.generated.js":152,"./dependenciesIm.generated.js":175,"./dependenciesInv.generated.js":183,"./dependenciesLarger.generated.js":199,"./dependenciesMatrix.generated.js":217,"./dependenciesMatrixFromColumns.generated.js":219,"./dependenciesMultiply.generated.js":236,"./dependenciesMultiplyScalar.generated.js":237,"./dependenciesNumber.generated.js":247,"./dependenciesQr.generated.js":273,"./dependenciesRe.generated.js":283,"./dependenciesSin.generated.js":317,"./dependenciesSmaller.generated.js":321,"./dependenciesSqrt.generated.js":329,"./dependenciesSubtract.generated.js":340,"./dependenciesTyped.generated.js":353,"./dependenciesUsolve.generated.js":361,"./dependenciesUsolveAll.generated.js":362}],131:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAbs.generated.js":40,"./dependenciesAdd.generated.js":48,"./dependenciesAddScalar.generated.js":49,"./dependenciesAtan.generated.js":60,"./dependenciesBignumber.generated.js":67,"./dependenciesColumn.generated.js":85,"./dependenciesComplex.generated.js":93,"./dependenciesCos.generated.js":102,"./dependenciesDiag.generated.js":119,"./dependenciesDivideScalar.generated.js":124,"./dependenciesDot.generated.js":125,"./dependenciesEqual.generated.js":135,"./dependenciesFlatten.generated.js":153,"./dependenciesIm.generated.js":176,"./dependenciesInv.generated.js":184,"./dependenciesLarger.generated.js":200,"./dependenciesMatrix.generated.js":218,"./dependenciesMatrixFromColumns.generated.js":220,"./dependenciesMultiply.generated.js":237,"./dependenciesMultiplyScalar.generated.js":238,"./dependenciesNumber.generated.js":248,"./dependenciesQr.generated.js":274,"./dependenciesRe.generated.js":284,"./dependenciesSin.generated.js":318,"./dependenciesSmaller.generated.js":322,"./dependenciesSqrt.generated.js":330,"./dependenciesSubtract.generated.js":341,"./dependenciesTyped.generated.js":354,"./dependenciesUsolve.generated.js":362,"./dependenciesUsolveAll.generated.js":363}],132:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28063,7 +28508,7 @@ var electricConstantDependencies = {
   createElectricConstant: _factoriesAny.createElectricConstant
 };
 exports.electricConstantDependencies = electricConstantDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],132:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],133:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28087,7 +28532,7 @@ var electronMassDependencies = {
   createElectronMass: _factoriesAny.createElectronMass
 };
 exports.electronMassDependencies = electronMassDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],133:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],134:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28111,7 +28556,7 @@ var elementaryChargeDependencies = {
   createElementaryCharge: _factoriesAny.createElementaryCharge
 };
 exports.elementaryChargeDependencies = elementaryChargeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],134:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],135:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28141,7 +28586,7 @@ var equalDependencies = {
   createEqual: _factoriesAny.createEqual
 };
 exports.equalDependencies = equalDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],135:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],136:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28162,7 +28607,7 @@ var equalScalarDependencies = {
   createEqualScalar: _factoriesAny.createEqualScalar
 };
 exports.equalScalarDependencies = equalScalarDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],136:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],137:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28189,7 +28634,7 @@ var equalTextDependencies = {
   createEqualText: _factoriesAny.createEqualText
 };
 exports.equalTextDependencies = equalTextDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesCompareText.generated.js":90,"./dependenciesIsZero.generated.js":191,"./dependenciesTyped.generated.js":353}],137:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesCompareText.generated.js":91,"./dependenciesIsZero.generated.js":192,"./dependenciesTyped.generated.js":354}],138:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28210,7 +28655,7 @@ var erfDependencies = {
   createErf: _factoriesAny.createErf
 };
 exports.erfDependencies = erfDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],138:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],139:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28234,7 +28679,7 @@ var evaluateDependencies = {
   createEvaluate: _factoriesAny.createEvaluate
 };
 exports.evaluateDependencies = evaluateDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesParse.generated.js":255,"./dependenciesTyped.generated.js":353}],139:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesParse.generated.js":256,"./dependenciesTyped.generated.js":354}],140:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28255,7 +28700,7 @@ var expDependencies = {
   createExp: _factoriesAny.createExp
 };
 exports.expDependencies = expDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],140:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],141:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28291,7 +28736,7 @@ var expmDependencies = {
   createExpm: _factoriesAny.createExpm
 };
 exports.expmDependencies = expmDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAbs.generated.js":39,"./dependenciesAdd.generated.js":47,"./dependenciesIdentity.generated.js":174,"./dependenciesInv.generated.js":183,"./dependenciesMultiply.generated.js":236,"./dependenciesTyped.generated.js":353}],141:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAbs.generated.js":40,"./dependenciesAdd.generated.js":48,"./dependenciesIdentity.generated.js":175,"./dependenciesInv.generated.js":184,"./dependenciesMultiply.generated.js":237,"./dependenciesTyped.generated.js":354}],142:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28315,7 +28760,7 @@ var expm1Dependencies = {
   createExpm1: _factoriesAny.createExpm1
 };
 exports.expm1Dependencies = expm1Dependencies;
-},{"../../factoriesAny.js":649,"./dependenciesComplexClass.generated.js":93,"./dependenciesTyped.generated.js":353}],142:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesComplexClass.generated.js":94,"./dependenciesTyped.generated.js":354}],143:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28339,7 +28784,7 @@ var factorialDependencies = {
   createFactorial: _factoriesAny.createFactorial
 };
 exports.factorialDependencies = factorialDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesGamma.generated.js":161,"./dependenciesTyped.generated.js":353}],143:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesGamma.generated.js":162,"./dependenciesTyped.generated.js":354}],144:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28357,7 +28802,7 @@ var falseDependencies = {
   createFalse: _factoriesAny.createFalse
 };
 exports.falseDependencies = falseDependencies;
-},{"../../factoriesAny.js":649}],144:[function(require,module,exports){
+},{"../../factoriesAny.js":650}],145:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28381,7 +28826,7 @@ var faradayDependencies = {
   createFaraday: _factoriesAny.createFaraday
 };
 exports.faradayDependencies = faradayDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],145:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],146:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28405,7 +28850,7 @@ var fermiCouplingDependencies = {
   createFermiCoupling: _factoriesAny.createFermiCoupling
 };
 exports.fermiCouplingDependencies = fermiCouplingDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],146:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],147:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28429,7 +28874,7 @@ var FibonacciHeapDependencies = {
   createFibonacciHeapClass: _factoriesAny.createFibonacciHeapClass
 };
 exports.FibonacciHeapDependencies = FibonacciHeapDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesLarger.generated.js":199,"./dependenciesSmaller.generated.js":321}],147:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesLarger.generated.js":200,"./dependenciesSmaller.generated.js":322}],148:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28450,7 +28895,7 @@ var filterDependencies = {
   createFilter: _factoriesAny.createFilter
 };
 exports.filterDependencies = filterDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],148:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],149:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28471,7 +28916,7 @@ var filterTransformDependencies = {
   createFilterTransform: _factoriesAny.createFilterTransform
 };
 exports.filterTransformDependencies = filterTransformDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],149:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],150:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28492,7 +28937,7 @@ var fineStructureDependencies = {
   createFineStructure: _factoriesAny.createFineStructure
 };
 exports.fineStructureDependencies = fineStructureDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65}],150:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66}],151:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28516,7 +28961,7 @@ var firstRadiationDependencies = {
   createFirstRadiation: _factoriesAny.createFirstRadiation
 };
 exports.firstRadiationDependencies = firstRadiationDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],151:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],152:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28549,7 +28994,7 @@ var fixDependencies = {
   createFix: _factoriesAny.createFix
 };
 exports.fixDependencies = fixDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesCeil.generated.js":79,"./dependenciesComplexClass.generated.js":93,"./dependenciesFloor.generated.js":153,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],152:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesCeil.generated.js":80,"./dependenciesComplexClass.generated.js":94,"./dependenciesFloor.generated.js":154,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],153:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28573,7 +29018,7 @@ var flattenDependencies = {
   createFlatten: _factoriesAny.createFlatten
 };
 exports.flattenDependencies = flattenDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],153:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],154:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28603,7 +29048,7 @@ var floorDependencies = {
   createFloor: _factoriesAny.createFloor
 };
 exports.floorDependencies = floorDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesRound.generated.js":295,"./dependenciesTyped.generated.js":353}],154:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesRound.generated.js":296,"./dependenciesTyped.generated.js":354}],155:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28624,7 +29069,7 @@ var forEachDependencies = {
   createForEach: _factoriesAny.createForEach
 };
 exports.forEachDependencies = forEachDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],155:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],156:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28645,7 +29090,7 @@ var forEachTransformDependencies = {
   createForEachTransform: _factoriesAny.createForEachTransform
 };
 exports.forEachTransformDependencies = forEachTransformDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],156:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],157:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28666,7 +29111,7 @@ var formatDependencies = {
   createFormat: _factoriesAny.createFormat
 };
 exports.formatDependencies = formatDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],157:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],158:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28690,7 +29135,7 @@ var fractionDependencies = {
   createFraction: _factoriesAny.createFraction
 };
 exports.fractionDependencies = fractionDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesFractionClass.generated.js":158,"./dependenciesTyped.generated.js":353}],158:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesFractionClass.generated.js":159,"./dependenciesTyped.generated.js":354}],159:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28708,7 +29153,7 @@ var FractionDependencies = {
   createFractionClass: _factoriesAny.createFractionClass
 };
 exports.FractionDependencies = FractionDependencies;
-},{"../../factoriesAny.js":649}],159:[function(require,module,exports){
+},{"../../factoriesAny.js":650}],160:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28732,7 +29177,7 @@ var FunctionAssignmentNodeDependencies = {
   createFunctionAssignmentNode: _factoriesAny.createFunctionAssignmentNode
 };
 exports.FunctionAssignmentNodeDependencies = FunctionAssignmentNodeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesNode.generated.js":240,"./dependenciesTyped.generated.js":353}],160:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesNode.generated.js":241,"./dependenciesTyped.generated.js":354}],161:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28756,7 +29201,7 @@ var FunctionNodeDependencies = {
   createFunctionNode: _factoriesAny.createFunctionNode
 };
 exports.FunctionNodeDependencies = FunctionNodeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesNode.generated.js":240,"./dependenciesSymbolNode.generated.js":343}],161:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesNode.generated.js":241,"./dependenciesSymbolNode.generated.js":344}],162:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28789,7 +29234,7 @@ var gammaDependencies = {
   createGamma: _factoriesAny.createGamma
 };
 exports.gammaDependencies = gammaDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesComplexClass.generated.js":93,"./dependenciesMultiplyScalar.generated.js":237,"./dependenciesPow.generated.js":269,"./dependenciesTyped.generated.js":353}],162:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesComplexClass.generated.js":94,"./dependenciesMultiplyScalar.generated.js":238,"./dependenciesPow.generated.js":270,"./dependenciesTyped.generated.js":354}],163:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28813,7 +29258,7 @@ var gasConstantDependencies = {
   createGasConstant: _factoriesAny.createGasConstant
 };
 exports.gasConstantDependencies = gasConstantDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],163:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],164:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28846,7 +29291,7 @@ var gcdDependencies = {
   createGcd: _factoriesAny.createGcd
 };
 exports.gcdDependencies = gcdDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],164:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],165:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28867,7 +29312,7 @@ var getMatrixDataTypeDependencies = {
   createGetMatrixDataType: _factoriesAny.createGetMatrixDataType
 };
 exports.getMatrixDataTypeDependencies = getMatrixDataTypeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],165:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],166:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28891,7 +29336,7 @@ var gravitationConstantDependencies = {
   createGravitationConstant: _factoriesAny.createGravitationConstant
 };
 exports.gravitationConstantDependencies = gravitationConstantDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],166:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],167:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28915,7 +29360,7 @@ var gravityDependencies = {
   createGravity: _factoriesAny.createGravity
 };
 exports.gravityDependencies = gravityDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],167:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],168:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28939,7 +29384,7 @@ var hartreeEnergyDependencies = {
   createHartreeEnergy: _factoriesAny.createHartreeEnergy
 };
 exports.hartreeEnergyDependencies = hartreeEnergyDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],168:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],169:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28963,7 +29408,7 @@ var hasNumericValueDependencies = {
   createHasNumericValue: _factoriesAny.createHasNumericValue
 };
 exports.hasNumericValueDependencies = hasNumericValueDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesIsNumeric.generated.js":188,"./dependenciesTyped.generated.js":353}],169:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesIsNumeric.generated.js":189,"./dependenciesTyped.generated.js":354}],170:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28987,7 +29432,7 @@ var helpDependencies = {
   createHelp: _factoriesAny.createHelp
 };
 exports.helpDependencies = helpDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesHelpClass.generated.js":170,"./dependenciesTyped.generated.js":353}],170:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesHelpClass.generated.js":171,"./dependenciesTyped.generated.js":354}],171:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29008,7 +29453,7 @@ var HelpDependencies = {
   createHelpClass: _factoriesAny.createHelpClass
 };
 exports.HelpDependencies = HelpDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesParse.generated.js":255}],171:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesParse.generated.js":256}],172:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29032,7 +29477,7 @@ var hexDependencies = {
   createHex: _factoriesAny.createHex
 };
 exports.hexDependencies = hexDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesFormat.generated.js":156,"./dependenciesTyped.generated.js":353}],172:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesFormat.generated.js":157,"./dependenciesTyped.generated.js":354}],173:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29074,7 +29519,7 @@ var hypotDependencies = {
   createHypot: _factoriesAny.createHypot
 };
 exports.hypotDependencies = hypotDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAbs.generated.js":39,"./dependenciesAddScalar.generated.js":48,"./dependenciesDivideScalar.generated.js":123,"./dependenciesIsPositive.generated.js":189,"./dependenciesMultiplyScalar.generated.js":237,"./dependenciesSmaller.generated.js":321,"./dependenciesSqrt.generated.js":329,"./dependenciesTyped.generated.js":353}],173:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAbs.generated.js":40,"./dependenciesAddScalar.generated.js":49,"./dependenciesDivideScalar.generated.js":124,"./dependenciesIsPositive.generated.js":190,"./dependenciesMultiplyScalar.generated.js":238,"./dependenciesSmaller.generated.js":322,"./dependenciesSqrt.generated.js":330,"./dependenciesTyped.generated.js":354}],174:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29095,7 +29540,7 @@ var iDependencies = {
   createI: _factoriesAny.createI
 };
 exports.iDependencies = iDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesComplexClass.generated.js":93}],174:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesComplexClass.generated.js":94}],175:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29128,7 +29573,7 @@ var identityDependencies = {
   createIdentity: _factoriesAny.createIdentity
 };
 exports.identityDependencies = identityDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesMatrix.generated.js":217,"./dependenciesSparseMatrixClass.generated.js":326,"./dependenciesTyped.generated.js":353}],175:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesMatrix.generated.js":218,"./dependenciesSparseMatrixClass.generated.js":327,"./dependenciesTyped.generated.js":354}],176:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29149,7 +29594,7 @@ var imDependencies = {
   createIm: _factoriesAny.createIm
 };
 exports.imDependencies = imDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],176:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],177:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29173,7 +29618,7 @@ var ImmutableDenseMatrixDependencies = {
   createImmutableDenseMatrixClass: _factoriesAny.createImmutableDenseMatrixClass
 };
 exports.ImmutableDenseMatrixDependencies = ImmutableDenseMatrixDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesSmaller.generated.js":321}],177:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesSmaller.generated.js":322}],178:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29197,7 +29642,7 @@ var indexDependencies = {
   createIndex: _factoriesAny.createIndex
 };
 exports.indexDependencies = indexDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesIndexClass.generated.js":178,"./dependenciesTyped.generated.js":353}],178:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesIndexClass.generated.js":179,"./dependenciesTyped.generated.js":354}],179:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29218,7 +29663,7 @@ var IndexDependencies = {
   createIndexClass: _factoriesAny.createIndexClass
 };
 exports.IndexDependencies = IndexDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesImmutableDenseMatrixClass.generated.js":176}],179:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesImmutableDenseMatrixClass.generated.js":177}],180:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29245,7 +29690,7 @@ var IndexNodeDependencies = {
   createIndexNode: _factoriesAny.createIndexNode
 };
 exports.IndexNodeDependencies = IndexNodeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesNode.generated.js":240,"./dependenciesRangeClass.generated.js":279,"./dependenciesSize.generated.js":319}],180:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesNode.generated.js":241,"./dependenciesRangeClass.generated.js":280,"./dependenciesSize.generated.js":320}],181:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29266,7 +29711,7 @@ var indexTransformDependencies = {
   createIndexTransform: _factoriesAny.createIndexTransform
 };
 exports.indexTransformDependencies = indexTransformDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesIndexClass.generated.js":178}],181:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesIndexClass.generated.js":179}],182:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29287,7 +29732,7 @@ var InfinityDependencies = {
   createInfinity: _factoriesAny.createInfinity
 };
 exports.InfinityDependencies = InfinityDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65}],182:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66}],183:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29341,7 +29786,7 @@ var intersectDependencies = {
   createIntersect: _factoriesAny.createIntersect
 };
 exports.intersectDependencies = intersectDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAbs.generated.js":39,"./dependenciesAdd.generated.js":47,"./dependenciesAddScalar.generated.js":48,"./dependenciesDivideScalar.generated.js":123,"./dependenciesEqualScalar.generated.js":135,"./dependenciesFlatten.generated.js":152,"./dependenciesMatrix.generated.js":217,"./dependenciesMultiply.generated.js":236,"./dependenciesMultiplyScalar.generated.js":237,"./dependenciesSmaller.generated.js":321,"./dependenciesSubtract.generated.js":340,"./dependenciesTyped.generated.js":353}],183:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAbs.generated.js":40,"./dependenciesAdd.generated.js":48,"./dependenciesAddScalar.generated.js":49,"./dependenciesDivideScalar.generated.js":124,"./dependenciesEqualScalar.generated.js":136,"./dependenciesFlatten.generated.js":153,"./dependenciesMatrix.generated.js":218,"./dependenciesMultiply.generated.js":237,"./dependenciesMultiplyScalar.generated.js":238,"./dependenciesSmaller.generated.js":322,"./dependenciesSubtract.generated.js":341,"./dependenciesTyped.generated.js":354}],184:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29386,7 +29831,7 @@ var invDependencies = {
   createInv: _factoriesAny.createInv
 };
 exports.invDependencies = invDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAbs.generated.js":39,"./dependenciesAddScalar.generated.js":48,"./dependenciesDet.generated.js":116,"./dependenciesDivideScalar.generated.js":123,"./dependenciesIdentity.generated.js":174,"./dependenciesMatrix.generated.js":217,"./dependenciesMultiply.generated.js":236,"./dependenciesTyped.generated.js":353,"./dependenciesUnaryMinus.generated.js":354}],184:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAbs.generated.js":40,"./dependenciesAddScalar.generated.js":49,"./dependenciesDet.generated.js":117,"./dependenciesDivideScalar.generated.js":124,"./dependenciesIdentity.generated.js":175,"./dependenciesMatrix.generated.js":218,"./dependenciesMultiply.generated.js":237,"./dependenciesTyped.generated.js":354,"./dependenciesUnaryMinus.generated.js":355}],185:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29410,7 +29855,7 @@ var inverseConductanceQuantumDependencies = {
   createInverseConductanceQuantum: _factoriesAny.createInverseConductanceQuantum
 };
 exports.inverseConductanceQuantumDependencies = inverseConductanceQuantumDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],185:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],186:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29431,7 +29876,7 @@ var isIntegerDependencies = {
   createIsInteger: _factoriesAny.createIsInteger
 };
 exports.isIntegerDependencies = isIntegerDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],186:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],187:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29452,7 +29897,7 @@ var isNaNDependencies = {
   createIsNaN: _factoriesAny.createIsNaN
 };
 exports.isNaNDependencies = isNaNDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],187:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],188:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29473,7 +29918,7 @@ var isNegativeDependencies = {
   createIsNegative: _factoriesAny.createIsNegative
 };
 exports.isNegativeDependencies = isNegativeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],188:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],189:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29494,7 +29939,7 @@ var isNumericDependencies = {
   createIsNumeric: _factoriesAny.createIsNumeric
 };
 exports.isNumericDependencies = isNumericDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],189:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],190:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29515,7 +29960,7 @@ var isPositiveDependencies = {
   createIsPositive: _factoriesAny.createIsPositive
 };
 exports.isPositiveDependencies = isPositiveDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],190:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],191:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29536,7 +29981,7 @@ var isPrimeDependencies = {
   createIsPrime: _factoriesAny.createIsPrime
 };
 exports.isPrimeDependencies = isPrimeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],191:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],192:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29557,7 +30002,7 @@ var isZeroDependencies = {
   createIsZero: _factoriesAny.createIsZero
 };
 exports.isZeroDependencies = isZeroDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],192:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],193:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29599,7 +30044,7 @@ var kldivergenceDependencies = {
   createKldivergence: _factoriesAny.createKldivergence
 };
 exports.kldivergenceDependencies = kldivergenceDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDivide.generated.js":122,"./dependenciesDotDivide.generated.js":125,"./dependenciesIsNumeric.generated.js":188,"./dependenciesLog.generated.js":203,"./dependenciesMatrix.generated.js":217,"./dependenciesMultiply.generated.js":236,"./dependenciesSum.generated.js":341,"./dependenciesTyped.generated.js":353}],193:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDivide.generated.js":123,"./dependenciesDotDivide.generated.js":126,"./dependenciesIsNumeric.generated.js":189,"./dependenciesLog.generated.js":204,"./dependenciesMatrix.generated.js":218,"./dependenciesMultiply.generated.js":237,"./dependenciesSum.generated.js":342,"./dependenciesTyped.generated.js":354}],194:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29623,7 +30068,7 @@ var klitzingDependencies = {
   createKlitzing: _factoriesAny.createKlitzing
 };
 exports.klitzingDependencies = klitzingDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],194:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],195:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29650,7 +30095,7 @@ var kronDependencies = {
   createKron: _factoriesAny.createKron
 };
 exports.kronDependencies = kronDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesMatrix.generated.js":217,"./dependenciesMultiplyScalar.generated.js":237,"./dependenciesTyped.generated.js":353}],195:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesMatrix.generated.js":218,"./dependenciesMultiplyScalar.generated.js":238,"./dependenciesTyped.generated.js":354}],196:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29671,7 +30116,7 @@ var LN10Dependencies = {
   createLN10: _factoriesAny.createLN10
 };
 exports.LN10Dependencies = LN10Dependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65}],196:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66}],197:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29692,7 +30137,7 @@ var LN2Dependencies = {
   createLN2: _factoriesAny.createLN2
 };
 exports.LN2Dependencies = LN2Dependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65}],197:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66}],198:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29713,7 +30158,7 @@ var LOG10EDependencies = {
   createLOG10E: _factoriesAny.createLOG10E
 };
 exports.LOG10EDependencies = LOG10EDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65}],198:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66}],199:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29734,7 +30179,7 @@ var LOG2EDependencies = {
   createLOG2E: _factoriesAny.createLOG2E
 };
 exports.LOG2EDependencies = LOG2EDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65}],199:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66}],200:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29761,7 +30206,7 @@ var largerDependencies = {
   createLarger: _factoriesAny.createLarger
 };
 exports.largerDependencies = largerDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],200:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],201:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29788,7 +30233,7 @@ var largerEqDependencies = {
   createLargerEq: _factoriesAny.createLargerEq
 };
 exports.largerEqDependencies = largerEqDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],201:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],202:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29815,7 +30260,7 @@ var lcmDependencies = {
   createLcm: _factoriesAny.createLcm
 };
 exports.lcmDependencies = lcmDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],202:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],203:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29848,7 +30293,7 @@ var leftShiftDependencies = {
   createLeftShift: _factoriesAny.createLeftShift
 };
 exports.leftShiftDependencies = leftShiftDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353,"./dependenciesZeros.generated.js":371}],203:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354,"./dependenciesZeros.generated.js":372}],204:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29875,7 +30320,7 @@ var logDependencies = {
   createLog: _factoriesAny.createLog
 };
 exports.logDependencies = logDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesComplexClass.generated.js":93,"./dependenciesDivideScalar.generated.js":123,"./dependenciesTyped.generated.js":353}],204:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesComplexClass.generated.js":94,"./dependenciesDivideScalar.generated.js":124,"./dependenciesTyped.generated.js":354}],205:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29899,7 +30344,7 @@ var log10Dependencies = {
   createLog10: _factoriesAny.createLog10
 };
 exports.log10Dependencies = log10Dependencies;
-},{"../../factoriesAny.js":649,"./dependenciesComplexClass.generated.js":93,"./dependenciesTyped.generated.js":353}],205:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesComplexClass.generated.js":94,"./dependenciesTyped.generated.js":354}],206:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29929,7 +30374,7 @@ var log1pDependencies = {
   createLog1p: _factoriesAny.createLog1p
 };
 exports.log1pDependencies = log1pDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesComplexClass.generated.js":93,"./dependenciesDivideScalar.generated.js":123,"./dependenciesLog.generated.js":203,"./dependenciesTyped.generated.js":353}],206:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesComplexClass.generated.js":94,"./dependenciesDivideScalar.generated.js":124,"./dependenciesLog.generated.js":204,"./dependenciesTyped.generated.js":354}],207:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29953,7 +30398,7 @@ var log2Dependencies = {
   createLog2: _factoriesAny.createLog2
 };
 exports.log2Dependencies = log2Dependencies;
-},{"../../factoriesAny.js":649,"./dependenciesComplexClass.generated.js":93,"./dependenciesTyped.generated.js":353}],207:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesComplexClass.generated.js":94,"./dependenciesTyped.generated.js":354}],208:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29977,7 +30422,7 @@ var loschmidtDependencies = {
   createLoschmidt: _factoriesAny.createLoschmidt
 };
 exports.loschmidtDependencies = loschmidtDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],208:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],209:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30016,7 +30461,7 @@ var lsolveDependencies = {
   createLsolve: _factoriesAny.createLsolve
 };
 exports.lsolveDependencies = lsolveDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesDivideScalar.generated.js":123,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesMultiplyScalar.generated.js":237,"./dependenciesSubtract.generated.js":340,"./dependenciesTyped.generated.js":353}],209:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesDivideScalar.generated.js":124,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesMultiplyScalar.generated.js":238,"./dependenciesSubtract.generated.js":341,"./dependenciesTyped.generated.js":354}],210:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30055,7 +30500,7 @@ var lsolveAllDependencies = {
   createLsolveAll: _factoriesAny.createLsolveAll
 };
 exports.lsolveAllDependencies = lsolveAllDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesDivideScalar.generated.js":123,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesMultiplyScalar.generated.js":237,"./dependenciesSubtract.generated.js":340,"./dependenciesTyped.generated.js":353}],210:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesDivideScalar.generated.js":124,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesMultiplyScalar.generated.js":238,"./dependenciesSubtract.generated.js":341,"./dependenciesTyped.generated.js":354}],211:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30112,7 +30557,7 @@ var lupDependencies = {
   createLup: _factoriesAny.createLup
 };
 exports.lupDependencies = lupDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAbs.generated.js":39,"./dependenciesAddScalar.generated.js":48,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesDivideScalar.generated.js":123,"./dependenciesEqualScalar.generated.js":135,"./dependenciesLarger.generated.js":199,"./dependenciesMatrix.generated.js":217,"./dependenciesMultiplyScalar.generated.js":237,"./dependenciesSpaClass.generated.js":324,"./dependenciesSparseMatrixClass.generated.js":326,"./dependenciesSubtract.generated.js":340,"./dependenciesTyped.generated.js":353,"./dependenciesUnaryMinus.generated.js":354}],211:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAbs.generated.js":40,"./dependenciesAddScalar.generated.js":49,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesDivideScalar.generated.js":124,"./dependenciesEqualScalar.generated.js":136,"./dependenciesLarger.generated.js":200,"./dependenciesMatrix.generated.js":218,"./dependenciesMultiplyScalar.generated.js":238,"./dependenciesSpaClass.generated.js":325,"./dependenciesSparseMatrixClass.generated.js":327,"./dependenciesSubtract.generated.js":341,"./dependenciesTyped.generated.js":354,"./dependenciesUnaryMinus.generated.js":355}],212:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30151,7 +30596,7 @@ var lusolveDependencies = {
   createLusolve: _factoriesAny.createLusolve
 };
 exports.lusolveDependencies = lusolveDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesLsolve.generated.js":208,"./dependenciesLup.generated.js":210,"./dependenciesMatrix.generated.js":217,"./dependenciesSlu.generated.js":320,"./dependenciesTyped.generated.js":353,"./dependenciesUsolve.generated.js":361}],212:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesLsolve.generated.js":209,"./dependenciesLup.generated.js":211,"./dependenciesMatrix.generated.js":218,"./dependenciesSlu.generated.js":321,"./dependenciesTyped.generated.js":354,"./dependenciesUsolve.generated.js":362}],213:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30184,7 +30629,7 @@ var madDependencies = {
   createMad: _factoriesAny.createMad
 };
 exports.madDependencies = madDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAbs.generated.js":39,"./dependenciesMap.generated.js":215,"./dependenciesMedian.generated.js":226,"./dependenciesSubtract.generated.js":340,"./dependenciesTyped.generated.js":353}],213:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAbs.generated.js":40,"./dependenciesMap.generated.js":216,"./dependenciesMedian.generated.js":227,"./dependenciesSubtract.generated.js":341,"./dependenciesTyped.generated.js":354}],214:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30208,7 +30653,7 @@ var magneticConstantDependencies = {
   createMagneticConstant: _factoriesAny.createMagneticConstant
 };
 exports.magneticConstantDependencies = magneticConstantDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],214:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],215:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30232,7 +30677,7 @@ var magneticFluxQuantumDependencies = {
   createMagneticFluxQuantum: _factoriesAny.createMagneticFluxQuantum
 };
 exports.magneticFluxQuantumDependencies = magneticFluxQuantumDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],215:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],216:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30253,7 +30698,7 @@ var mapDependencies = {
   createMap: _factoriesAny.createMap
 };
 exports.mapDependencies = mapDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],216:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],217:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30274,7 +30719,7 @@ var mapTransformDependencies = {
   createMapTransform: _factoriesAny.createMapTransform
 };
 exports.mapTransformDependencies = mapTransformDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],217:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],218:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30304,7 +30749,7 @@ var matrixDependencies = {
   createMatrix: _factoriesAny.createMatrix
 };
 exports.matrixDependencies = matrixDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesMatrixClass.generated.js":218,"./dependenciesSparseMatrixClass.generated.js":326,"./dependenciesTyped.generated.js":353}],218:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesMatrixClass.generated.js":219,"./dependenciesSparseMatrixClass.generated.js":327,"./dependenciesTyped.generated.js":354}],219:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30322,7 +30767,7 @@ var MatrixDependencies = {
   createMatrixClass: _factoriesAny.createMatrixClass
 };
 exports.MatrixDependencies = MatrixDependencies;
-},{"../../factoriesAny.js":649}],219:[function(require,module,exports){
+},{"../../factoriesAny.js":650}],220:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30352,7 +30797,7 @@ var matrixFromColumnsDependencies = {
   createMatrixFromColumns: _factoriesAny.createMatrixFromColumns
 };
 exports.matrixFromColumnsDependencies = matrixFromColumnsDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesFlatten.generated.js":152,"./dependenciesMatrix.generated.js":217,"./dependenciesSize.generated.js":319,"./dependenciesTyped.generated.js":353}],220:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesFlatten.generated.js":153,"./dependenciesMatrix.generated.js":218,"./dependenciesSize.generated.js":320,"./dependenciesTyped.generated.js":354}],221:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30379,7 +30824,7 @@ var matrixFromFunctionDependencies = {
   createMatrixFromFunction: _factoriesAny.createMatrixFromFunction
 };
 exports.matrixFromFunctionDependencies = matrixFromFunctionDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesIsZero.generated.js":191,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],221:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesIsZero.generated.js":192,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],222:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30409,7 +30854,7 @@ var matrixFromRowsDependencies = {
   createMatrixFromRows: _factoriesAny.createMatrixFromRows
 };
 exports.matrixFromRowsDependencies = matrixFromRowsDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesFlatten.generated.js":152,"./dependenciesMatrix.generated.js":217,"./dependenciesSize.generated.js":319,"./dependenciesTyped.generated.js":353}],222:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesFlatten.generated.js":153,"./dependenciesMatrix.generated.js":218,"./dependenciesSize.generated.js":320,"./dependenciesTyped.generated.js":354}],223:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30436,7 +30881,7 @@ var maxDependencies = {
   createMax: _factoriesAny.createMax
 };
 exports.maxDependencies = maxDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesLarger.generated.js":199,"./dependenciesNumeric.generated.js":248,"./dependenciesTyped.generated.js":353}],223:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesLarger.generated.js":200,"./dependenciesNumeric.generated.js":249,"./dependenciesTyped.generated.js":354}],224:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30463,7 +30908,7 @@ var maxTransformDependencies = {
   createMaxTransform: _factoriesAny.createMaxTransform
 };
 exports.maxTransformDependencies = maxTransformDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesLarger.generated.js":199,"./dependenciesNumeric.generated.js":248,"./dependenciesTyped.generated.js":353}],224:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesLarger.generated.js":200,"./dependenciesNumeric.generated.js":249,"./dependenciesTyped.generated.js":354}],225:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30490,7 +30935,7 @@ var meanDependencies = {
   createMean: _factoriesAny.createMean
 };
 exports.meanDependencies = meanDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAdd.generated.js":47,"./dependenciesDivide.generated.js":122,"./dependenciesTyped.generated.js":353}],225:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAdd.generated.js":48,"./dependenciesDivide.generated.js":123,"./dependenciesTyped.generated.js":354}],226:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30517,7 +30962,7 @@ var meanTransformDependencies = {
   createMeanTransform: _factoriesAny.createMeanTransform
 };
 exports.meanTransformDependencies = meanTransformDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAdd.generated.js":47,"./dependenciesDivide.generated.js":122,"./dependenciesTyped.generated.js":353}],226:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAdd.generated.js":48,"./dependenciesDivide.generated.js":123,"./dependenciesTyped.generated.js":354}],227:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30550,7 +30995,7 @@ var medianDependencies = {
   createMedian: _factoriesAny.createMedian
 };
 exports.medianDependencies = medianDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAdd.generated.js":47,"./dependenciesCompare.generated.js":88,"./dependenciesDivide.generated.js":122,"./dependenciesPartitionSelect.generated.js":258,"./dependenciesTyped.generated.js":353}],227:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAdd.generated.js":48,"./dependenciesCompare.generated.js":89,"./dependenciesDivide.generated.js":123,"./dependenciesPartitionSelect.generated.js":259,"./dependenciesTyped.generated.js":354}],228:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30577,7 +31022,7 @@ var minDependencies = {
   createMin: _factoriesAny.createMin
 };
 exports.minDependencies = minDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesNumeric.generated.js":248,"./dependenciesSmaller.generated.js":321,"./dependenciesTyped.generated.js":353}],228:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesNumeric.generated.js":249,"./dependenciesSmaller.generated.js":322,"./dependenciesTyped.generated.js":354}],229:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30604,7 +31049,7 @@ var minTransformDependencies = {
   createMinTransform: _factoriesAny.createMinTransform
 };
 exports.minTransformDependencies = minTransformDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesNumeric.generated.js":248,"./dependenciesSmaller.generated.js":321,"./dependenciesTyped.generated.js":353}],229:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesNumeric.generated.js":249,"./dependenciesSmaller.generated.js":322,"./dependenciesTyped.generated.js":354}],230:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30634,7 +31079,7 @@ var modDependencies = {
   createMod: _factoriesAny.createMod
 };
 exports.modDependencies = modDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],230:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],231:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30661,7 +31106,7 @@ var modeDependencies = {
   createMode: _factoriesAny.createMode
 };
 exports.modeDependencies = modeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesIsNaN.generated.js":186,"./dependenciesIsNumeric.generated.js":188,"./dependenciesTyped.generated.js":353}],231:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesIsNaN.generated.js":187,"./dependenciesIsNumeric.generated.js":189,"./dependenciesTyped.generated.js":354}],232:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30685,7 +31130,7 @@ var molarMassDependencies = {
   createMolarMass: _factoriesAny.createMolarMass
 };
 exports.molarMassDependencies = molarMassDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],232:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],233:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30709,7 +31154,7 @@ var molarMassC12Dependencies = {
   createMolarMassC12: _factoriesAny.createMolarMassC12
 };
 exports.molarMassC12Dependencies = molarMassC12Dependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],233:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],234:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30733,7 +31178,7 @@ var molarPlanckConstantDependencies = {
   createMolarPlanckConstant: _factoriesAny.createMolarPlanckConstant
 };
 exports.molarPlanckConstantDependencies = molarPlanckConstantDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],234:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],235:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30757,7 +31202,7 @@ var molarVolumeDependencies = {
   createMolarVolume: _factoriesAny.createMolarVolume
 };
 exports.molarVolumeDependencies = molarVolumeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],235:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],236:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30796,7 +31241,7 @@ var multinomialDependencies = {
   createMultinomial: _factoriesAny.createMultinomial
 };
 exports.multinomialDependencies = multinomialDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAdd.generated.js":47,"./dependenciesDivide.generated.js":122,"./dependenciesFactorial.generated.js":142,"./dependenciesIsInteger.generated.js":185,"./dependenciesIsPositive.generated.js":189,"./dependenciesMultiply.generated.js":236,"./dependenciesTyped.generated.js":353}],236:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAdd.generated.js":48,"./dependenciesDivide.generated.js":123,"./dependenciesFactorial.generated.js":143,"./dependenciesIsInteger.generated.js":186,"./dependenciesIsPositive.generated.js":190,"./dependenciesMultiply.generated.js":237,"./dependenciesTyped.generated.js":354}],237:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30832,7 +31277,7 @@ var multiplyDependencies = {
   createMultiply: _factoriesAny.createMultiply
 };
 exports.multiplyDependencies = multiplyDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAddScalar.generated.js":48,"./dependenciesDot.generated.js":124,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesMultiplyScalar.generated.js":237,"./dependenciesTyped.generated.js":353}],237:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAddScalar.generated.js":49,"./dependenciesDot.generated.js":125,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesMultiplyScalar.generated.js":238,"./dependenciesTyped.generated.js":354}],238:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30853,7 +31298,7 @@ var multiplyScalarDependencies = {
   createMultiplyScalar: _factoriesAny.createMultiplyScalar
 };
 exports.multiplyScalarDependencies = multiplyScalarDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],238:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],239:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30874,7 +31319,7 @@ var NaNDependencies = {
   createNaN: _factoriesAny.createNaN
 };
 exports.NaNDependencies = NaNDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65}],239:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66}],240:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30898,7 +31343,7 @@ var neutronMassDependencies = {
   createNeutronMass: _factoriesAny.createNeutronMass
 };
 exports.neutronMassDependencies = neutronMassDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],240:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],241:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30916,7 +31361,7 @@ var NodeDependencies = {
   createNode: _factoriesAny.createNode
 };
 exports.NodeDependencies = NodeDependencies;
-},{"../../factoriesAny.js":649}],241:[function(require,module,exports){
+},{"../../factoriesAny.js":650}],242:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30973,7 +31418,7 @@ var normDependencies = {
   createNorm: _factoriesAny.createNorm
 };
 exports.normDependencies = normDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAbs.generated.js":39,"./dependenciesAdd.generated.js":47,"./dependenciesConj.generated.js":99,"./dependenciesCtranspose.generated.js":111,"./dependenciesEigs.generated.js":130,"./dependenciesEqualScalar.generated.js":135,"./dependenciesLarger.generated.js":199,"./dependenciesMatrix.generated.js":217,"./dependenciesMultiply.generated.js":236,"./dependenciesPow.generated.js":269,"./dependenciesSmaller.generated.js":321,"./dependenciesSqrt.generated.js":329,"./dependenciesTyped.generated.js":353}],242:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAbs.generated.js":40,"./dependenciesAdd.generated.js":48,"./dependenciesConj.generated.js":100,"./dependenciesCtranspose.generated.js":112,"./dependenciesEigs.generated.js":131,"./dependenciesEqualScalar.generated.js":136,"./dependenciesLarger.generated.js":200,"./dependenciesMatrix.generated.js":218,"./dependenciesMultiply.generated.js":237,"./dependenciesPow.generated.js":270,"./dependenciesSmaller.generated.js":322,"./dependenciesSqrt.generated.js":330,"./dependenciesTyped.generated.js":354}],243:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30994,7 +31439,7 @@ var notDependencies = {
   createNot: _factoriesAny.createNot
 };
 exports.notDependencies = notDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],243:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],244:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31024,7 +31469,7 @@ var nthRootDependencies = {
   createNthRoot: _factoriesAny.createNthRoot
 };
 exports.nthRootDependencies = nthRootDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],244:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],245:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31051,7 +31496,7 @@ var nthRootsDependencies = {
   createNthRoots: _factoriesAny.createNthRoots
 };
 exports.nthRootsDependencies = nthRootsDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesComplexClass.generated.js":93,"./dependenciesDivideScalar.generated.js":123,"./dependenciesTyped.generated.js":353}],245:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesComplexClass.generated.js":94,"./dependenciesDivideScalar.generated.js":124,"./dependenciesTyped.generated.js":354}],246:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31075,7 +31520,7 @@ var nuclearMagnetonDependencies = {
   createNuclearMagneton: _factoriesAny.createNuclearMagneton
 };
 exports.nuclearMagnetonDependencies = nuclearMagnetonDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],246:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],247:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31093,7 +31538,7 @@ var nullDependencies = {
   createNull: _factoriesAny.createNull
 };
 exports.nullDependencies = nullDependencies;
-},{"../../factoriesAny.js":649}],247:[function(require,module,exports){
+},{"../../factoriesAny.js":650}],248:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31114,7 +31559,7 @@ var numberDependencies = {
   createNumber: _factoriesAny.createNumber
 };
 exports.numberDependencies = numberDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],248:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],249:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31141,7 +31586,7 @@ var numericDependencies = {
   createNumeric: _factoriesAny.createNumeric
 };
 exports.numericDependencies = numericDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBignumber.generated.js":66,"./dependenciesFraction.generated.js":157,"./dependenciesNumber.generated.js":247}],249:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBignumber.generated.js":67,"./dependenciesFraction.generated.js":158,"./dependenciesNumber.generated.js":248}],250:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31162,7 +31607,7 @@ var ObjectNodeDependencies = {
   createObjectNode: _factoriesAny.createObjectNode
 };
 exports.ObjectNodeDependencies = ObjectNodeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesNode.generated.js":240}],250:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesNode.generated.js":241}],251:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31186,7 +31631,7 @@ var octDependencies = {
   createOct: _factoriesAny.createOct
 };
 exports.octDependencies = octDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesFormat.generated.js":156,"./dependenciesTyped.generated.js":353}],251:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesFormat.generated.js":157,"./dependenciesTyped.generated.js":354}],252:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31213,7 +31658,7 @@ var onesDependencies = {
   createOnes: _factoriesAny.createOnes
 };
 exports.onesDependencies = onesDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],252:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],253:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31234,7 +31679,7 @@ var OperatorNodeDependencies = {
   createOperatorNode: _factoriesAny.createOperatorNode
 };
 exports.OperatorNodeDependencies = OperatorNodeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesNode.generated.js":240}],253:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesNode.generated.js":241}],254:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31264,7 +31709,7 @@ var orDependencies = {
   createOr: _factoriesAny.createOr
 };
 exports.orDependencies = orDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],254:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],255:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31285,7 +31730,7 @@ var ParenthesisNodeDependencies = {
   createParenthesisNode: _factoriesAny.createParenthesisNode
 };
 exports.ParenthesisNodeDependencies = ParenthesisNodeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesNode.generated.js":240}],255:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesNode.generated.js":241}],256:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31354,7 +31799,7 @@ var parseDependencies = {
   createParse: _factoriesAny.createParse
 };
 exports.parseDependencies = parseDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAccessorNode.generated.js":40,"./dependenciesArrayNode.generated.js":53,"./dependenciesAssignmentNode.generated.js":58,"./dependenciesBlockNode.generated.js":72,"./dependenciesConditionalNode.generated.js":97,"./dependenciesConstantNode.generated.js":100,"./dependenciesFunctionAssignmentNode.generated.js":159,"./dependenciesFunctionNode.generated.js":160,"./dependenciesIndexNode.generated.js":179,"./dependenciesNumeric.generated.js":248,"./dependenciesObjectNode.generated.js":249,"./dependenciesOperatorNode.generated.js":252,"./dependenciesParenthesisNode.generated.js":254,"./dependenciesRangeNode.generated.js":280,"./dependenciesRelationalNode.generated.js":285,"./dependenciesSymbolNode.generated.js":343,"./dependenciesTyped.generated.js":353}],256:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAccessorNode.generated.js":41,"./dependenciesArrayNode.generated.js":54,"./dependenciesAssignmentNode.generated.js":59,"./dependenciesBlockNode.generated.js":73,"./dependenciesConditionalNode.generated.js":98,"./dependenciesConstantNode.generated.js":101,"./dependenciesFunctionAssignmentNode.generated.js":160,"./dependenciesFunctionNode.generated.js":161,"./dependenciesIndexNode.generated.js":180,"./dependenciesNumeric.generated.js":249,"./dependenciesObjectNode.generated.js":250,"./dependenciesOperatorNode.generated.js":253,"./dependenciesParenthesisNode.generated.js":255,"./dependenciesRangeNode.generated.js":281,"./dependenciesRelationalNode.generated.js":286,"./dependenciesSymbolNode.generated.js":344,"./dependenciesTyped.generated.js":354}],257:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31378,7 +31823,7 @@ var parserDependencies = {
   createParser: _factoriesAny.createParser
 };
 exports.parserDependencies = parserDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesParserClass.generated.js":257,"./dependenciesTyped.generated.js":353}],257:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesParserClass.generated.js":258,"./dependenciesTyped.generated.js":354}],258:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31399,7 +31844,7 @@ var ParserDependencies = {
   createParserClass: _factoriesAny.createParserClass
 };
 exports.ParserDependencies = ParserDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesParse.generated.js":255}],258:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesParse.generated.js":256}],259:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31429,7 +31874,7 @@ var partitionSelectDependencies = {
   createPartitionSelect: _factoriesAny.createPartitionSelect
 };
 exports.partitionSelectDependencies = partitionSelectDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesCompare.generated.js":88,"./dependenciesIsNaN.generated.js":186,"./dependenciesIsNumeric.generated.js":188,"./dependenciesTyped.generated.js":353}],259:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesCompare.generated.js":89,"./dependenciesIsNaN.generated.js":187,"./dependenciesIsNumeric.generated.js":189,"./dependenciesTyped.generated.js":354}],260:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31453,7 +31898,7 @@ var permutationsDependencies = {
   createPermutations: _factoriesAny.createPermutations
 };
 exports.permutationsDependencies = permutationsDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesFactorial.generated.js":142,"./dependenciesTyped.generated.js":353}],260:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesFactorial.generated.js":143,"./dependenciesTyped.generated.js":354}],261:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31474,7 +31919,7 @@ var phiDependencies = {
   createPhi: _factoriesAny.createPhi
 };
 exports.phiDependencies = phiDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65}],261:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66}],262:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31495,7 +31940,7 @@ var piDependencies = {
   createPi: _factoriesAny.createPi
 };
 exports.piDependencies = piDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65}],262:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66}],263:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31516,7 +31961,7 @@ var pickRandomDependencies = {
   createPickRandom: _factoriesAny.createPickRandom
 };
 exports.pickRandomDependencies = pickRandomDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],263:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],264:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31540,7 +31985,7 @@ var planckChargeDependencies = {
   createPlanckCharge: _factoriesAny.createPlanckCharge
 };
 exports.planckChargeDependencies = planckChargeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],264:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],265:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31564,7 +32009,7 @@ var planckConstantDependencies = {
   createPlanckConstant: _factoriesAny.createPlanckConstant
 };
 exports.planckConstantDependencies = planckConstantDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],265:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],266:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31588,7 +32033,7 @@ var planckLengthDependencies = {
   createPlanckLength: _factoriesAny.createPlanckLength
 };
 exports.planckLengthDependencies = planckLengthDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],266:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],267:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31612,7 +32057,7 @@ var planckMassDependencies = {
   createPlanckMass: _factoriesAny.createPlanckMass
 };
 exports.planckMassDependencies = planckMassDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],267:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],268:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31636,7 +32081,7 @@ var planckTemperatureDependencies = {
   createPlanckTemperature: _factoriesAny.createPlanckTemperature
 };
 exports.planckTemperatureDependencies = planckTemperatureDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],268:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],269:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31660,7 +32105,7 @@ var planckTimeDependencies = {
   createPlanckTime: _factoriesAny.createPlanckTime
 };
 exports.planckTimeDependencies = planckTimeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],269:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],270:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31699,7 +32144,7 @@ var powDependencies = {
   createPow: _factoriesAny.createPow
 };
 exports.powDependencies = powDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesComplexClass.generated.js":93,"./dependenciesFraction.generated.js":157,"./dependenciesIdentity.generated.js":174,"./dependenciesMatrix.generated.js":217,"./dependenciesMultiply.generated.js":236,"./dependenciesNumber.generated.js":247,"./dependenciesTyped.generated.js":353}],270:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesComplexClass.generated.js":94,"./dependenciesFraction.generated.js":158,"./dependenciesIdentity.generated.js":175,"./dependenciesMatrix.generated.js":218,"./dependenciesMultiply.generated.js":237,"./dependenciesNumber.generated.js":248,"./dependenciesTyped.generated.js":354}],271:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31720,7 +32165,7 @@ var printDependencies = {
   createPrint: _factoriesAny.createPrint
 };
 exports.printDependencies = printDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],271:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],272:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31747,7 +32192,7 @@ var prodDependencies = {
   createProd: _factoriesAny.createProd
 };
 exports.prodDependencies = prodDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesMultiplyScalar.generated.js":237,"./dependenciesNumeric.generated.js":248,"./dependenciesTyped.generated.js":353}],272:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesMultiplyScalar.generated.js":238,"./dependenciesNumeric.generated.js":249,"./dependenciesTyped.generated.js":354}],273:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31771,7 +32216,7 @@ var protonMassDependencies = {
   createProtonMass: _factoriesAny.createProtonMass
 };
 exports.protonMassDependencies = protonMassDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],273:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],274:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31834,7 +32279,7 @@ var qrDependencies = {
   createQr: _factoriesAny.createQr
 };
 exports.qrDependencies = qrDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAddScalar.generated.js":48,"./dependenciesComplex.generated.js":92,"./dependenciesConj.generated.js":99,"./dependenciesDivideScalar.generated.js":123,"./dependenciesEqual.generated.js":134,"./dependenciesIdentity.generated.js":174,"./dependenciesIsZero.generated.js":191,"./dependenciesMatrix.generated.js":217,"./dependenciesMultiplyScalar.generated.js":237,"./dependenciesSign.generated.js":315,"./dependenciesSqrt.generated.js":329,"./dependenciesSubtract.generated.js":340,"./dependenciesTyped.generated.js":353,"./dependenciesUnaryMinus.generated.js":354,"./dependenciesZeros.generated.js":371}],274:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAddScalar.generated.js":49,"./dependenciesComplex.generated.js":93,"./dependenciesConj.generated.js":100,"./dependenciesDivideScalar.generated.js":124,"./dependenciesEqual.generated.js":135,"./dependenciesIdentity.generated.js":175,"./dependenciesIsZero.generated.js":192,"./dependenciesMatrix.generated.js":218,"./dependenciesMultiplyScalar.generated.js":238,"./dependenciesSign.generated.js":316,"./dependenciesSqrt.generated.js":330,"./dependenciesSubtract.generated.js":341,"./dependenciesTyped.generated.js":354,"./dependenciesUnaryMinus.generated.js":355,"./dependenciesZeros.generated.js":372}],275:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31867,7 +32312,7 @@ var quantileSeqDependencies = {
   createQuantileSeq: _factoriesAny.createQuantileSeq
 };
 exports.quantileSeqDependencies = quantileSeqDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAdd.generated.js":47,"./dependenciesCompare.generated.js":88,"./dependenciesMultiply.generated.js":236,"./dependenciesPartitionSelect.generated.js":258,"./dependenciesTyped.generated.js":353}],275:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAdd.generated.js":48,"./dependenciesCompare.generated.js":89,"./dependenciesMultiply.generated.js":237,"./dependenciesPartitionSelect.generated.js":259,"./dependenciesTyped.generated.js":354}],276:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31891,7 +32336,7 @@ var quantumOfCirculationDependencies = {
   createQuantumOfCirculation: _factoriesAny.createQuantumOfCirculation
 };
 exports.quantumOfCirculationDependencies = quantumOfCirculationDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],276:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],277:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31912,7 +32357,7 @@ var randomDependencies = {
   createRandom: _factoriesAny.createRandom
 };
 exports.randomDependencies = randomDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],277:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],278:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31933,7 +32378,7 @@ var randomIntDependencies = {
   createRandomInt: _factoriesAny.createRandomInt
 };
 exports.randomIntDependencies = randomIntDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],278:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],279:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31972,7 +32417,7 @@ var rangeDependencies = {
   createRange: _factoriesAny.createRange
 };
 exports.rangeDependencies = rangeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBignumber.generated.js":66,"./dependenciesLarger.generated.js":199,"./dependenciesLargerEq.generated.js":200,"./dependenciesMatrix.generated.js":217,"./dependenciesSmaller.generated.js":321,"./dependenciesSmallerEq.generated.js":322,"./dependenciesTyped.generated.js":353}],279:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBignumber.generated.js":67,"./dependenciesLarger.generated.js":200,"./dependenciesLargerEq.generated.js":201,"./dependenciesMatrix.generated.js":218,"./dependenciesSmaller.generated.js":322,"./dependenciesSmallerEq.generated.js":323,"./dependenciesTyped.generated.js":354}],280:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31990,7 +32435,7 @@ var RangeDependencies = {
   createRangeClass: _factoriesAny.createRangeClass
 };
 exports.RangeDependencies = RangeDependencies;
-},{"../../factoriesAny.js":649}],280:[function(require,module,exports){
+},{"../../factoriesAny.js":650}],281:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32011,7 +32456,7 @@ var RangeNodeDependencies = {
   createRangeNode: _factoriesAny.createRangeNode
 };
 exports.RangeNodeDependencies = RangeNodeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesNode.generated.js":240}],281:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesNode.generated.js":241}],282:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32050,7 +32495,7 @@ var rangeTransformDependencies = {
   createRangeTransform: _factoriesAny.createRangeTransform
 };
 exports.rangeTransformDependencies = rangeTransformDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBignumber.generated.js":66,"./dependenciesLarger.generated.js":199,"./dependenciesLargerEq.generated.js":200,"./dependenciesMatrix.generated.js":217,"./dependenciesSmaller.generated.js":321,"./dependenciesSmallerEq.generated.js":322,"./dependenciesTyped.generated.js":353}],282:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBignumber.generated.js":67,"./dependenciesLarger.generated.js":200,"./dependenciesLargerEq.generated.js":201,"./dependenciesMatrix.generated.js":218,"./dependenciesSmaller.generated.js":322,"./dependenciesSmallerEq.generated.js":323,"./dependenciesTyped.generated.js":354}],283:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32119,7 +32564,7 @@ var rationalizeDependencies = {
   createRationalize: _factoriesAny.createRationalize
 };
 exports.rationalizeDependencies = rationalizeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAdd.generated.js":47,"./dependenciesBignumber.generated.js":66,"./dependenciesConstantNode.generated.js":100,"./dependenciesDivide.generated.js":122,"./dependenciesEqual.generated.js":134,"./dependenciesFraction.generated.js":157,"./dependenciesFunctionNode.generated.js":160,"./dependenciesIsZero.generated.js":191,"./dependenciesMultiply.generated.js":236,"./dependenciesOperatorNode.generated.js":252,"./dependenciesParenthesisNode.generated.js":254,"./dependenciesParse.generated.js":255,"./dependenciesPow.generated.js":269,"./dependenciesSimplify.generated.js":316,"./dependenciesSubtract.generated.js":340,"./dependenciesSymbolNode.generated.js":343,"./dependenciesTyped.generated.js":353}],283:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAdd.generated.js":48,"./dependenciesBignumber.generated.js":67,"./dependenciesConstantNode.generated.js":101,"./dependenciesDivide.generated.js":123,"./dependenciesEqual.generated.js":135,"./dependenciesFraction.generated.js":158,"./dependenciesFunctionNode.generated.js":161,"./dependenciesIsZero.generated.js":192,"./dependenciesMultiply.generated.js":237,"./dependenciesOperatorNode.generated.js":253,"./dependenciesParenthesisNode.generated.js":255,"./dependenciesParse.generated.js":256,"./dependenciesPow.generated.js":270,"./dependenciesSimplify.generated.js":317,"./dependenciesSubtract.generated.js":341,"./dependenciesSymbolNode.generated.js":344,"./dependenciesTyped.generated.js":354}],284:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32140,7 +32585,7 @@ var reDependencies = {
   createRe: _factoriesAny.createRe
 };
 exports.reDependencies = reDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],284:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],285:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32164,7 +32609,7 @@ var reducedPlanckConstantDependencies = {
   createReducedPlanckConstant: _factoriesAny.createReducedPlanckConstant
 };
 exports.reducedPlanckConstantDependencies = reducedPlanckConstantDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],285:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],286:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32185,7 +32630,7 @@ var RelationalNodeDependencies = {
   createRelationalNode: _factoriesAny.createRelationalNode
 };
 exports.RelationalNodeDependencies = RelationalNodeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesNode.generated.js":240}],286:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesNode.generated.js":241}],287:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32203,7 +32648,7 @@ var replacerDependencies = {
   createReplacer: _factoriesAny.createReplacer
 };
 exports.replacerDependencies = replacerDependencies;
-},{"../../factoriesAny.js":649}],287:[function(require,module,exports){
+},{"../../factoriesAny.js":650}],288:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32230,7 +32675,7 @@ var reshapeDependencies = {
   createReshape: _factoriesAny.createReshape
 };
 exports.reshapeDependencies = reshapeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesIsInteger.generated.js":185,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],288:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesIsInteger.generated.js":186,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],289:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32251,7 +32696,7 @@ var resizeDependencies = {
   createResize: _factoriesAny.createResize
 };
 exports.resizeDependencies = resizeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesMatrix.generated.js":217}],289:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesMatrix.generated.js":218}],290:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32269,7 +32714,7 @@ var ResultSetDependencies = {
   createResultSet: _factoriesAny.createResultSet
 };
 exports.ResultSetDependencies = ResultSetDependencies;
-},{"../../factoriesAny.js":649}],290:[function(require,module,exports){
+},{"../../factoriesAny.js":650}],291:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32287,7 +32732,7 @@ var reviverDependencies = {
   createReviver: _factoriesAny.createReviver
 };
 exports.reviverDependencies = reviverDependencies;
-},{"../../factoriesAny.js":649}],291:[function(require,module,exports){
+},{"../../factoriesAny.js":650}],292:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32320,7 +32765,7 @@ var rightArithShiftDependencies = {
   createRightArithShift: _factoriesAny.createRightArithShift
 };
 exports.rightArithShiftDependencies = rightArithShiftDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353,"./dependenciesZeros.generated.js":371}],292:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354,"./dependenciesZeros.generated.js":372}],293:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32353,7 +32798,7 @@ var rightLogShiftDependencies = {
   createRightLogShift: _factoriesAny.createRightLogShift
 };
 exports.rightLogShiftDependencies = rightLogShiftDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353,"./dependenciesZeros.generated.js":371}],293:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354,"./dependenciesZeros.generated.js":372}],294:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32380,7 +32825,7 @@ var rotateDependencies = {
   createRotate: _factoriesAny.createRotate
 };
 exports.rotateDependencies = rotateDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesMultiply.generated.js":236,"./dependenciesRotationMatrix.generated.js":294,"./dependenciesTyped.generated.js":353}],294:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesMultiply.generated.js":237,"./dependenciesRotationMatrix.generated.js":295,"./dependenciesTyped.generated.js":354}],295:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32431,7 +32876,7 @@ var rotationMatrixDependencies = {
   createRotationMatrix: _factoriesAny.createRotationMatrix
 };
 exports.rotationMatrixDependencies = rotationMatrixDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAddScalar.generated.js":48,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesCos.generated.js":101,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesMatrix.generated.js":217,"./dependenciesMultiplyScalar.generated.js":237,"./dependenciesNorm.generated.js":241,"./dependenciesSin.generated.js":317,"./dependenciesSparseMatrixClass.generated.js":326,"./dependenciesTyped.generated.js":353,"./dependenciesUnaryMinus.generated.js":354}],295:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAddScalar.generated.js":49,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesCos.generated.js":102,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesMatrix.generated.js":218,"./dependenciesMultiplyScalar.generated.js":238,"./dependenciesNorm.generated.js":242,"./dependenciesSin.generated.js":318,"./dependenciesSparseMatrixClass.generated.js":327,"./dependenciesTyped.generated.js":354,"./dependenciesUnaryMinus.generated.js":355}],296:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32467,7 +32912,7 @@ var roundDependencies = {
   createRound: _factoriesAny.createRound
 };
 exports.roundDependencies = roundDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353,"./dependenciesZeros.generated.js":371}],296:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354,"./dependenciesZeros.generated.js":372}],297:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32497,7 +32942,7 @@ var rowDependencies = {
   createRow: _factoriesAny.createRow
 };
 exports.rowDependencies = rowDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesIndexClass.generated.js":178,"./dependenciesMatrix.generated.js":217,"./dependenciesRange.generated.js":278,"./dependenciesTyped.generated.js":353}],297:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesIndexClass.generated.js":179,"./dependenciesMatrix.generated.js":218,"./dependenciesRange.generated.js":279,"./dependenciesTyped.generated.js":354}],298:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32527,7 +32972,7 @@ var rowTransformDependencies = {
   createRowTransform: _factoriesAny.createRowTransform
 };
 exports.rowTransformDependencies = rowTransformDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesIndexClass.generated.js":178,"./dependenciesMatrix.generated.js":217,"./dependenciesRange.generated.js":278,"./dependenciesTyped.generated.js":353}],298:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesIndexClass.generated.js":179,"./dependenciesMatrix.generated.js":218,"./dependenciesRange.generated.js":279,"./dependenciesTyped.generated.js":354}],299:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32551,7 +32996,7 @@ var rydbergDependencies = {
   createRydberg: _factoriesAny.createRydberg
 };
 exports.rydbergDependencies = rydbergDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],299:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],300:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32574,7 +33019,7 @@ var SQRT1_2Dependencies = {
   createSQRT1_2: _factoriesAny.createSQRT1_2
 };
 exports.SQRT1_2Dependencies = SQRT1_2Dependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65}],300:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66}],301:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32595,7 +33040,7 @@ var SQRT2Dependencies = {
   createSQRT2: _factoriesAny.createSQRT2
 };
 exports.SQRT2Dependencies = SQRT2Dependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65}],301:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66}],302:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32616,7 +33061,7 @@ var sackurTetrodeDependencies = {
   createSackurTetrode: _factoriesAny.createSackurTetrode
 };
 exports.sackurTetrodeDependencies = sackurTetrodeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65}],302:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66}],303:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32640,7 +33085,7 @@ var secDependencies = {
   createSec: _factoriesAny.createSec
 };
 exports.secDependencies = secDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesTyped.generated.js":353}],303:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesTyped.generated.js":354}],304:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32664,7 +33109,7 @@ var sechDependencies = {
   createSech: _factoriesAny.createSech
 };
 exports.sechDependencies = sechDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesTyped.generated.js":353}],304:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesTyped.generated.js":354}],305:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32688,7 +33133,7 @@ var secondRadiationDependencies = {
   createSecondRadiation: _factoriesAny.createSecondRadiation
 };
 exports.secondRadiationDependencies = secondRadiationDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],305:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],306:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32724,7 +33169,7 @@ var setCartesianDependencies = {
   createSetCartesian: _factoriesAny.createSetCartesian
 };
 exports.setCartesianDependencies = setCartesianDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesCompareNatural.generated.js":89,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesIndexClass.generated.js":178,"./dependenciesSize.generated.js":319,"./dependenciesSubset.generated.js":338,"./dependenciesTyped.generated.js":353}],306:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesCompareNatural.generated.js":90,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesIndexClass.generated.js":179,"./dependenciesSize.generated.js":320,"./dependenciesSubset.generated.js":339,"./dependenciesTyped.generated.js":354}],307:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32760,7 +33205,7 @@ var setDifferenceDependencies = {
   createSetDifference: _factoriesAny.createSetDifference
 };
 exports.setDifferenceDependencies = setDifferenceDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesCompareNatural.generated.js":89,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesIndexClass.generated.js":178,"./dependenciesSize.generated.js":319,"./dependenciesSubset.generated.js":338,"./dependenciesTyped.generated.js":353}],307:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesCompareNatural.generated.js":90,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesIndexClass.generated.js":179,"./dependenciesSize.generated.js":320,"./dependenciesSubset.generated.js":339,"./dependenciesTyped.generated.js":354}],308:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32796,7 +33241,7 @@ var setDistinctDependencies = {
   createSetDistinct: _factoriesAny.createSetDistinct
 };
 exports.setDistinctDependencies = setDistinctDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesCompareNatural.generated.js":89,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesIndexClass.generated.js":178,"./dependenciesSize.generated.js":319,"./dependenciesSubset.generated.js":338,"./dependenciesTyped.generated.js":353}],308:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesCompareNatural.generated.js":90,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesIndexClass.generated.js":179,"./dependenciesSize.generated.js":320,"./dependenciesSubset.generated.js":339,"./dependenciesTyped.generated.js":354}],309:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32832,7 +33277,7 @@ var setIntersectDependencies = {
   createSetIntersect: _factoriesAny.createSetIntersect
 };
 exports.setIntersectDependencies = setIntersectDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesCompareNatural.generated.js":89,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesIndexClass.generated.js":178,"./dependenciesSize.generated.js":319,"./dependenciesSubset.generated.js":338,"./dependenciesTyped.generated.js":353}],309:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesCompareNatural.generated.js":90,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesIndexClass.generated.js":179,"./dependenciesSize.generated.js":320,"./dependenciesSubset.generated.js":339,"./dependenciesTyped.generated.js":354}],310:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32865,7 +33310,7 @@ var setIsSubsetDependencies = {
   createSetIsSubset: _factoriesAny.createSetIsSubset
 };
 exports.setIsSubsetDependencies = setIsSubsetDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesCompareNatural.generated.js":89,"./dependenciesIndexClass.generated.js":178,"./dependenciesSize.generated.js":319,"./dependenciesSubset.generated.js":338,"./dependenciesTyped.generated.js":353}],310:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesCompareNatural.generated.js":90,"./dependenciesIndexClass.generated.js":179,"./dependenciesSize.generated.js":320,"./dependenciesSubset.generated.js":339,"./dependenciesTyped.generated.js":354}],311:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32898,7 +33343,7 @@ var setMultiplicityDependencies = {
   createSetMultiplicity: _factoriesAny.createSetMultiplicity
 };
 exports.setMultiplicityDependencies = setMultiplicityDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesCompareNatural.generated.js":89,"./dependenciesIndexClass.generated.js":178,"./dependenciesSize.generated.js":319,"./dependenciesSubset.generated.js":338,"./dependenciesTyped.generated.js":353}],311:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesCompareNatural.generated.js":90,"./dependenciesIndexClass.generated.js":179,"./dependenciesSize.generated.js":320,"./dependenciesSubset.generated.js":339,"./dependenciesTyped.generated.js":354}],312:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32931,7 +33376,7 @@ var setPowersetDependencies = {
   createSetPowerset: _factoriesAny.createSetPowerset
 };
 exports.setPowersetDependencies = setPowersetDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesCompareNatural.generated.js":89,"./dependenciesIndexClass.generated.js":178,"./dependenciesSize.generated.js":319,"./dependenciesSubset.generated.js":338,"./dependenciesTyped.generated.js":353}],312:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesCompareNatural.generated.js":90,"./dependenciesIndexClass.generated.js":179,"./dependenciesSize.generated.js":320,"./dependenciesSubset.generated.js":339,"./dependenciesTyped.generated.js":354}],313:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32955,7 +33400,7 @@ var setSizeDependencies = {
   createSetSize: _factoriesAny.createSetSize
 };
 exports.setSizeDependencies = setSizeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesCompareNatural.generated.js":89,"./dependenciesTyped.generated.js":353}],313:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesCompareNatural.generated.js":90,"./dependenciesTyped.generated.js":354}],314:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32991,7 +33436,7 @@ var setSymDifferenceDependencies = {
   createSetSymDifference: _factoriesAny.createSetSymDifference
 };
 exports.setSymDifferenceDependencies = setSymDifferenceDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesConcat.generated.js":95,"./dependenciesIndexClass.generated.js":178,"./dependenciesSetDifference.generated.js":306,"./dependenciesSize.generated.js":319,"./dependenciesSubset.generated.js":338,"./dependenciesTyped.generated.js":353}],314:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesConcat.generated.js":96,"./dependenciesIndexClass.generated.js":179,"./dependenciesSetDifference.generated.js":307,"./dependenciesSize.generated.js":320,"./dependenciesSubset.generated.js":339,"./dependenciesTyped.generated.js":354}],315:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33030,7 +33475,7 @@ var setUnionDependencies = {
   createSetUnion: _factoriesAny.createSetUnion
 };
 exports.setUnionDependencies = setUnionDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesConcat.generated.js":95,"./dependenciesIndexClass.generated.js":178,"./dependenciesSetIntersect.generated.js":308,"./dependenciesSetSymDifference.generated.js":313,"./dependenciesSize.generated.js":319,"./dependenciesSubset.generated.js":338,"./dependenciesTyped.generated.js":353}],315:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesConcat.generated.js":96,"./dependenciesIndexClass.generated.js":179,"./dependenciesSetIntersect.generated.js":309,"./dependenciesSetSymDifference.generated.js":314,"./dependenciesSize.generated.js":320,"./dependenciesSubset.generated.js":339,"./dependenciesTyped.generated.js":354}],316:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33060,7 +33505,7 @@ var signDependencies = {
   createSign: _factoriesAny.createSign
 };
 exports.signDependencies = signDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesComplex.generated.js":92,"./dependenciesFractionClass.generated.js":158,"./dependenciesTyped.generated.js":353}],316:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesComplex.generated.js":93,"./dependenciesFractionClass.generated.js":159,"./dependenciesTyped.generated.js":354}],317:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33126,7 +33571,7 @@ var simplifyDependencies = {
   createSimplify: _factoriesAny.createSimplify
 };
 exports.simplifyDependencies = simplifyDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAdd.generated.js":47,"./dependenciesBignumber.generated.js":66,"./dependenciesConstantNode.generated.js":100,"./dependenciesDivide.generated.js":122,"./dependenciesEqual.generated.js":134,"./dependenciesFraction.generated.js":157,"./dependenciesFunctionNode.generated.js":160,"./dependenciesIsZero.generated.js":191,"./dependenciesMultiply.generated.js":236,"./dependenciesOperatorNode.generated.js":252,"./dependenciesParenthesisNode.generated.js":254,"./dependenciesParse.generated.js":255,"./dependenciesPow.generated.js":269,"./dependenciesSubtract.generated.js":340,"./dependenciesSymbolNode.generated.js":343,"./dependenciesTyped.generated.js":353}],317:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAdd.generated.js":48,"./dependenciesBignumber.generated.js":67,"./dependenciesConstantNode.generated.js":101,"./dependenciesDivide.generated.js":123,"./dependenciesEqual.generated.js":135,"./dependenciesFraction.generated.js":158,"./dependenciesFunctionNode.generated.js":161,"./dependenciesIsZero.generated.js":192,"./dependenciesMultiply.generated.js":237,"./dependenciesOperatorNode.generated.js":253,"./dependenciesParenthesisNode.generated.js":255,"./dependenciesParse.generated.js":256,"./dependenciesPow.generated.js":270,"./dependenciesSubtract.generated.js":341,"./dependenciesSymbolNode.generated.js":344,"./dependenciesTyped.generated.js":354}],318:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33147,7 +33592,7 @@ var sinDependencies = {
   createSin: _factoriesAny.createSin
 };
 exports.sinDependencies = sinDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],318:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],319:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33168,7 +33613,7 @@ var sinhDependencies = {
   createSinh: _factoriesAny.createSinh
 };
 exports.sinhDependencies = sinhDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],319:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],320:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33192,7 +33637,7 @@ var sizeDependencies = {
   createSize: _factoriesAny.createSize
 };
 exports.sizeDependencies = sizeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],320:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],321:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33240,7 +33685,7 @@ var sluDependencies = {
   createSlu: _factoriesAny.createSlu
 };
 exports.sluDependencies = sluDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAbs.generated.js":39,"./dependenciesAdd.generated.js":47,"./dependenciesDivideScalar.generated.js":123,"./dependenciesLarger.generated.js":199,"./dependenciesLargerEq.generated.js":200,"./dependenciesMultiply.generated.js":236,"./dependenciesSparseMatrixClass.generated.js":326,"./dependenciesSubtract.generated.js":340,"./dependenciesTranspose.generated.js":350,"./dependenciesTyped.generated.js":353}],321:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAbs.generated.js":40,"./dependenciesAdd.generated.js":48,"./dependenciesDivideScalar.generated.js":124,"./dependenciesLarger.generated.js":200,"./dependenciesLargerEq.generated.js":201,"./dependenciesMultiply.generated.js":237,"./dependenciesSparseMatrixClass.generated.js":327,"./dependenciesSubtract.generated.js":341,"./dependenciesTranspose.generated.js":351,"./dependenciesTyped.generated.js":354}],322:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33267,7 +33712,7 @@ var smallerDependencies = {
   createSmaller: _factoriesAny.createSmaller
 };
 exports.smallerDependencies = smallerDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],322:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],323:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33294,7 +33739,7 @@ var smallerEqDependencies = {
   createSmallerEq: _factoriesAny.createSmallerEq
 };
 exports.smallerEqDependencies = smallerEqDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],323:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],324:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33324,7 +33769,7 @@ var sortDependencies = {
   createSort: _factoriesAny.createSort
 };
 exports.sortDependencies = sortDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesCompare.generated.js":88,"./dependenciesCompareNatural.generated.js":89,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],324:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesCompare.generated.js":89,"./dependenciesCompareNatural.generated.js":90,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],325:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33351,7 +33796,7 @@ var SpaDependencies = {
   createSpaClass: _factoriesAny.createSpaClass
 };
 exports.SpaDependencies = SpaDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAddScalar.generated.js":48,"./dependenciesEqualScalar.generated.js":135,"./dependenciesFibonacciHeapClass.generated.js":146}],325:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAddScalar.generated.js":49,"./dependenciesEqualScalar.generated.js":136,"./dependenciesFibonacciHeapClass.generated.js":147}],326:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33375,7 +33820,7 @@ var sparseDependencies = {
   createSparse: _factoriesAny.createSparse
 };
 exports.sparseDependencies = sparseDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesSparseMatrixClass.generated.js":326,"./dependenciesTyped.generated.js":353}],326:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesSparseMatrixClass.generated.js":327,"./dependenciesTyped.generated.js":354}],327:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33402,7 +33847,7 @@ var SparseMatrixDependencies = {
   createSparseMatrixClass: _factoriesAny.createSparseMatrixClass
 };
 exports.SparseMatrixDependencies = SparseMatrixDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrixClass.generated.js":218,"./dependenciesTyped.generated.js":353}],327:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrixClass.generated.js":219,"./dependenciesTyped.generated.js":354}],328:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33426,7 +33871,7 @@ var speedOfLightDependencies = {
   createSpeedOfLight: _factoriesAny.createSpeedOfLight
 };
 exports.speedOfLightDependencies = speedOfLightDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],328:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],329:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33447,7 +33892,7 @@ var splitUnitDependencies = {
   createSplitUnit: _factoriesAny.createSplitUnit
 };
 exports.splitUnitDependencies = splitUnitDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],329:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],330:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33471,7 +33916,7 @@ var sqrtDependencies = {
   createSqrt: _factoriesAny.createSqrt
 };
 exports.sqrtDependencies = sqrtDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesComplexClass.generated.js":93,"./dependenciesTyped.generated.js":353}],330:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesComplexClass.generated.js":94,"./dependenciesTyped.generated.js":354}],331:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33519,7 +33964,7 @@ var sqrtmDependencies = {
   createSqrtm: _factoriesAny.createSqrtm
 };
 exports.sqrtmDependencies = sqrtmDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAbs.generated.js":39,"./dependenciesAdd.generated.js":47,"./dependenciesIdentity.generated.js":174,"./dependenciesInv.generated.js":183,"./dependenciesMax.generated.js":222,"./dependenciesMultiply.generated.js":236,"./dependenciesSize.generated.js":319,"./dependenciesSqrt.generated.js":329,"./dependenciesSubtract.generated.js":340,"./dependenciesTyped.generated.js":353}],331:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAbs.generated.js":40,"./dependenciesAdd.generated.js":48,"./dependenciesIdentity.generated.js":175,"./dependenciesInv.generated.js":184,"./dependenciesMax.generated.js":223,"./dependenciesMultiply.generated.js":237,"./dependenciesSize.generated.js":320,"./dependenciesSqrt.generated.js":330,"./dependenciesSubtract.generated.js":341,"./dependenciesTyped.generated.js":354}],332:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33540,7 +33985,7 @@ var squareDependencies = {
   createSquare: _factoriesAny.createSquare
 };
 exports.squareDependencies = squareDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],332:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],333:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33564,7 +34009,7 @@ var squeezeDependencies = {
   createSqueeze: _factoriesAny.createSqueeze
 };
 exports.squeezeDependencies = squeezeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],333:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],334:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33591,7 +34036,7 @@ var stdDependencies = {
   createStd: _factoriesAny.createStd
 };
 exports.stdDependencies = stdDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesSqrt.generated.js":329,"./dependenciesTyped.generated.js":353,"./dependenciesVariance.generated.js":364}],334:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesSqrt.generated.js":330,"./dependenciesTyped.generated.js":354,"./dependenciesVariance.generated.js":365}],335:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33618,7 +34063,7 @@ var stdTransformDependencies = {
   createStdTransform: _factoriesAny.createStdTransform
 };
 exports.stdTransformDependencies = stdTransformDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesSqrt.generated.js":329,"./dependenciesTyped.generated.js":353,"./dependenciesVariance.generated.js":364}],335:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesSqrt.generated.js":330,"./dependenciesTyped.generated.js":354,"./dependenciesVariance.generated.js":365}],336:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33642,7 +34087,7 @@ var stefanBoltzmannDependencies = {
   createStefanBoltzmann: _factoriesAny.createStefanBoltzmann
 };
 exports.stefanBoltzmannDependencies = stefanBoltzmannDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],336:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],337:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33693,7 +34138,7 @@ var stirlingS2Dependencies = {
   createStirlingS2: _factoriesAny.createStirlingS2
 };
 exports.stirlingS2Dependencies = stirlingS2Dependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAddScalar.generated.js":48,"./dependenciesCombinations.generated.js":86,"./dependenciesDivideScalar.generated.js":123,"./dependenciesFactorial.generated.js":142,"./dependenciesIsInteger.generated.js":185,"./dependenciesIsNegative.generated.js":187,"./dependenciesLarger.generated.js":199,"./dependenciesMultiplyScalar.generated.js":237,"./dependenciesPow.generated.js":269,"./dependenciesSubtract.generated.js":340,"./dependenciesTyped.generated.js":353}],337:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAddScalar.generated.js":49,"./dependenciesCombinations.generated.js":87,"./dependenciesDivideScalar.generated.js":124,"./dependenciesFactorial.generated.js":143,"./dependenciesIsInteger.generated.js":186,"./dependenciesIsNegative.generated.js":188,"./dependenciesLarger.generated.js":200,"./dependenciesMultiplyScalar.generated.js":238,"./dependenciesPow.generated.js":270,"./dependenciesSubtract.generated.js":341,"./dependenciesTyped.generated.js":354}],338:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33714,7 +34159,7 @@ var stringDependencies = {
   createString: _factoriesAny.createString
 };
 exports.stringDependencies = stringDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],338:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],339:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33738,7 +34183,7 @@ var subsetDependencies = {
   createSubset: _factoriesAny.createSubset
 };
 exports.subsetDependencies = subsetDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],339:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],340:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33762,7 +34207,7 @@ var subsetTransformDependencies = {
   createSubsetTransform: _factoriesAny.createSubsetTransform
 };
 exports.subsetTransformDependencies = subsetTransformDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],340:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],341:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33798,7 +34243,7 @@ var subtractDependencies = {
   createSubtract: _factoriesAny.createSubtract
 };
 exports.subtractDependencies = subtractDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAddScalar.generated.js":48,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353,"./dependenciesUnaryMinus.generated.js":354}],341:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAddScalar.generated.js":49,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354,"./dependenciesUnaryMinus.generated.js":355}],342:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33825,7 +34270,7 @@ var sumDependencies = {
   createSum: _factoriesAny.createSum
 };
 exports.sumDependencies = sumDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAdd.generated.js":47,"./dependenciesNumeric.generated.js":248,"./dependenciesTyped.generated.js":353}],342:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAdd.generated.js":48,"./dependenciesNumeric.generated.js":249,"./dependenciesTyped.generated.js":354}],343:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33852,7 +34297,7 @@ var sumTransformDependencies = {
   createSumTransform: _factoriesAny.createSumTransform
 };
 exports.sumTransformDependencies = sumTransformDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAdd.generated.js":47,"./dependenciesNumeric.generated.js":248,"./dependenciesTyped.generated.js":353}],343:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAdd.generated.js":48,"./dependenciesNumeric.generated.js":249,"./dependenciesTyped.generated.js":354}],344:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33876,7 +34321,7 @@ var SymbolNodeDependencies = {
   createSymbolNode: _factoriesAny.createSymbolNode
 };
 exports.SymbolNodeDependencies = SymbolNodeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesNode.generated.js":240,"./dependenciesUnitClass.generated.js":357}],344:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesNode.generated.js":241,"./dependenciesUnitClass.generated.js":358}],345:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33897,7 +34342,7 @@ var tanDependencies = {
   createTan: _factoriesAny.createTan
 };
 exports.tanDependencies = tanDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],345:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],346:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33918,7 +34363,7 @@ var tanhDependencies = {
   createTanh: _factoriesAny.createTanh
 };
 exports.tanhDependencies = tanhDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],346:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],347:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33939,7 +34384,7 @@ var tauDependencies = {
   createTau: _factoriesAny.createTau
 };
 exports.tauDependencies = tauDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65}],347:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66}],348:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33963,7 +34408,7 @@ var thomsonCrossSectionDependencies = {
   createThomsonCrossSection: _factoriesAny.createThomsonCrossSection
 };
 exports.thomsonCrossSectionDependencies = thomsonCrossSectionDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],348:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],349:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33987,7 +34432,7 @@ var toDependencies = {
   createTo: _factoriesAny.createTo
 };
 exports.toDependencies = toDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],349:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],350:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34014,7 +34459,7 @@ var traceDependencies = {
   createTrace: _factoriesAny.createTrace
 };
 exports.traceDependencies = traceDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAdd.generated.js":47,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],350:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAdd.generated.js":48,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],351:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34038,7 +34483,7 @@ var transposeDependencies = {
   createTranspose: _factoriesAny.createTranspose
 };
 exports.transposeDependencies = transposeDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],351:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],352:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34056,7 +34501,7 @@ var trueDependencies = {
   createTrue: _factoriesAny.createTrue
 };
 exports.trueDependencies = trueDependencies;
-},{"../../factoriesAny.js":649}],352:[function(require,module,exports){
+},{"../../factoriesAny.js":650}],353:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34077,7 +34522,7 @@ var typeOfDependencies = {
   createTypeOf: _factoriesAny.createTypeOf
 };
 exports.typeOfDependencies = typeOfDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],353:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],354:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34107,7 +34552,7 @@ var typedDependencies = {
   createTyped: _factoriesAny.createTyped
 };
 exports.typedDependencies = typedDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesComplexClass.generated.js":93,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesFractionClass.generated.js":158}],354:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesComplexClass.generated.js":94,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesFractionClass.generated.js":159}],355:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34128,7 +34573,7 @@ var unaryMinusDependencies = {
   createUnaryMinus: _factoriesAny.createUnaryMinus
 };
 exports.unaryMinusDependencies = unaryMinusDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353}],355:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354}],356:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34152,7 +34597,7 @@ var unaryPlusDependencies = {
   createUnaryPlus: _factoriesAny.createUnaryPlus
 };
 exports.unaryPlusDependencies = unaryPlusDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesTyped.generated.js":353}],356:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesTyped.generated.js":354}],357:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34182,7 +34627,7 @@ var unequalDependencies = {
   createUnequal: _factoriesAny.createUnequal
 };
 exports.unequalDependencies = unequalDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],357:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],358:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34245,7 +34690,7 @@ var UnitDependencies = {
   createUnitClass: _factoriesAny.createUnitClass
 };
 exports.UnitDependencies = UnitDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAbs.generated.js":39,"./dependenciesAddScalar.generated.js":48,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesComplexClass.generated.js":93,"./dependenciesDivideScalar.generated.js":123,"./dependenciesEqual.generated.js":134,"./dependenciesFix.generated.js":151,"./dependenciesFormat.generated.js":156,"./dependenciesFractionClass.generated.js":158,"./dependenciesIsNumeric.generated.js":188,"./dependenciesMultiplyScalar.generated.js":237,"./dependenciesNumber.generated.js":247,"./dependenciesPow.generated.js":269,"./dependenciesRound.generated.js":295,"./dependenciesSubtract.generated.js":340}],358:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAbs.generated.js":40,"./dependenciesAddScalar.generated.js":49,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesComplexClass.generated.js":94,"./dependenciesDivideScalar.generated.js":124,"./dependenciesEqual.generated.js":135,"./dependenciesFix.generated.js":152,"./dependenciesFormat.generated.js":157,"./dependenciesFractionClass.generated.js":159,"./dependenciesIsNumeric.generated.js":189,"./dependenciesMultiplyScalar.generated.js":238,"./dependenciesNumber.generated.js":248,"./dependenciesPow.generated.js":270,"./dependenciesRound.generated.js":296,"./dependenciesSubtract.generated.js":341}],359:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34269,7 +34714,7 @@ var unitDependencies = {
   createUnitFunction: _factoriesAny.createUnitFunction
 };
 exports.unitDependencies = unitDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesTyped.generated.js":353,"./dependenciesUnitClass.generated.js":357}],359:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesTyped.generated.js":354,"./dependenciesUnitClass.generated.js":358}],360:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34290,7 +34735,7 @@ var EDependencies = {
   createUppercaseE: _factoriesAny.createUppercaseE
 };
 exports.EDependencies = EDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesE.generated.js":128}],360:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesE.generated.js":129}],361:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34311,7 +34756,7 @@ var PIDependencies = {
   createUppercasePi: _factoriesAny.createUppercasePi
 };
 exports.PIDependencies = PIDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesPi.generated.js":261}],361:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesPi.generated.js":262}],362:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34350,7 +34795,7 @@ var usolveDependencies = {
   createUsolve: _factoriesAny.createUsolve
 };
 exports.usolveDependencies = usolveDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesDivideScalar.generated.js":123,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesMultiplyScalar.generated.js":237,"./dependenciesSubtract.generated.js":340,"./dependenciesTyped.generated.js":353}],362:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesDivideScalar.generated.js":124,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesMultiplyScalar.generated.js":238,"./dependenciesSubtract.generated.js":341,"./dependenciesTyped.generated.js":354}],363:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34389,7 +34834,7 @@ var usolveAllDependencies = {
   createUsolveAll: _factoriesAny.createUsolveAll
 };
 exports.usolveAllDependencies = usolveAllDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesDivideScalar.generated.js":123,"./dependenciesEqualScalar.generated.js":135,"./dependenciesMatrix.generated.js":217,"./dependenciesMultiplyScalar.generated.js":237,"./dependenciesSubtract.generated.js":340,"./dependenciesTyped.generated.js":353}],363:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesDivideScalar.generated.js":124,"./dependenciesEqualScalar.generated.js":136,"./dependenciesMatrix.generated.js":218,"./dependenciesMultiplyScalar.generated.js":238,"./dependenciesSubtract.generated.js":341,"./dependenciesTyped.generated.js":354}],364:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34413,7 +34858,7 @@ var vacuumImpedanceDependencies = {
   createVacuumImpedance: _factoriesAny.createVacuumImpedance
 };
 exports.vacuumImpedanceDependencies = vacuumImpedanceDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],364:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],365:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34452,7 +34897,7 @@ var varianceDependencies = {
   createVariance: _factoriesAny.createVariance
 };
 exports.varianceDependencies = varianceDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAdd.generated.js":47,"./dependenciesApply.generated.js":50,"./dependenciesDivide.generated.js":122,"./dependenciesIsNaN.generated.js":186,"./dependenciesMultiply.generated.js":236,"./dependenciesSubtract.generated.js":340,"./dependenciesTyped.generated.js":353}],365:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAdd.generated.js":48,"./dependenciesApply.generated.js":51,"./dependenciesDivide.generated.js":123,"./dependenciesIsNaN.generated.js":187,"./dependenciesMultiply.generated.js":237,"./dependenciesSubtract.generated.js":341,"./dependenciesTyped.generated.js":354}],366:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34491,7 +34936,7 @@ var varianceTransformDependencies = {
   createVarianceTransform: _factoriesAny.createVarianceTransform
 };
 exports.varianceTransformDependencies = varianceTransformDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesAdd.generated.js":47,"./dependenciesApply.generated.js":50,"./dependenciesDivide.generated.js":122,"./dependenciesIsNaN.generated.js":186,"./dependenciesMultiply.generated.js":236,"./dependenciesSubtract.generated.js":340,"./dependenciesTyped.generated.js":353}],366:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesAdd.generated.js":48,"./dependenciesApply.generated.js":51,"./dependenciesDivide.generated.js":123,"./dependenciesIsNaN.generated.js":187,"./dependenciesMultiply.generated.js":237,"./dependenciesSubtract.generated.js":341,"./dependenciesTyped.generated.js":354}],367:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34509,7 +34954,7 @@ var versionDependencies = {
   createVersion: _factoriesAny.createVersion
 };
 exports.versionDependencies = versionDependencies;
-},{"../../factoriesAny.js":649}],367:[function(require,module,exports){
+},{"../../factoriesAny.js":650}],368:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34530,7 +34975,7 @@ var weakMixingAngleDependencies = {
   createWeakMixingAngle: _factoriesAny.createWeakMixingAngle
 };
 exports.weakMixingAngleDependencies = weakMixingAngleDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65}],368:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66}],369:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34554,7 +34999,7 @@ var wienDisplacementDependencies = {
   createWienDisplacement: _factoriesAny.createWienDisplacement
 };
 exports.wienDisplacementDependencies = wienDisplacementDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesUnitClass.generated.js":357}],369:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesUnitClass.generated.js":358}],370:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34581,7 +35026,7 @@ var xgcdDependencies = {
   createXgcd: _factoriesAny.createXgcd
 };
 exports.xgcdDependencies = xgcdDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],370:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],371:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34608,7 +35053,7 @@ var xorDependencies = {
   createXor: _factoriesAny.createXor
 };
 exports.xorDependencies = xorDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesDenseMatrixClass.generated.js":114,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],371:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesDenseMatrixClass.generated.js":115,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],372:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34635,7 +35080,7 @@ var zerosDependencies = {
   createZeros: _factoriesAny.createZeros
 };
 exports.zerosDependencies = zerosDependencies;
-},{"../../factoriesAny.js":649,"./dependenciesBigNumberClass.generated.js":65,"./dependenciesMatrix.generated.js":217,"./dependenciesTyped.generated.js":353}],372:[function(require,module,exports){
+},{"../../factoriesAny.js":650,"./dependenciesBigNumberClass.generated.js":66,"./dependenciesMatrix.generated.js":218,"./dependenciesTyped.generated.js":354}],373:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -35282,7 +35727,7 @@ exports.compile = compile;
   Parser: Parser
 });
 Chain.createProxy(math);
-},{"../expression/embeddedDocs/embeddedDocs.js":413,"../factoriesAny.js":649,"./configReadonly.js":37,"./pureFunctionsAny.generated.js":374,"@babel/runtime/helpers/extends":13,"@babel/runtime/helpers/interopRequireDefault":14}],373:[function(require,module,exports){
+},{"../expression/embeddedDocs/embeddedDocs.js":414,"../factoriesAny.js":650,"./configReadonly.js":38,"./pureFunctionsAny.generated.js":375,"@babel/runtime/helpers/extends":13,"@babel/runtime/helpers/interopRequireDefault":14}],374:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -35414,7 +35859,7 @@ Object.keys(_factoriesAny).forEach(function (key) {
 var _create = require("../core/create.js");
 
 var _factory = require("../utils/factory.js");
-},{"../core/create.js":32,"../error/ArgumentsError.js":376,"../error/DimensionError.js":377,"../error/IndexError.js":378,"../factoriesAny.js":649,"../utils/factory.js":936,"./configReadonly.js":37,"./dependenciesAny.generated.js":38,"./impureFunctionsAny.generated.js":372,"./pureFunctionsAny.generated.js":374,"./typeChecks.js":375}],374:[function(require,module,exports){
+},{"../core/create.js":33,"../error/ArgumentsError.js":377,"../error/DimensionError.js":378,"../error/IndexError.js":379,"../factoriesAny.js":650,"../utils/factory.js":937,"./configReadonly.js":38,"./dependenciesAny.generated.js":39,"./impureFunctionsAny.generated.js":373,"./pureFunctionsAny.generated.js":375,"./typeChecks.js":376}],375:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -37277,7 +37722,7 @@ var inverseConductanceQuantum = /* #__PURE__ */(0, _factoriesAny.createInverseCo
   config: _configReadonly.config
 });
 exports.inverseConductanceQuantum = inverseConductanceQuantum;
-},{"../factoriesAny.js":649,"./configReadonly.js":37}],375:[function(require,module,exports){
+},{"../factoriesAny.js":650,"./configReadonly.js":38}],376:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -37513,7 +37958,7 @@ Object.defineProperty(exports, "isUnit", {
 });
 
 var _is = require("../utils/is.js");
-},{"../utils/is.js":938}],376:[function(require,module,exports){
+},{"../utils/is.js":939}],377:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -37547,7 +37992,7 @@ ArgumentsError.prototype = new Error();
 ArgumentsError.prototype.constructor = Error;
 ArgumentsError.prototype.name = 'ArgumentsError';
 ArgumentsError.prototype.isArgumentsError = true;
-},{}],377:[function(require,module,exports){
+},{}],378:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -37580,7 +38025,7 @@ DimensionError.prototype = new RangeError();
 DimensionError.prototype.constructor = RangeError;
 DimensionError.prototype.name = 'DimensionError';
 DimensionError.prototype.isDimensionError = true;
-},{}],378:[function(require,module,exports){
+},{}],379:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -37628,7 +38073,7 @@ IndexError.prototype = new RangeError();
 IndexError.prototype.constructor = RangeError;
 IndexError.prototype.name = 'IndexError';
 IndexError.prototype.isIndexError = true;
-},{}],379:[function(require,module,exports){
+},{}],380:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -37770,7 +38215,7 @@ var createHelpClass = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   isClass: true
 });
 exports.createHelpClass = createHelpClass;
-},{"../utils/factory.js":936,"../utils/is.js":938,"../utils/object.js":944,"../utils/string.js":948}],380:[function(require,module,exports){
+},{"../utils/factory.js":937,"../utils/is.js":939,"../utils/object.js":945,"../utils/string.js":949}],381:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -37929,7 +38374,7 @@ var createParserClass = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   isClass: true
 });
 exports.createParserClass = createParserClass;
-},{"../utils/factory.js":936,"../utils/map.js":941}],381:[function(require,module,exports){
+},{"../utils/factory.js":937,"../utils/map.js":942}],382:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -37945,7 +38390,7 @@ var InfinityDocs = {
   seealso: []
 };
 exports.InfinityDocs = InfinityDocs;
-},{}],382:[function(require,module,exports){
+},{}],383:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -37961,7 +38406,7 @@ var LN10Docs = {
   seealso: []
 };
 exports.LN10Docs = LN10Docs;
-},{}],383:[function(require,module,exports){
+},{}],384:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -37977,7 +38422,7 @@ var LN2Docs = {
   seealso: []
 };
 exports.LN2Docs = LN2Docs;
-},{}],384:[function(require,module,exports){
+},{}],385:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -37993,7 +38438,7 @@ var LOG10EDocs = {
   seealso: []
 };
 exports.LOG10EDocs = LOG10EDocs;
-},{}],385:[function(require,module,exports){
+},{}],386:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38009,7 +38454,7 @@ var LOG2EDocs = {
   seealso: []
 };
 exports.LOG2EDocs = LOG2EDocs;
-},{}],386:[function(require,module,exports){
+},{}],387:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38025,7 +38470,7 @@ var NaNDocs = {
   seealso: []
 };
 exports.NaNDocs = NaNDocs;
-},{}],387:[function(require,module,exports){
+},{}],388:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38041,7 +38486,7 @@ var SQRT12Docs = {
   seealso: []
 };
 exports.SQRT12Docs = SQRT12Docs;
-},{}],388:[function(require,module,exports){
+},{}],389:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38057,7 +38502,7 @@ var SQRT2Docs = {
   seealso: []
 };
 exports.SQRT2Docs = SQRT2Docs;
-},{}],389:[function(require,module,exports){
+},{}],390:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38073,7 +38518,7 @@ var eDocs = {
   seealso: ['exp']
 };
 exports.eDocs = eDocs;
-},{}],390:[function(require,module,exports){
+},{}],391:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38089,7 +38534,7 @@ var falseDocs = {
   seealso: ['true']
 };
 exports.falseDocs = falseDocs;
-},{}],391:[function(require,module,exports){
+},{}],392:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38105,7 +38550,7 @@ var iDocs = {
   seealso: []
 };
 exports.iDocs = iDocs;
-},{}],392:[function(require,module,exports){
+},{}],393:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38121,7 +38566,7 @@ var nullDocs = {
   seealso: ['true', 'false']
 };
 exports.nullDocs = nullDocs;
-},{}],393:[function(require,module,exports){
+},{}],394:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38137,7 +38582,7 @@ var phiDocs = {
   seealso: []
 };
 exports.phiDocs = phiDocs;
-},{}],394:[function(require,module,exports){
+},{}],395:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38153,7 +38598,7 @@ var piDocs = {
   seealso: ['tau']
 };
 exports.piDocs = piDocs;
-},{}],395:[function(require,module,exports){
+},{}],396:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38169,7 +38614,7 @@ var tauDocs = {
   seealso: ['pi']
 };
 exports.tauDocs = tauDocs;
-},{}],396:[function(require,module,exports){
+},{}],397:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38185,7 +38630,7 @@ var trueDocs = {
   seealso: ['false']
 };
 exports.trueDocs = trueDocs;
-},{}],397:[function(require,module,exports){
+},{}],398:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38201,7 +38646,7 @@ var versionDocs = {
   seealso: []
 };
 exports.versionDocs = versionDocs;
-},{}],398:[function(require,module,exports){
+},{}],399:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38217,7 +38662,7 @@ var bignumberDocs = {
   seealso: ['boolean', 'complex', 'fraction', 'index', 'matrix', 'string', 'unit']
 };
 exports.bignumberDocs = bignumberDocs;
-},{}],399:[function(require,module,exports){
+},{}],400:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38233,7 +38678,7 @@ var booleanDocs = {
   seealso: ['bignumber', 'complex', 'index', 'matrix', 'number', 'string', 'unit']
 };
 exports.booleanDocs = booleanDocs;
-},{}],400:[function(require,module,exports){
+},{}],401:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38249,7 +38694,7 @@ var complexDocs = {
   seealso: ['bignumber', 'boolean', 'index', 'matrix', 'number', 'string', 'unit']
 };
 exports.complexDocs = complexDocs;
-},{}],401:[function(require,module,exports){
+},{}],402:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38265,7 +38710,7 @@ var createUnitDocs = {
   seealso: ['unit', 'splitUnit']
 };
 exports.createUnitDocs = createUnitDocs;
-},{}],402:[function(require,module,exports){
+},{}],403:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38281,7 +38726,7 @@ var fractionDocs = {
   seealso: ['bignumber', 'boolean', 'complex', 'index', 'matrix', 'string', 'unit']
 };
 exports.fractionDocs = fractionDocs;
-},{}],403:[function(require,module,exports){
+},{}],404:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38297,7 +38742,7 @@ var indexDocs = {
   seealso: ['bignumber', 'boolean', 'complex', 'matrix,', 'number', 'range', 'string', 'unit']
 };
 exports.indexDocs = indexDocs;
-},{}],404:[function(require,module,exports){
+},{}],405:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38313,7 +38758,7 @@ var matrixDocs = {
   seealso: ['bignumber', 'boolean', 'complex', 'index', 'number', 'string', 'unit', 'sparse']
 };
 exports.matrixDocs = matrixDocs;
-},{}],405:[function(require,module,exports){
+},{}],406:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38329,7 +38774,7 @@ var numberDocs = {
   seealso: ['bignumber', 'boolean', 'complex', 'fraction', 'index', 'matrix', 'string', 'unit']
 };
 exports.numberDocs = numberDocs;
-},{}],406:[function(require,module,exports){
+},{}],407:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38345,7 +38790,7 @@ var sparseDocs = {
   seealso: ['bignumber', 'boolean', 'complex', 'index', 'number', 'string', 'unit', 'matrix']
 };
 exports.sparseDocs = sparseDocs;
-},{}],407:[function(require,module,exports){
+},{}],408:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38361,7 +38806,7 @@ var splitUnitDocs = {
   seealso: ['unit', 'createUnit']
 };
 exports.splitUnitDocs = splitUnitDocs;
-},{}],408:[function(require,module,exports){
+},{}],409:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38377,7 +38822,7 @@ var stringDocs = {
   seealso: ['bignumber', 'boolean', 'complex', 'index', 'matrix', 'number', 'unit']
 };
 exports.stringDocs = stringDocs;
-},{}],409:[function(require,module,exports){
+},{}],410:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38393,7 +38838,7 @@ var unitDocs = {
   seealso: ['bignumber', 'boolean', 'complex', 'index', 'matrix', 'number', 'string']
 };
 exports.unitDocs = unitDocs;
-},{}],410:[function(require,module,exports){
+},{}],411:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38409,7 +38854,7 @@ var configDocs = {
   seealso: []
 };
 exports.configDocs = configDocs;
-},{}],411:[function(require,module,exports){
+},{}],412:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38425,7 +38870,7 @@ var importDocs = {
   seealso: []
 };
 exports.importDocs = importDocs;
-},{}],412:[function(require,module,exports){
+},{}],413:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38441,7 +38886,7 @@ var typedDocs = {
   seealso: []
 };
 exports.typedDocs = typedDocs;
-},{}],413:[function(require,module,exports){
+},{}],414:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39346,7 +39791,7 @@ var embeddedDocs = {
   numeric: _numeric.numericDocs
 };
 exports.embeddedDocs = embeddedDocs;
-},{"./constants/Infinity.js":381,"./constants/LN10.js":382,"./constants/LN2.js":383,"./constants/LOG10E.js":384,"./constants/LOG2E.js":385,"./constants/NaN.js":386,"./constants/SQRT1_2.js":387,"./constants/SQRT2.js":388,"./constants/e.js":389,"./constants/false.js":390,"./constants/i.js":391,"./constants/null.js":392,"./constants/phi.js":393,"./constants/pi.js":394,"./constants/tau.js":395,"./constants/true.js":396,"./constants/version.js":397,"./construction/bignumber.js":398,"./construction/boolean.js":399,"./construction/complex.js":400,"./construction/createUnit.js":401,"./construction/fraction.js":402,"./construction/index.js":403,"./construction/matrix.js":404,"./construction/number.js":405,"./construction/sparse.js":406,"./construction/splitUnit.js":407,"./construction/string.js":408,"./construction/unit.js":409,"./core/config.js":410,"./core/import.js":411,"./core/typed.js":412,"./function/algebra/derivative.js":414,"./function/algebra/lsolve.js":415,"./function/algebra/lsolveAll.js":416,"./function/algebra/lup.js":417,"./function/algebra/lusolve.js":418,"./function/algebra/qr.js":419,"./function/algebra/rationalize.js":420,"./function/algebra/simplify.js":421,"./function/algebra/slu.js":422,"./function/algebra/usolve.js":423,"./function/algebra/usolveAll.js":424,"./function/arithmetic/abs.js":425,"./function/arithmetic/add.js":426,"./function/arithmetic/cbrt.js":427,"./function/arithmetic/ceil.js":428,"./function/arithmetic/cube.js":429,"./function/arithmetic/divide.js":430,"./function/arithmetic/dotDivide.js":431,"./function/arithmetic/dotMultiply.js":432,"./function/arithmetic/dotPow.js":433,"./function/arithmetic/exp.js":434,"./function/arithmetic/expm.js":435,"./function/arithmetic/expm1.js":436,"./function/arithmetic/fix.js":437,"./function/arithmetic/floor.js":438,"./function/arithmetic/gcd.js":439,"./function/arithmetic/hypot.js":440,"./function/arithmetic/lcm.js":441,"./function/arithmetic/log.js":442,"./function/arithmetic/log10.js":443,"./function/arithmetic/log1p.js":444,"./function/arithmetic/log2.js":445,"./function/arithmetic/mod.js":446,"./function/arithmetic/multiply.js":447,"./function/arithmetic/norm.js":448,"./function/arithmetic/nthRoot.js":449,"./function/arithmetic/nthRoots.js":450,"./function/arithmetic/pow.js":451,"./function/arithmetic/round.js":452,"./function/arithmetic/sign.js":453,"./function/arithmetic/sqrt.js":454,"./function/arithmetic/sqrtm.js":455,"./function/arithmetic/square.js":456,"./function/arithmetic/subtract.js":457,"./function/arithmetic/unaryMinus.js":458,"./function/arithmetic/unaryPlus.js":459,"./function/arithmetic/xgcd.js":460,"./function/bitwise/bitAnd.js":461,"./function/bitwise/bitNot.js":462,"./function/bitwise/bitOr.js":463,"./function/bitwise/bitXor.js":464,"./function/bitwise/leftShift.js":465,"./function/bitwise/rightArithShift.js":466,"./function/bitwise/rightLogShift.js":467,"./function/combinatorics/bellNumbers.js":468,"./function/combinatorics/catalan.js":469,"./function/combinatorics/composition.js":470,"./function/combinatorics/stirlingS2.js":471,"./function/complex/arg.js":472,"./function/complex/conj.js":473,"./function/complex/im.js":474,"./function/complex/re.js":475,"./function/expression/evaluate.js":476,"./function/expression/help.js":477,"./function/geometry/distance.js":478,"./function/geometry/intersect.js":479,"./function/logical/and.js":480,"./function/logical/not.js":481,"./function/logical/or.js":482,"./function/logical/xor.js":483,"./function/matrix/column.js":484,"./function/matrix/concat.js":485,"./function/matrix/count.js":486,"./function/matrix/cross.js":487,"./function/matrix/ctranspose.js":488,"./function/matrix/det.js":489,"./function/matrix/diag.js":490,"./function/matrix/diff.js":491,"./function/matrix/dot.js":492,"./function/matrix/eigs.js":493,"./function/matrix/filter.js":494,"./function/matrix/flatten.js":495,"./function/matrix/forEach.js":496,"./function/matrix/getMatrixDataType.js":497,"./function/matrix/identity.js":498,"./function/matrix/inv.js":499,"./function/matrix/kron.js":500,"./function/matrix/map.js":501,"./function/matrix/matrixFromColumns.js":502,"./function/matrix/matrixFromFunction.js":503,"./function/matrix/matrixFromRows.js":504,"./function/matrix/ones.js":505,"./function/matrix/partitionSelect.js":506,"./function/matrix/range.js":507,"./function/matrix/reshape.js":508,"./function/matrix/resize.js":509,"./function/matrix/rotate.js":510,"./function/matrix/rotationMatrix.js":511,"./function/matrix/row.js":512,"./function/matrix/size.js":513,"./function/matrix/sort.js":514,"./function/matrix/squeeze.js":515,"./function/matrix/subset.js":516,"./function/matrix/trace.js":517,"./function/matrix/transpose.js":518,"./function/matrix/zeros.js":519,"./function/probability/combinations.js":520,"./function/probability/combinationsWithRep.js":521,"./function/probability/factorial.js":522,"./function/probability/gamma.js":523,"./function/probability/kldivergence.js":524,"./function/probability/multinomial.js":525,"./function/probability/permutations.js":526,"./function/probability/pickRandom.js":527,"./function/probability/random.js":528,"./function/probability/randomInt.js":529,"./function/relational/compare.js":530,"./function/relational/compareNatural.js":531,"./function/relational/compareText.js":532,"./function/relational/deepEqual.js":533,"./function/relational/equal.js":534,"./function/relational/equalText.js":535,"./function/relational/larger.js":536,"./function/relational/largerEq.js":537,"./function/relational/smaller.js":538,"./function/relational/smallerEq.js":539,"./function/relational/unequal.js":540,"./function/set/setCartesian.js":541,"./function/set/setDifference.js":542,"./function/set/setDistinct.js":543,"./function/set/setIntersect.js":544,"./function/set/setIsSubset.js":545,"./function/set/setMultiplicity.js":546,"./function/set/setPowerset.js":547,"./function/set/setSize.js":548,"./function/set/setSymDifference.js":549,"./function/set/setUnion.js":550,"./function/special/erf.js":551,"./function/statistics/mad.js":552,"./function/statistics/max.js":553,"./function/statistics/mean.js":554,"./function/statistics/median.js":555,"./function/statistics/min.js":556,"./function/statistics/mode.js":557,"./function/statistics/prod.js":558,"./function/statistics/quantileSeq.js":559,"./function/statistics/std.js":560,"./function/statistics/sum.js":561,"./function/statistics/variance.js":562,"./function/trigonometry/acos.js":563,"./function/trigonometry/acosh.js":564,"./function/trigonometry/acot.js":565,"./function/trigonometry/acoth.js":566,"./function/trigonometry/acsc.js":567,"./function/trigonometry/acsch.js":568,"./function/trigonometry/asec.js":569,"./function/trigonometry/asech.js":570,"./function/trigonometry/asin.js":571,"./function/trigonometry/asinh.js":572,"./function/trigonometry/atan.js":573,"./function/trigonometry/atan2.js":574,"./function/trigonometry/atanh.js":575,"./function/trigonometry/cos.js":576,"./function/trigonometry/cosh.js":577,"./function/trigonometry/cot.js":578,"./function/trigonometry/coth.js":579,"./function/trigonometry/csc.js":580,"./function/trigonometry/csch.js":581,"./function/trigonometry/sec.js":582,"./function/trigonometry/sech.js":583,"./function/trigonometry/sin.js":584,"./function/trigonometry/sinh.js":585,"./function/trigonometry/tan.js":586,"./function/trigonometry/tanh.js":587,"./function/units/to.js":588,"./function/utils/bin.js":589,"./function/utils/clone.js":590,"./function/utils/format.js":591,"./function/utils/hasNumericValue.js":592,"./function/utils/hex.js":593,"./function/utils/isInteger.js":594,"./function/utils/isNaN.js":595,"./function/utils/isNegative.js":596,"./function/utils/isNumeric.js":597,"./function/utils/isPositive.js":598,"./function/utils/isPrime.js":599,"./function/utils/isZero.js":600,"./function/utils/numeric.js":601,"./function/utils/oct.js":602,"./function/utils/typeOf.js":603}],414:[function(require,module,exports){
+},{"./constants/Infinity.js":382,"./constants/LN10.js":383,"./constants/LN2.js":384,"./constants/LOG10E.js":385,"./constants/LOG2E.js":386,"./constants/NaN.js":387,"./constants/SQRT1_2.js":388,"./constants/SQRT2.js":389,"./constants/e.js":390,"./constants/false.js":391,"./constants/i.js":392,"./constants/null.js":393,"./constants/phi.js":394,"./constants/pi.js":395,"./constants/tau.js":396,"./constants/true.js":397,"./constants/version.js":398,"./construction/bignumber.js":399,"./construction/boolean.js":400,"./construction/complex.js":401,"./construction/createUnit.js":402,"./construction/fraction.js":403,"./construction/index.js":404,"./construction/matrix.js":405,"./construction/number.js":406,"./construction/sparse.js":407,"./construction/splitUnit.js":408,"./construction/string.js":409,"./construction/unit.js":410,"./core/config.js":411,"./core/import.js":412,"./core/typed.js":413,"./function/algebra/derivative.js":415,"./function/algebra/lsolve.js":416,"./function/algebra/lsolveAll.js":417,"./function/algebra/lup.js":418,"./function/algebra/lusolve.js":419,"./function/algebra/qr.js":420,"./function/algebra/rationalize.js":421,"./function/algebra/simplify.js":422,"./function/algebra/slu.js":423,"./function/algebra/usolve.js":424,"./function/algebra/usolveAll.js":425,"./function/arithmetic/abs.js":426,"./function/arithmetic/add.js":427,"./function/arithmetic/cbrt.js":428,"./function/arithmetic/ceil.js":429,"./function/arithmetic/cube.js":430,"./function/arithmetic/divide.js":431,"./function/arithmetic/dotDivide.js":432,"./function/arithmetic/dotMultiply.js":433,"./function/arithmetic/dotPow.js":434,"./function/arithmetic/exp.js":435,"./function/arithmetic/expm.js":436,"./function/arithmetic/expm1.js":437,"./function/arithmetic/fix.js":438,"./function/arithmetic/floor.js":439,"./function/arithmetic/gcd.js":440,"./function/arithmetic/hypot.js":441,"./function/arithmetic/lcm.js":442,"./function/arithmetic/log.js":443,"./function/arithmetic/log10.js":444,"./function/arithmetic/log1p.js":445,"./function/arithmetic/log2.js":446,"./function/arithmetic/mod.js":447,"./function/arithmetic/multiply.js":448,"./function/arithmetic/norm.js":449,"./function/arithmetic/nthRoot.js":450,"./function/arithmetic/nthRoots.js":451,"./function/arithmetic/pow.js":452,"./function/arithmetic/round.js":453,"./function/arithmetic/sign.js":454,"./function/arithmetic/sqrt.js":455,"./function/arithmetic/sqrtm.js":456,"./function/arithmetic/square.js":457,"./function/arithmetic/subtract.js":458,"./function/arithmetic/unaryMinus.js":459,"./function/arithmetic/unaryPlus.js":460,"./function/arithmetic/xgcd.js":461,"./function/bitwise/bitAnd.js":462,"./function/bitwise/bitNot.js":463,"./function/bitwise/bitOr.js":464,"./function/bitwise/bitXor.js":465,"./function/bitwise/leftShift.js":466,"./function/bitwise/rightArithShift.js":467,"./function/bitwise/rightLogShift.js":468,"./function/combinatorics/bellNumbers.js":469,"./function/combinatorics/catalan.js":470,"./function/combinatorics/composition.js":471,"./function/combinatorics/stirlingS2.js":472,"./function/complex/arg.js":473,"./function/complex/conj.js":474,"./function/complex/im.js":475,"./function/complex/re.js":476,"./function/expression/evaluate.js":477,"./function/expression/help.js":478,"./function/geometry/distance.js":479,"./function/geometry/intersect.js":480,"./function/logical/and.js":481,"./function/logical/not.js":482,"./function/logical/or.js":483,"./function/logical/xor.js":484,"./function/matrix/column.js":485,"./function/matrix/concat.js":486,"./function/matrix/count.js":487,"./function/matrix/cross.js":488,"./function/matrix/ctranspose.js":489,"./function/matrix/det.js":490,"./function/matrix/diag.js":491,"./function/matrix/diff.js":492,"./function/matrix/dot.js":493,"./function/matrix/eigs.js":494,"./function/matrix/filter.js":495,"./function/matrix/flatten.js":496,"./function/matrix/forEach.js":497,"./function/matrix/getMatrixDataType.js":498,"./function/matrix/identity.js":499,"./function/matrix/inv.js":500,"./function/matrix/kron.js":501,"./function/matrix/map.js":502,"./function/matrix/matrixFromColumns.js":503,"./function/matrix/matrixFromFunction.js":504,"./function/matrix/matrixFromRows.js":505,"./function/matrix/ones.js":506,"./function/matrix/partitionSelect.js":507,"./function/matrix/range.js":508,"./function/matrix/reshape.js":509,"./function/matrix/resize.js":510,"./function/matrix/rotate.js":511,"./function/matrix/rotationMatrix.js":512,"./function/matrix/row.js":513,"./function/matrix/size.js":514,"./function/matrix/sort.js":515,"./function/matrix/squeeze.js":516,"./function/matrix/subset.js":517,"./function/matrix/trace.js":518,"./function/matrix/transpose.js":519,"./function/matrix/zeros.js":520,"./function/probability/combinations.js":521,"./function/probability/combinationsWithRep.js":522,"./function/probability/factorial.js":523,"./function/probability/gamma.js":524,"./function/probability/kldivergence.js":525,"./function/probability/multinomial.js":526,"./function/probability/permutations.js":527,"./function/probability/pickRandom.js":528,"./function/probability/random.js":529,"./function/probability/randomInt.js":530,"./function/relational/compare.js":531,"./function/relational/compareNatural.js":532,"./function/relational/compareText.js":533,"./function/relational/deepEqual.js":534,"./function/relational/equal.js":535,"./function/relational/equalText.js":536,"./function/relational/larger.js":537,"./function/relational/largerEq.js":538,"./function/relational/smaller.js":539,"./function/relational/smallerEq.js":540,"./function/relational/unequal.js":541,"./function/set/setCartesian.js":542,"./function/set/setDifference.js":543,"./function/set/setDistinct.js":544,"./function/set/setIntersect.js":545,"./function/set/setIsSubset.js":546,"./function/set/setMultiplicity.js":547,"./function/set/setPowerset.js":548,"./function/set/setSize.js":549,"./function/set/setSymDifference.js":550,"./function/set/setUnion.js":551,"./function/special/erf.js":552,"./function/statistics/mad.js":553,"./function/statistics/max.js":554,"./function/statistics/mean.js":555,"./function/statistics/median.js":556,"./function/statistics/min.js":557,"./function/statistics/mode.js":558,"./function/statistics/prod.js":559,"./function/statistics/quantileSeq.js":560,"./function/statistics/std.js":561,"./function/statistics/sum.js":562,"./function/statistics/variance.js":563,"./function/trigonometry/acos.js":564,"./function/trigonometry/acosh.js":565,"./function/trigonometry/acot.js":566,"./function/trigonometry/acoth.js":567,"./function/trigonometry/acsc.js":568,"./function/trigonometry/acsch.js":569,"./function/trigonometry/asec.js":570,"./function/trigonometry/asech.js":571,"./function/trigonometry/asin.js":572,"./function/trigonometry/asinh.js":573,"./function/trigonometry/atan.js":574,"./function/trigonometry/atan2.js":575,"./function/trigonometry/atanh.js":576,"./function/trigonometry/cos.js":577,"./function/trigonometry/cosh.js":578,"./function/trigonometry/cot.js":579,"./function/trigonometry/coth.js":580,"./function/trigonometry/csc.js":581,"./function/trigonometry/csch.js":582,"./function/trigonometry/sec.js":583,"./function/trigonometry/sech.js":584,"./function/trigonometry/sin.js":585,"./function/trigonometry/sinh.js":586,"./function/trigonometry/tan.js":587,"./function/trigonometry/tanh.js":588,"./function/units/to.js":589,"./function/utils/bin.js":590,"./function/utils/clone.js":591,"./function/utils/format.js":592,"./function/utils/hasNumericValue.js":593,"./function/utils/hex.js":594,"./function/utils/isInteger.js":595,"./function/utils/isNaN.js":596,"./function/utils/isNegative.js":597,"./function/utils/isNumeric.js":598,"./function/utils/isPositive.js":599,"./function/utils/isPrime.js":600,"./function/utils/isZero.js":601,"./function/utils/numeric.js":602,"./function/utils/oct.js":603,"./function/utils/typeOf.js":604}],415:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39362,7 +39807,7 @@ var derivativeDocs = {
   seealso: ['simplify', 'parse', 'evaluate']
 };
 exports.derivativeDocs = derivativeDocs;
-},{}],415:[function(require,module,exports){
+},{}],416:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39378,7 +39823,7 @@ var lsolveDocs = {
   seealso: ['lsolveAll', 'lup', 'lusolve', 'usolve', 'matrix', 'sparse']
 };
 exports.lsolveDocs = lsolveDocs;
-},{}],416:[function(require,module,exports){
+},{}],417:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39394,7 +39839,7 @@ var lsolveAllDocs = {
   seealso: ['lsolve', 'lup', 'lusolve', 'usolve', 'matrix', 'sparse']
 };
 exports.lsolveAllDocs = lsolveAllDocs;
-},{}],417:[function(require,module,exports){
+},{}],418:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39410,7 +39855,7 @@ var lupDocs = {
   seealso: ['lusolve', 'lsolve', 'usolve', 'matrix', 'sparse', 'slu', 'qr']
 };
 exports.lupDocs = lupDocs;
-},{}],418:[function(require,module,exports){
+},{}],419:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39426,7 +39871,7 @@ var lusolveDocs = {
   seealso: ['lup', 'slu', 'lsolve', 'usolve', 'matrix', 'sparse']
 };
 exports.lusolveDocs = lusolveDocs;
-},{}],419:[function(require,module,exports){
+},{}],420:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39442,7 +39887,7 @@ var qrDocs = {
   seealso: ['lup', 'slu', 'matrix']
 };
 exports.qrDocs = qrDocs;
-},{}],420:[function(require,module,exports){
+},{}],421:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39458,7 +39903,7 @@ var rationalizeDocs = {
   seealso: ['simplify']
 };
 exports.rationalizeDocs = rationalizeDocs;
-},{}],421:[function(require,module,exports){
+},{}],422:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39474,7 +39919,7 @@ var simplifyDocs = {
   seealso: ['derivative', 'parse', 'evaluate']
 };
 exports.simplifyDocs = simplifyDocs;
-},{}],422:[function(require,module,exports){
+},{}],423:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39490,7 +39935,7 @@ var sluDocs = {
   seealso: ['lusolve', 'lsolve', 'usolve', 'matrix', 'sparse', 'lup', 'qr']
 };
 exports.sluDocs = sluDocs;
-},{}],423:[function(require,module,exports){
+},{}],424:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39506,7 +39951,7 @@ var usolveDocs = {
   seealso: ['usolveAll', 'lup', 'lusolve', 'lsolve', 'matrix', 'sparse']
 };
 exports.usolveDocs = usolveDocs;
-},{}],424:[function(require,module,exports){
+},{}],425:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39522,7 +39967,7 @@ var usolveAllDocs = {
   seealso: ['usolve', 'lup', 'lusolve', 'lsolve', 'matrix', 'sparse']
 };
 exports.usolveAllDocs = usolveAllDocs;
-},{}],425:[function(require,module,exports){
+},{}],426:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39538,7 +39983,7 @@ var absDocs = {
   seealso: ['sign']
 };
 exports.absDocs = absDocs;
-},{}],426:[function(require,module,exports){
+},{}],427:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39554,7 +39999,7 @@ var addDocs = {
   seealso: ['subtract']
 };
 exports.addDocs = addDocs;
-},{}],427:[function(require,module,exports){
+},{}],428:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39570,7 +40015,7 @@ var cbrtDocs = {
   seealso: ['square', 'sqrt', 'cube', 'multiply']
 };
 exports.cbrtDocs = cbrtDocs;
-},{}],428:[function(require,module,exports){
+},{}],429:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39586,7 +40031,7 @@ var ceilDocs = {
   seealso: ['floor', 'fix', 'round']
 };
 exports.ceilDocs = ceilDocs;
-},{}],429:[function(require,module,exports){
+},{}],430:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39602,7 +40047,7 @@ var cubeDocs = {
   seealso: ['multiply', 'square', 'pow']
 };
 exports.cubeDocs = cubeDocs;
-},{}],430:[function(require,module,exports){
+},{}],431:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39618,7 +40063,7 @@ var divideDocs = {
   seealso: ['multiply']
 };
 exports.divideDocs = divideDocs;
-},{}],431:[function(require,module,exports){
+},{}],432:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39634,7 +40079,7 @@ var dotDivideDocs = {
   seealso: ['multiply', 'dotMultiply', 'divide']
 };
 exports.dotDivideDocs = dotDivideDocs;
-},{}],432:[function(require,module,exports){
+},{}],433:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39650,7 +40095,7 @@ var dotMultiplyDocs = {
   seealso: ['multiply', 'divide', 'dotDivide']
 };
 exports.dotMultiplyDocs = dotMultiplyDocs;
-},{}],433:[function(require,module,exports){
+},{}],434:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39666,7 +40111,7 @@ var dotPowDocs = {
   seealso: ['pow']
 };
 exports.dotPowDocs = dotPowDocs;
-},{}],434:[function(require,module,exports){
+},{}],435:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39682,7 +40127,7 @@ var expDocs = {
   seealso: ['expm', 'expm1', 'pow', 'log']
 };
 exports.expDocs = expDocs;
-},{}],435:[function(require,module,exports){
+},{}],436:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39698,7 +40143,7 @@ var expmDocs = {
   seealso: ['exp']
 };
 exports.expmDocs = expmDocs;
-},{}],436:[function(require,module,exports){
+},{}],437:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39714,7 +40159,7 @@ var expm1Docs = {
   seealso: ['exp', 'pow', 'log']
 };
 exports.expm1Docs = expm1Docs;
-},{}],437:[function(require,module,exports){
+},{}],438:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39730,7 +40175,7 @@ var fixDocs = {
   seealso: ['ceil', 'floor', 'round']
 };
 exports.fixDocs = fixDocs;
-},{}],438:[function(require,module,exports){
+},{}],439:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39746,7 +40191,7 @@ var floorDocs = {
   seealso: ['ceil', 'fix', 'round']
 };
 exports.floorDocs = floorDocs;
-},{}],439:[function(require,module,exports){
+},{}],440:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39762,7 +40207,7 @@ var gcdDocs = {
   seealso: ['lcm', 'xgcd']
 };
 exports.gcdDocs = gcdDocs;
-},{}],440:[function(require,module,exports){
+},{}],441:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39778,7 +40223,7 @@ var hypotDocs = {
   seealso: ['abs', 'norm']
 };
 exports.hypotDocs = hypotDocs;
-},{}],441:[function(require,module,exports){
+},{}],442:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39794,7 +40239,7 @@ var lcmDocs = {
   seealso: ['gcd']
 };
 exports.lcmDocs = lcmDocs;
-},{}],442:[function(require,module,exports){
+},{}],443:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39810,7 +40255,7 @@ var logDocs = {
   seealso: ['exp', 'log1p', 'log2', 'log10']
 };
 exports.logDocs = logDocs;
-},{}],443:[function(require,module,exports){
+},{}],444:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39826,7 +40271,7 @@ var log10Docs = {
   seealso: ['exp', 'log']
 };
 exports.log10Docs = log10Docs;
-},{}],444:[function(require,module,exports){
+},{}],445:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39842,7 +40287,7 @@ var log1pDocs = {
   seealso: ['exp', 'log', 'log2', 'log10']
 };
 exports.log1pDocs = log1pDocs;
-},{}],445:[function(require,module,exports){
+},{}],446:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39858,7 +40303,7 @@ var log2Docs = {
   seealso: ['exp', 'log1p', 'log', 'log10']
 };
 exports.log2Docs = log2Docs;
-},{}],446:[function(require,module,exports){
+},{}],447:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39874,7 +40319,7 @@ var modDocs = {
   seealso: ['divide']
 };
 exports.modDocs = modDocs;
-},{}],447:[function(require,module,exports){
+},{}],448:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39890,7 +40335,7 @@ var multiplyDocs = {
   seealso: ['divide']
 };
 exports.multiplyDocs = multiplyDocs;
-},{}],448:[function(require,module,exports){
+},{}],449:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39905,7 +40350,7 @@ var normDocs = {
   examples: ['abs(-3.5)', 'norm(-3.5)', 'norm(3 - 4i)', 'norm([1, 2, -3], Infinity)', 'norm([1, 2, -3], -Infinity)', 'norm([3, 4], 2)', 'norm([[1, 2], [3, 4]], 1)', 'norm([[1, 2], [3, 4]], "inf")', 'norm([[1, 2], [3, 4]], "fro")']
 };
 exports.normDocs = normDocs;
-},{}],449:[function(require,module,exports){
+},{}],450:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39921,7 +40366,7 @@ var nthRootDocs = {
   seealso: ['nthRoots', 'pow', 'sqrt']
 };
 exports.nthRootDocs = nthRootDocs;
-},{}],450:[function(require,module,exports){
+},{}],451:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39937,7 +40382,7 @@ var nthRootsDocs = {
   seealso: ['sqrt', 'pow', 'nthRoot']
 };
 exports.nthRootsDocs = nthRootsDocs;
-},{}],451:[function(require,module,exports){
+},{}],452:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39953,7 +40398,7 @@ var powDocs = {
   seealso: ['multiply', 'nthRoot', 'nthRoots', 'sqrt']
 };
 exports.powDocs = powDocs;
-},{}],452:[function(require,module,exports){
+},{}],453:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39969,7 +40414,7 @@ var roundDocs = {
   seealso: ['ceil', 'floor', 'fix']
 };
 exports.roundDocs = roundDocs;
-},{}],453:[function(require,module,exports){
+},{}],454:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39985,7 +40430,7 @@ var signDocs = {
   seealso: ['abs']
 };
 exports.signDocs = signDocs;
-},{}],454:[function(require,module,exports){
+},{}],455:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40001,7 +40446,7 @@ var sqrtDocs = {
   seealso: ['square', 'sqrtm', 'multiply', 'nthRoot', 'nthRoots', 'pow']
 };
 exports.sqrtDocs = sqrtDocs;
-},{}],455:[function(require,module,exports){
+},{}],456:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40017,7 +40462,7 @@ var sqrtmDocs = {
   seealso: ['sqrt', 'abs', 'square', 'multiply']
 };
 exports.sqrtmDocs = sqrtmDocs;
-},{}],456:[function(require,module,exports){
+},{}],457:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40033,7 +40478,7 @@ var squareDocs = {
   seealso: ['multiply', 'pow', 'sqrt', 'cube']
 };
 exports.squareDocs = squareDocs;
-},{}],457:[function(require,module,exports){
+},{}],458:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40049,7 +40494,7 @@ var subtractDocs = {
   seealso: ['add']
 };
 exports.subtractDocs = subtractDocs;
-},{}],458:[function(require,module,exports){
+},{}],459:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40065,7 +40510,7 @@ var unaryMinusDocs = {
   seealso: ['add', 'subtract', 'unaryPlus']
 };
 exports.unaryMinusDocs = unaryMinusDocs;
-},{}],459:[function(require,module,exports){
+},{}],460:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40081,7 +40526,7 @@ var unaryPlusDocs = {
   seealso: ['add', 'subtract', 'unaryMinus']
 };
 exports.unaryPlusDocs = unaryPlusDocs;
-},{}],460:[function(require,module,exports){
+},{}],461:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40097,7 +40542,7 @@ var xgcdDocs = {
   seealso: ['gcd', 'lcm']
 };
 exports.xgcdDocs = xgcdDocs;
-},{}],461:[function(require,module,exports){
+},{}],462:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40113,7 +40558,7 @@ var bitAndDocs = {
   seealso: ['bitNot', 'bitOr', 'bitXor', 'leftShift', 'rightArithShift', 'rightLogShift']
 };
 exports.bitAndDocs = bitAndDocs;
-},{}],462:[function(require,module,exports){
+},{}],463:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40129,7 +40574,7 @@ var bitNotDocs = {
   seealso: ['bitAnd', 'bitOr', 'bitXor', 'leftShift', 'rightArithShift', 'rightLogShift']
 };
 exports.bitNotDocs = bitNotDocs;
-},{}],463:[function(require,module,exports){
+},{}],464:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40145,7 +40590,7 @@ var bitOrDocs = {
   seealso: ['bitAnd', 'bitNot', 'bitXor', 'leftShift', 'rightArithShift', 'rightLogShift']
 };
 exports.bitOrDocs = bitOrDocs;
-},{}],464:[function(require,module,exports){
+},{}],465:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40161,7 +40606,7 @@ var bitXorDocs = {
   seealso: ['bitAnd', 'bitNot', 'bitOr', 'leftShift', 'rightArithShift', 'rightLogShift']
 };
 exports.bitXorDocs = bitXorDocs;
-},{}],465:[function(require,module,exports){
+},{}],466:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40177,7 +40622,7 @@ var leftShiftDocs = {
   seealso: ['bitAnd', 'bitNot', 'bitOr', 'bitXor', 'rightArithShift', 'rightLogShift']
 };
 exports.leftShiftDocs = leftShiftDocs;
-},{}],466:[function(require,module,exports){
+},{}],467:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40193,7 +40638,7 @@ var rightArithShiftDocs = {
   seealso: ['bitAnd', 'bitNot', 'bitOr', 'bitXor', 'leftShift', 'rightLogShift']
 };
 exports.rightArithShiftDocs = rightArithShiftDocs;
-},{}],467:[function(require,module,exports){
+},{}],468:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40209,7 +40654,7 @@ var rightLogShiftDocs = {
   seealso: ['bitAnd', 'bitNot', 'bitOr', 'bitXor', 'leftShift', 'rightArithShift']
 };
 exports.rightLogShiftDocs = rightLogShiftDocs;
-},{}],468:[function(require,module,exports){
+},{}],469:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40225,7 +40670,7 @@ var bellNumbersDocs = {
   seealso: ['stirlingS2']
 };
 exports.bellNumbersDocs = bellNumbersDocs;
-},{}],469:[function(require,module,exports){
+},{}],470:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40241,7 +40686,7 @@ var catalanDocs = {
   seealso: ['bellNumbers']
 };
 exports.catalanDocs = catalanDocs;
-},{}],470:[function(require,module,exports){
+},{}],471:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40257,7 +40702,7 @@ var compositionDocs = {
   seealso: ['combinations']
 };
 exports.compositionDocs = compositionDocs;
-},{}],471:[function(require,module,exports){
+},{}],472:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40273,7 +40718,7 @@ var stirlingS2Docs = {
   seealso: ['bellNumbers']
 };
 exports.stirlingS2Docs = stirlingS2Docs;
-},{}],472:[function(require,module,exports){
+},{}],473:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40289,7 +40734,7 @@ var argDocs = {
   seealso: ['re', 'im', 'conj', 'abs']
 };
 exports.argDocs = argDocs;
-},{}],473:[function(require,module,exports){
+},{}],474:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40305,7 +40750,7 @@ var conjDocs = {
   seealso: ['re', 'im', 'abs', 'arg']
 };
 exports.conjDocs = conjDocs;
-},{}],474:[function(require,module,exports){
+},{}],475:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40321,7 +40766,7 @@ var imDocs = {
   seealso: ['re', 'conj', 'abs', 'arg']
 };
 exports.imDocs = imDocs;
-},{}],475:[function(require,module,exports){
+},{}],476:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40337,7 +40782,7 @@ var reDocs = {
   seealso: ['im', 'conj', 'abs', 'arg']
 };
 exports.reDocs = reDocs;
-},{}],476:[function(require,module,exports){
+},{}],477:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40353,7 +40798,7 @@ var evaluateDocs = {
   seealso: []
 };
 exports.evaluateDocs = evaluateDocs;
-},{}],477:[function(require,module,exports){
+},{}],478:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40369,7 +40814,7 @@ var helpDocs = {
   seealso: []
 };
 exports.helpDocs = helpDocs;
-},{}],478:[function(require,module,exports){
+},{}],479:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40385,7 +40830,7 @@ var distanceDocs = {
   seealso: []
 };
 exports.distanceDocs = distanceDocs;
-},{}],479:[function(require,module,exports){
+},{}],480:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40401,7 +40846,7 @@ var intersectDocs = {
   seealso: []
 };
 exports.intersectDocs = intersectDocs;
-},{}],480:[function(require,module,exports){
+},{}],481:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40417,7 +40862,7 @@ var andDocs = {
   seealso: ['not', 'or', 'xor']
 };
 exports.andDocs = andDocs;
-},{}],481:[function(require,module,exports){
+},{}],482:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40433,7 +40878,7 @@ var notDocs = {
   seealso: ['and', 'or', 'xor']
 };
 exports.notDocs = notDocs;
-},{}],482:[function(require,module,exports){
+},{}],483:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40449,7 +40894,7 @@ var orDocs = {
   seealso: ['not', 'and', 'xor']
 };
 exports.orDocs = orDocs;
-},{}],483:[function(require,module,exports){
+},{}],484:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40465,7 +40910,7 @@ var xorDocs = {
   seealso: ['not', 'and', 'or']
 };
 exports.xorDocs = xorDocs;
-},{}],484:[function(require,module,exports){
+},{}],485:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40481,7 +40926,7 @@ var columnDocs = {
   seealso: ['row', 'matrixFromColumns']
 };
 exports.columnDocs = columnDocs;
-},{}],485:[function(require,module,exports){
+},{}],486:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40497,7 +40942,7 @@ var concatDocs = {
   seealso: ['det', 'diag', 'identity', 'inv', 'ones', 'range', 'size', 'squeeze', 'subset', 'trace', 'transpose', 'zeros']
 };
 exports.concatDocs = concatDocs;
-},{}],486:[function(require,module,exports){
+},{}],487:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40513,7 +40958,7 @@ var countDocs = {
   seealso: ['size']
 };
 exports.countDocs = countDocs;
-},{}],487:[function(require,module,exports){
+},{}],488:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40529,7 +40974,7 @@ var crossDocs = {
   seealso: ['multiply', 'dot']
 };
 exports.crossDocs = crossDocs;
-},{}],488:[function(require,module,exports){
+},{}],489:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40545,7 +40990,7 @@ var ctransposeDocs = {
   seealso: ['concat', 'det', 'diag', 'identity', 'inv', 'ones', 'range', 'size', 'squeeze', 'subset', 'trace', 'zeros']
 };
 exports.ctransposeDocs = ctransposeDocs;
-},{}],489:[function(require,module,exports){
+},{}],490:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40561,7 +41006,7 @@ var detDocs = {
   seealso: ['concat', 'diag', 'identity', 'inv', 'ones', 'range', 'size', 'squeeze', 'subset', 'trace', 'transpose', 'zeros']
 };
 exports.detDocs = detDocs;
-},{}],490:[function(require,module,exports){
+},{}],491:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40577,7 +41022,7 @@ var diagDocs = {
   seealso: ['concat', 'det', 'identity', 'inv', 'ones', 'range', 'size', 'squeeze', 'subset', 'trace', 'transpose', 'zeros']
 };
 exports.diagDocs = diagDocs;
-},{}],491:[function(require,module,exports){
+},{}],492:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40593,7 +41038,7 @@ var diffDocs = {
   seealso: ['subtract', 'partitionSelect']
 };
 exports.diffDocs = diffDocs;
-},{}],492:[function(require,module,exports){
+},{}],493:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40609,7 +41054,7 @@ var dotDocs = {
   seealso: ['multiply', 'cross']
 };
 exports.dotDocs = dotDocs;
-},{}],493:[function(require,module,exports){
+},{}],494:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40625,7 +41070,7 @@ var eigsDocs = {
   seealso: ['inv']
 };
 exports.eigsDocs = eigsDocs;
-},{}],494:[function(require,module,exports){
+},{}],495:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40641,7 +41086,7 @@ var filterDocs = {
   seealso: ['sort', 'map', 'forEach']
 };
 exports.filterDocs = filterDocs;
-},{}],495:[function(require,module,exports){
+},{}],496:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40657,7 +41102,7 @@ var flattenDocs = {
   seealso: ['concat', 'resize', 'size', 'squeeze']
 };
 exports.flattenDocs = flattenDocs;
-},{}],496:[function(require,module,exports){
+},{}],497:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40673,7 +41118,7 @@ var forEachDocs = {
   seealso: ['map', 'sort', 'filter']
 };
 exports.forEachDocs = forEachDocs;
-},{}],497:[function(require,module,exports){
+},{}],498:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40689,7 +41134,7 @@ var getMatrixDataTypeDocs = {
   seealso: ['matrix', 'sparse', 'typeOf']
 };
 exports.getMatrixDataTypeDocs = getMatrixDataTypeDocs;
-},{}],498:[function(require,module,exports){
+},{}],499:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40705,7 +41150,7 @@ var identityDocs = {
   seealso: ['concat', 'det', 'diag', 'inv', 'ones', 'range', 'size', 'squeeze', 'subset', 'trace', 'transpose', 'zeros']
 };
 exports.identityDocs = identityDocs;
-},{}],499:[function(require,module,exports){
+},{}],500:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40721,7 +41166,7 @@ var invDocs = {
   seealso: ['concat', 'det', 'diag', 'identity', 'ones', 'range', 'size', 'squeeze', 'subset', 'trace', 'transpose', 'zeros']
 };
 exports.invDocs = invDocs;
-},{}],500:[function(require,module,exports){
+},{}],501:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40737,7 +41182,7 @@ var kronDocs = {
   seealso: ['multiply', 'dot', 'cross']
 };
 exports.kronDocs = kronDocs;
-},{}],501:[function(require,module,exports){
+},{}],502:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40753,7 +41198,7 @@ var mapDocs = {
   seealso: ['filter', 'forEach']
 };
 exports.mapDocs = mapDocs;
-},{}],502:[function(require,module,exports){
+},{}],503:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40769,7 +41214,7 @@ var matrixFromColumnsDocs = {
   seealso: ['matrix', 'matrixFromRows', 'matrixFromFunction', 'zeros']
 };
 exports.matrixFromColumnsDocs = matrixFromColumnsDocs;
-},{}],503:[function(require,module,exports){
+},{}],504:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40785,7 +41230,7 @@ var matrixFromFunctionDocs = {
   seealso: ['matrix', 'matrixFromRows', 'matrixFromColumns', 'zeros']
 };
 exports.matrixFromFunctionDocs = matrixFromFunctionDocs;
-},{}],504:[function(require,module,exports){
+},{}],505:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40801,7 +41246,7 @@ var matrixFromRowsDocs = {
   seealso: ['matrix', 'matrixFromColumns', 'matrixFromFunction', 'zeros']
 };
 exports.matrixFromRowsDocs = matrixFromRowsDocs;
-},{}],505:[function(require,module,exports){
+},{}],506:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40817,7 +41262,7 @@ var onesDocs = {
   seealso: ['concat', 'det', 'diag', 'identity', 'inv', 'range', 'size', 'squeeze', 'subset', 'trace', 'transpose', 'zeros']
 };
 exports.onesDocs = onesDocs;
-},{}],506:[function(require,module,exports){
+},{}],507:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40833,7 +41278,7 @@ var partitionSelectDocs = {
   seealso: ['sort']
 };
 exports.partitionSelectDocs = partitionSelectDocs;
-},{}],507:[function(require,module,exports){
+},{}],508:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40849,7 +41294,7 @@ var rangeDocs = {
   seealso: ['concat', 'det', 'diag', 'identity', 'inv', 'ones', 'size', 'squeeze', 'subset', 'trace', 'transpose', 'zeros']
 };
 exports.rangeDocs = rangeDocs;
-},{}],508:[function(require,module,exports){
+},{}],509:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40865,7 +41310,7 @@ var reshapeDocs = {
   seealso: ['size', 'squeeze', 'resize']
 };
 exports.reshapeDocs = reshapeDocs;
-},{}],509:[function(require,module,exports){
+},{}],510:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40881,7 +41326,7 @@ var resizeDocs = {
   seealso: ['size', 'subset', 'squeeze', 'reshape']
 };
 exports.resizeDocs = resizeDocs;
-},{}],510:[function(require,module,exports){
+},{}],511:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40897,7 +41342,7 @@ var rotateDocs = {
   seealso: ['matrix', 'rotationMatrix']
 };
 exports.rotateDocs = rotateDocs;
-},{}],511:[function(require,module,exports){
+},{}],512:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40913,7 +41358,7 @@ var rotationMatrixDocs = {
   seealso: ['cos', 'sin']
 };
 exports.rotationMatrixDocs = rotationMatrixDocs;
-},{}],512:[function(require,module,exports){
+},{}],513:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40929,7 +41374,7 @@ var rowDocs = {
   seealso: ['column', 'matrixFromRows']
 };
 exports.rowDocs = rowDocs;
-},{}],513:[function(require,module,exports){
+},{}],514:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40945,7 +41390,7 @@ var sizeDocs = {
   seealso: ['concat', 'count', 'det', 'diag', 'identity', 'inv', 'ones', 'range', 'squeeze', 'subset', 'trace', 'transpose', 'zeros']
 };
 exports.sizeDocs = sizeDocs;
-},{}],514:[function(require,module,exports){
+},{}],515:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40961,7 +41406,7 @@ var sortDocs = {
   seealso: ['map', 'filter', 'forEach']
 };
 exports.sortDocs = sortDocs;
-},{}],515:[function(require,module,exports){
+},{}],516:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40977,7 +41422,7 @@ var squeezeDocs = {
   seealso: ['concat', 'det', 'diag', 'identity', 'inv', 'ones', 'range', 'size', 'subset', 'trace', 'transpose', 'zeros']
 };
 exports.squeezeDocs = squeezeDocs;
-},{}],516:[function(require,module,exports){
+},{}],517:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40993,7 +41438,7 @@ var subsetDocs = {
   seealso: ['concat', 'det', 'diag', 'identity', 'inv', 'ones', 'range', 'size', 'squeeze', 'trace', 'transpose', 'zeros']
 };
 exports.subsetDocs = subsetDocs;
-},{}],517:[function(require,module,exports){
+},{}],518:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41009,7 +41454,7 @@ var traceDocs = {
   seealso: ['concat', 'det', 'diag', 'identity', 'inv', 'ones', 'range', 'size', 'squeeze', 'subset', 'transpose', 'zeros']
 };
 exports.traceDocs = traceDocs;
-},{}],518:[function(require,module,exports){
+},{}],519:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41025,7 +41470,7 @@ var transposeDocs = {
   seealso: ['concat', 'det', 'diag', 'identity', 'inv', 'ones', 'range', 'size', 'squeeze', 'subset', 'trace', 'zeros']
 };
 exports.transposeDocs = transposeDocs;
-},{}],519:[function(require,module,exports){
+},{}],520:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41041,7 +41486,7 @@ var zerosDocs = {
   seealso: ['concat', 'det', 'diag', 'identity', 'inv', 'ones', 'range', 'size', 'squeeze', 'subset', 'trace', 'transpose']
 };
 exports.zerosDocs = zerosDocs;
-},{}],520:[function(require,module,exports){
+},{}],521:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41057,7 +41502,7 @@ var combinationsDocs = {
   seealso: ['combinationsWithRep', 'permutations', 'factorial']
 };
 exports.combinationsDocs = combinationsDocs;
-},{}],521:[function(require,module,exports){
+},{}],522:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41073,7 +41518,7 @@ var combinationsWithRepDocs = {
   seealso: ['combinations', 'permutations', 'factorial']
 };
 exports.combinationsWithRepDocs = combinationsWithRepDocs;
-},{}],522:[function(require,module,exports){
+},{}],523:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41089,7 +41534,7 @@ var factorialDocs = {
   seealso: ['combinations', 'combinationsWithRep', 'permutations', 'gamma']
 };
 exports.factorialDocs = factorialDocs;
-},{}],523:[function(require,module,exports){
+},{}],524:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41105,7 +41550,7 @@ var gammaDocs = {
   seealso: ['factorial']
 };
 exports.gammaDocs = gammaDocs;
-},{}],524:[function(require,module,exports){
+},{}],525:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41121,7 +41566,7 @@ var kldivergenceDocs = {
   seealso: []
 };
 exports.kldivergenceDocs = kldivergenceDocs;
-},{}],525:[function(require,module,exports){
+},{}],526:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41137,7 +41582,7 @@ var multinomialDocs = {
   seealso: ['combinations', 'factorial']
 };
 exports.multinomialDocs = multinomialDocs;
-},{}],526:[function(require,module,exports){
+},{}],527:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41153,7 +41598,7 @@ var permutationsDocs = {
   seealso: ['combinations', 'combinationsWithRep', 'factorial']
 };
 exports.permutationsDocs = permutationsDocs;
-},{}],527:[function(require,module,exports){
+},{}],528:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41169,7 +41614,7 @@ var pickRandomDocs = {
   seealso: ['random', 'randomInt']
 };
 exports.pickRandomDocs = pickRandomDocs;
-},{}],528:[function(require,module,exports){
+},{}],529:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41185,7 +41630,7 @@ var randomDocs = {
   seealso: ['pickRandom', 'randomInt']
 };
 exports.randomDocs = randomDocs;
-},{}],529:[function(require,module,exports){
+},{}],530:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41201,7 +41646,7 @@ var randomIntDocs = {
   seealso: ['pickRandom', 'random']
 };
 exports.randomIntDocs = randomIntDocs;
-},{}],530:[function(require,module,exports){
+},{}],531:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41217,7 +41662,7 @@ var compareDocs = {
   seealso: ['equal', 'unequal', 'smaller', 'smallerEq', 'largerEq', 'compareNatural', 'compareText']
 };
 exports.compareDocs = compareDocs;
-},{}],531:[function(require,module,exports){
+},{}],532:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41233,7 +41678,7 @@ var compareNaturalDocs = {
   seealso: ['equal', 'unequal', 'smaller', 'smallerEq', 'largerEq', 'compare', 'compareText']
 };
 exports.compareNaturalDocs = compareNaturalDocs;
-},{}],532:[function(require,module,exports){
+},{}],533:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41249,7 +41694,7 @@ var compareTextDocs = {
   seealso: ['compare', 'compareNatural']
 };
 exports.compareTextDocs = compareTextDocs;
-},{}],533:[function(require,module,exports){
+},{}],534:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41265,7 +41710,7 @@ var deepEqualDocs = {
   seealso: ['equal', 'unequal', 'smaller', 'larger', 'smallerEq', 'largerEq', 'compare']
 };
 exports.deepEqualDocs = deepEqualDocs;
-},{}],534:[function(require,module,exports){
+},{}],535:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41281,7 +41726,7 @@ var equalDocs = {
   seealso: ['unequal', 'smaller', 'larger', 'smallerEq', 'largerEq', 'compare', 'deepEqual', 'equalText']
 };
 exports.equalDocs = equalDocs;
-},{}],535:[function(require,module,exports){
+},{}],536:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41297,7 +41742,7 @@ var equalTextDocs = {
   seealso: ['compare', 'compareNatural', 'compareText', 'equal']
 };
 exports.equalTextDocs = equalTextDocs;
-},{}],536:[function(require,module,exports){
+},{}],537:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41313,7 +41758,7 @@ var largerDocs = {
   seealso: ['equal', 'unequal', 'smaller', 'smallerEq', 'largerEq', 'compare']
 };
 exports.largerDocs = largerDocs;
-},{}],537:[function(require,module,exports){
+},{}],538:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41329,7 +41774,7 @@ var largerEqDocs = {
   seealso: ['equal', 'unequal', 'smallerEq', 'smaller', 'compare']
 };
 exports.largerEqDocs = largerEqDocs;
-},{}],538:[function(require,module,exports){
+},{}],539:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41345,7 +41790,7 @@ var smallerDocs = {
   seealso: ['equal', 'unequal', 'larger', 'smallerEq', 'largerEq', 'compare']
 };
 exports.smallerDocs = smallerDocs;
-},{}],539:[function(require,module,exports){
+},{}],540:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41361,7 +41806,7 @@ var smallerEqDocs = {
   seealso: ['equal', 'unequal', 'larger', 'smaller', 'largerEq', 'compare']
 };
 exports.smallerEqDocs = smallerEqDocs;
-},{}],540:[function(require,module,exports){
+},{}],541:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41377,7 +41822,7 @@ var unequalDocs = {
   seealso: ['equal', 'smaller', 'larger', 'smallerEq', 'largerEq', 'compare', 'deepEqual']
 };
 exports.unequalDocs = unequalDocs;
-},{}],541:[function(require,module,exports){
+},{}],542:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41393,7 +41838,7 @@ var setCartesianDocs = {
   seealso: ['setUnion', 'setIntersect', 'setDifference', 'setPowerset']
 };
 exports.setCartesianDocs = setCartesianDocs;
-},{}],542:[function(require,module,exports){
+},{}],543:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41409,7 +41854,7 @@ var setDifferenceDocs = {
   seealso: ['setUnion', 'setIntersect', 'setSymDifference']
 };
 exports.setDifferenceDocs = setDifferenceDocs;
-},{}],543:[function(require,module,exports){
+},{}],544:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41425,7 +41870,7 @@ var setDistinctDocs = {
   seealso: ['setMultiplicity']
 };
 exports.setDistinctDocs = setDistinctDocs;
-},{}],544:[function(require,module,exports){
+},{}],545:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41441,7 +41886,7 @@ var setIntersectDocs = {
   seealso: ['setUnion', 'setDifference']
 };
 exports.setIntersectDocs = setIntersectDocs;
-},{}],545:[function(require,module,exports){
+},{}],546:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41457,7 +41902,7 @@ var setIsSubsetDocs = {
   seealso: ['setUnion', 'setIntersect', 'setDifference']
 };
 exports.setIsSubsetDocs = setIsSubsetDocs;
-},{}],546:[function(require,module,exports){
+},{}],547:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41473,7 +41918,7 @@ var setMultiplicityDocs = {
   seealso: ['setDistinct', 'setSize']
 };
 exports.setMultiplicityDocs = setMultiplicityDocs;
-},{}],547:[function(require,module,exports){
+},{}],548:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41489,7 +41934,7 @@ var setPowersetDocs = {
   seealso: ['setCartesian']
 };
 exports.setPowersetDocs = setPowersetDocs;
-},{}],548:[function(require,module,exports){
+},{}],549:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41505,7 +41950,7 @@ var setSizeDocs = {
   seealso: ['setUnion', 'setIntersect', 'setDifference']
 };
 exports.setSizeDocs = setSizeDocs;
-},{}],549:[function(require,module,exports){
+},{}],550:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41521,7 +41966,7 @@ var setSymDifferenceDocs = {
   seealso: ['setUnion', 'setIntersect', 'setDifference']
 };
 exports.setSymDifferenceDocs = setSymDifferenceDocs;
-},{}],550:[function(require,module,exports){
+},{}],551:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41537,7 +41982,7 @@ var setUnionDocs = {
   seealso: ['setIntersect', 'setDifference']
 };
 exports.setUnionDocs = setUnionDocs;
-},{}],551:[function(require,module,exports){
+},{}],552:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41553,7 +41998,7 @@ var erfDocs = {
   seealso: []
 };
 exports.erfDocs = erfDocs;
-},{}],552:[function(require,module,exports){
+},{}],553:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41569,7 +42014,7 @@ var madDocs = {
   seealso: ['mean', 'median', 'std', 'abs']
 };
 exports.madDocs = madDocs;
-},{}],553:[function(require,module,exports){
+},{}],554:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41585,7 +42030,7 @@ var maxDocs = {
   seealso: ['mean', 'median', 'min', 'prod', 'std', 'sum', 'variance']
 };
 exports.maxDocs = maxDocs;
-},{}],554:[function(require,module,exports){
+},{}],555:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41601,7 +42046,7 @@ var meanDocs = {
   seealso: ['max', 'median', 'min', 'prod', 'std', 'sum', 'variance']
 };
 exports.meanDocs = meanDocs;
-},{}],555:[function(require,module,exports){
+},{}],556:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41617,7 +42062,7 @@ var medianDocs = {
   seealso: ['max', 'mean', 'min', 'prod', 'std', 'sum', 'variance', 'quantileSeq']
 };
 exports.medianDocs = medianDocs;
-},{}],556:[function(require,module,exports){
+},{}],557:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41633,7 +42078,7 @@ var minDocs = {
   seealso: ['max', 'mean', 'median', 'prod', 'std', 'sum', 'variance']
 };
 exports.minDocs = minDocs;
-},{}],557:[function(require,module,exports){
+},{}],558:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41649,7 +42094,7 @@ var modeDocs = {
   seealso: ['max', 'mean', 'min', 'median', 'prod', 'std', 'sum', 'variance']
 };
 exports.modeDocs = modeDocs;
-},{}],558:[function(require,module,exports){
+},{}],559:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41665,7 +42110,7 @@ var prodDocs = {
   seealso: ['max', 'mean', 'min', 'median', 'min', 'std', 'sum', 'variance']
 };
 exports.prodDocs = prodDocs;
-},{}],559:[function(require,module,exports){
+},{}],560:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41681,7 +42126,7 @@ var quantileSeqDocs = {
   seealso: ['mean', 'median', 'min', 'max', 'prod', 'std', 'sum', 'variance']
 };
 exports.quantileSeqDocs = quantileSeqDocs;
-},{}],560:[function(require,module,exports){
+},{}],561:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41697,7 +42142,7 @@ var stdDocs = {
   seealso: ['max', 'mean', 'min', 'median', 'prod', 'sum', 'variance']
 };
 exports.stdDocs = stdDocs;
-},{}],561:[function(require,module,exports){
+},{}],562:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41713,7 +42158,7 @@ var sumDocs = {
   seealso: ['max', 'mean', 'median', 'min', 'prod', 'std', 'sum', 'variance']
 };
 exports.sumDocs = sumDocs;
-},{}],562:[function(require,module,exports){
+},{}],563:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41729,7 +42174,7 @@ var varianceDocs = {
   seealso: ['max', 'mean', 'min', 'median', 'min', 'prod', 'std', 'sum']
 };
 exports.varianceDocs = varianceDocs;
-},{}],563:[function(require,module,exports){
+},{}],564:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41745,7 +42190,7 @@ var acosDocs = {
   seealso: ['cos', 'atan', 'asin']
 };
 exports.acosDocs = acosDocs;
-},{}],564:[function(require,module,exports){
+},{}],565:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41761,7 +42206,7 @@ var acoshDocs = {
   seealso: ['cosh', 'asinh', 'atanh']
 };
 exports.acoshDocs = acoshDocs;
-},{}],565:[function(require,module,exports){
+},{}],566:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41777,7 +42222,7 @@ var acotDocs = {
   seealso: ['cot', 'atan']
 };
 exports.acotDocs = acotDocs;
-},{}],566:[function(require,module,exports){
+},{}],567:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41793,7 +42238,7 @@ var acothDocs = {
   seealso: ['acsch', 'asech']
 };
 exports.acothDocs = acothDocs;
-},{}],567:[function(require,module,exports){
+},{}],568:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41809,7 +42254,7 @@ var acscDocs = {
   seealso: ['csc', 'asin', 'asec']
 };
 exports.acscDocs = acscDocs;
-},{}],568:[function(require,module,exports){
+},{}],569:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41825,7 +42270,7 @@ var acschDocs = {
   seealso: ['asech', 'acoth']
 };
 exports.acschDocs = acschDocs;
-},{}],569:[function(require,module,exports){
+},{}],570:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41841,7 +42286,7 @@ var asecDocs = {
   seealso: ['acos', 'acot', 'acsc']
 };
 exports.asecDocs = asecDocs;
-},{}],570:[function(require,module,exports){
+},{}],571:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41857,7 +42302,7 @@ var asechDocs = {
   seealso: ['acsch', 'acoth']
 };
 exports.asechDocs = asechDocs;
-},{}],571:[function(require,module,exports){
+},{}],572:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41873,7 +42318,7 @@ var asinDocs = {
   seealso: ['sin', 'acos', 'atan']
 };
 exports.asinDocs = asinDocs;
-},{}],572:[function(require,module,exports){
+},{}],573:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41889,7 +42334,7 @@ var asinhDocs = {
   seealso: ['acosh', 'atanh']
 };
 exports.asinhDocs = asinhDocs;
-},{}],573:[function(require,module,exports){
+},{}],574:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41905,7 +42350,7 @@ var atanDocs = {
   seealso: ['tan', 'acos', 'asin']
 };
 exports.atanDocs = atanDocs;
-},{}],574:[function(require,module,exports){
+},{}],575:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41921,7 +42366,7 @@ var atan2Docs = {
   seealso: ['sin', 'cos', 'tan']
 };
 exports.atan2Docs = atan2Docs;
-},{}],575:[function(require,module,exports){
+},{}],576:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41937,7 +42382,7 @@ var atanhDocs = {
   seealso: ['acosh', 'asinh']
 };
 exports.atanhDocs = atanhDocs;
-},{}],576:[function(require,module,exports){
+},{}],577:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41953,7 +42398,7 @@ var cosDocs = {
   seealso: ['acos', 'sin', 'tan']
 };
 exports.cosDocs = cosDocs;
-},{}],577:[function(require,module,exports){
+},{}],578:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41969,7 +42414,7 @@ var coshDocs = {
   seealso: ['sinh', 'tanh', 'coth']
 };
 exports.coshDocs = coshDocs;
-},{}],578:[function(require,module,exports){
+},{}],579:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41985,7 +42430,7 @@ var cotDocs = {
   seealso: ['sec', 'csc', 'tan']
 };
 exports.cotDocs = cotDocs;
-},{}],579:[function(require,module,exports){
+},{}],580:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42001,7 +42446,7 @@ var cothDocs = {
   seealso: ['sech', 'csch', 'tanh']
 };
 exports.cothDocs = cothDocs;
-},{}],580:[function(require,module,exports){
+},{}],581:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42017,7 +42462,7 @@ var cscDocs = {
   seealso: ['sec', 'cot', 'sin']
 };
 exports.cscDocs = cscDocs;
-},{}],581:[function(require,module,exports){
+},{}],582:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42033,7 +42478,7 @@ var cschDocs = {
   seealso: ['sech', 'coth', 'sinh']
 };
 exports.cschDocs = cschDocs;
-},{}],582:[function(require,module,exports){
+},{}],583:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42049,7 +42494,7 @@ var secDocs = {
   seealso: ['cot', 'csc', 'cos']
 };
 exports.secDocs = secDocs;
-},{}],583:[function(require,module,exports){
+},{}],584:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42065,7 +42510,7 @@ var sechDocs = {
   seealso: ['coth', 'csch', 'cosh']
 };
 exports.sechDocs = sechDocs;
-},{}],584:[function(require,module,exports){
+},{}],585:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42081,7 +42526,7 @@ var sinDocs = {
   seealso: ['asin', 'cos', 'tan']
 };
 exports.sinDocs = sinDocs;
-},{}],585:[function(require,module,exports){
+},{}],586:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42097,7 +42542,7 @@ var sinhDocs = {
   seealso: ['cosh', 'tanh']
 };
 exports.sinhDocs = sinhDocs;
-},{}],586:[function(require,module,exports){
+},{}],587:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42113,7 +42558,7 @@ var tanDocs = {
   seealso: ['atan', 'sin', 'cos']
 };
 exports.tanDocs = tanDocs;
-},{}],587:[function(require,module,exports){
+},{}],588:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42129,7 +42574,7 @@ var tanhDocs = {
   seealso: ['sinh', 'cosh']
 };
 exports.tanhDocs = tanhDocs;
-},{}],588:[function(require,module,exports){
+},{}],589:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42145,7 +42590,7 @@ var toDocs = {
   seealso: []
 };
 exports.toDocs = toDocs;
-},{}],589:[function(require,module,exports){
+},{}],590:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42161,7 +42606,7 @@ var binDocs = {
   seealso: ['oct', 'hex']
 };
 exports.binDocs = binDocs;
-},{}],590:[function(require,module,exports){
+},{}],591:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42177,7 +42622,7 @@ var cloneDocs = {
   seealso: []
 };
 exports.cloneDocs = cloneDocs;
-},{}],591:[function(require,module,exports){
+},{}],592:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42193,7 +42638,7 @@ var formatDocs = {
   seealso: ['print']
 };
 exports.formatDocs = formatDocs;
-},{}],592:[function(require,module,exports){
+},{}],593:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42209,7 +42654,7 @@ var hasNumericValueDocs = {
   seealso: ['isInteger', 'isZero', 'isNegative', 'isPositive', 'isNaN', 'isNumeric']
 };
 exports.hasNumericValueDocs = hasNumericValueDocs;
-},{}],593:[function(require,module,exports){
+},{}],594:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42225,7 +42670,7 @@ var hexDocs = {
   seealso: ['bin', 'oct']
 };
 exports.hexDocs = hexDocs;
-},{}],594:[function(require,module,exports){
+},{}],595:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42241,7 +42686,7 @@ var isIntegerDocs = {
   seealso: ['isNegative', 'isNumeric', 'isPositive', 'isZero']
 };
 exports.isIntegerDocs = isIntegerDocs;
-},{}],595:[function(require,module,exports){
+},{}],596:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42257,7 +42702,7 @@ var isNaNDocs = {
   seealso: ['isNegative', 'isNumeric', 'isPositive', 'isZero']
 };
 exports.isNaNDocs = isNaNDocs;
-},{}],596:[function(require,module,exports){
+},{}],597:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42273,7 +42718,7 @@ var isNegativeDocs = {
   seealso: ['isInteger', 'isNumeric', 'isPositive', 'isZero']
 };
 exports.isNegativeDocs = isNegativeDocs;
-},{}],597:[function(require,module,exports){
+},{}],598:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42289,7 +42734,7 @@ var isNumericDocs = {
   seealso: ['isInteger', 'isZero', 'isNegative', 'isPositive', 'isNaN', 'hasNumericValue']
 };
 exports.isNumericDocs = isNumericDocs;
-},{}],598:[function(require,module,exports){
+},{}],599:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42305,7 +42750,7 @@ var isPositiveDocs = {
   seealso: ['isInteger', 'isNumeric', 'isNegative', 'isZero']
 };
 exports.isPositiveDocs = isPositiveDocs;
-},{}],599:[function(require,module,exports){
+},{}],600:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42321,7 +42766,7 @@ var isPrimeDocs = {
   seealso: ['isInteger', 'isNumeric', 'isNegative', 'isZero']
 };
 exports.isPrimeDocs = isPrimeDocs;
-},{}],600:[function(require,module,exports){
+},{}],601:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42337,7 +42782,7 @@ var isZeroDocs = {
   seealso: ['isInteger', 'isNumeric', 'isNegative', 'isPositive']
 };
 exports.isZeroDocs = isZeroDocs;
-},{}],601:[function(require,module,exports){
+},{}],602:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42353,7 +42798,7 @@ var numericDocs = {
   seealso: ['number', 'fraction', 'bignumber', 'string', 'format']
 };
 exports.numericDocs = numericDocs;
-},{}],602:[function(require,module,exports){
+},{}],603:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42369,7 +42814,7 @@ var octDocs = {
   seealso: ['bin', 'hex']
 };
 exports.octDocs = octDocs;
-},{}],603:[function(require,module,exports){
+},{}],604:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42385,7 +42830,7 @@ var typeOfDocs = {
   seealso: ['getMatrixDataType']
 };
 exports.typeOfDocs = typeOfDocs;
-},{}],604:[function(require,module,exports){
+},{}],605:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42449,7 +42894,7 @@ var createCompile = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fun
   });
 });
 exports.createCompile = createCompile;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936}],605:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937}],606:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42523,7 +42968,7 @@ var createEvaluate = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fu
   });
 });
 exports.createEvaluate = createEvaluate;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936,"../../utils/map.js":941}],606:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937,"../../utils/map.js":942}],607:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42605,7 +43050,7 @@ var createHelp = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   });
 });
 exports.createHelp = createHelp;
-},{"../../utils/customs.js":934,"../../utils/factory.js":936,"../../utils/object.js":944,"../embeddedDocs/embeddedDocs.js":413}],607:[function(require,module,exports){
+},{"../../utils/customs.js":935,"../../utils/factory.js":937,"../../utils/object.js":945,"../embeddedDocs/embeddedDocs.js":414}],608:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42671,7 +43116,7 @@ var createParser = /* #__PURE__ */(0, _factory.factory)(name, dependencies, func
   });
 });
 exports.createParser = createParser;
-},{"../../utils/factory.js":936}],608:[function(require,module,exports){
+},{"../../utils/factory.js":937}],609:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42681,7 +43126,7 @@ exports.keywords = void 0;
 // Reserved keywords not allowed to use in the parser
 var keywords = new Set(['end']);
 exports.keywords = keywords;
-},{}],609:[function(require,module,exports){
+},{}],610:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42902,7 +43347,7 @@ var createAccessorNode = /* #__PURE__ */(0, _factory.factory)(name, dependencies
   isNode: true
 });
 exports.createAccessorNode = createAccessorNode;
-},{"../../utils/customs.js":934,"../../utils/factory.js":936,"../../utils/is.js":938,"./utils/access.js":625}],610:[function(require,module,exports){
+},{"../../utils/customs.js":935,"../../utils/factory.js":937,"../../utils/is.js":939,"./utils/access.js":626}],611:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -43098,7 +43543,7 @@ var createArrayNode = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   isNode: true
 });
 exports.createArrayNode = createArrayNode;
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/is.js":938}],611:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/is.js":939}],612:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -43438,7 +43883,7 @@ var createAssignmentNode = /* #__PURE__ */(0, _factory.factory)(name, dependenci
   isNode: true
 });
 exports.createAssignmentNode = createAssignmentNode;
-},{"../../utils/customs.js":934,"../../utils/factory.js":936,"../../utils/is.js":938,"../operators.js":627,"./utils/access.js":625,"./utils/assign.js":626}],612:[function(require,module,exports){
+},{"../../utils/customs.js":935,"../../utils/factory.js":937,"../../utils/is.js":939,"../operators.js":628,"./utils/access.js":626,"./utils/assign.js":627}],613:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -43641,7 +44086,7 @@ var createBlockNode = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   isNode: true
 });
 exports.createBlockNode = createBlockNode;
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/is.js":938}],613:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/is.js":939}],614:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -43891,7 +44336,7 @@ var createConditionalNode = /* #__PURE__ */(0, _factory.factory)(name, dependenc
   isNode: true
 });
 exports.createConditionalNode = createConditionalNode;
-},{"../../utils/factory.js":936,"../../utils/is.js":938,"../operators.js":627}],614:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"../operators.js":628}],615:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -44092,7 +44537,7 @@ var createConstantNode = /* #__PURE__ */(0, _factory.factory)(name, dependencies
   isNode: true
 });
 exports.createConstantNode = createConstantNode;
-},{"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/latex.js":939,"../../utils/string.js":948}],615:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/latex.js":940,"../../utils/string.js":949}],616:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -44340,7 +44785,7 @@ var createFunctionAssignmentNode = /* #__PURE__ */(0, _factory.factory)(name, de
   isNode: true
 });
 exports.createFunctionAssignmentNode = createFunctionAssignmentNode;
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/latex.js":939,"../../utils/string.js":948,"../keywords.js":608,"../operators.js":627}],616:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/latex.js":940,"../../utils/string.js":949,"../keywords.js":609,"../operators.js":628}],617:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -44864,7 +45309,7 @@ var createFunctionNode = /* #__PURE__ */(0, _factory.factory)(name, dependencies
   isNode: true
 });
 exports.createFunctionNode = createFunctionNode;
-},{"../../utils/customs.js":934,"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/latex.js":939,"../../utils/object.js":944,"../../utils/scope.js":947,"../../utils/string.js":948,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/toConsumableArray":20,"@babel/runtime/helpers/typeof":21}],617:[function(require,module,exports){
+},{"../../utils/customs.js":935,"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/latex.js":940,"../../utils/object.js":945,"../../utils/scope.js":948,"../../utils/string.js":949,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/toConsumableArray":20,"@babel/runtime/helpers/typeof":21}],618:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -45151,7 +45596,7 @@ var createIndexNode = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   isNode: true
 });
 exports.createIndexNode = createIndexNode;
-},{"../../utils/array.js":927,"../../utils/customs.js":934,"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/string.js":948,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/toConsumableArray":20}],618:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/customs.js":935,"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/string.js":949,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/toConsumableArray":20}],619:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -45576,7 +46021,7 @@ var createNode = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   isNode: true
 });
 exports.createNode = createNode;
-},{"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/map.js":941,"../../utils/object.js":944,"../keywords.js":608,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/toConsumableArray":20,"@babel/runtime/helpers/typeof":21}],619:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/map.js":942,"../../utils/object.js":945,"../keywords.js":609,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/toConsumableArray":20,"@babel/runtime/helpers/typeof":21}],620:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -45808,7 +46253,7 @@ var createObjectNode = /* #__PURE__ */(0, _factory.factory)(name, dependencies, 
   isNode: true
 });
 exports.createObjectNode = createObjectNode;
-},{"../../utils/customs.js":934,"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/object.js":944,"../../utils/string.js":948,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],620:[function(require,module,exports){
+},{"../../utils/customs.js":935,"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/object.js":945,"../../utils/string.js":949,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],621:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -46507,7 +46952,7 @@ var createOperatorNode = /* #__PURE__ */(0, _factory.factory)(name, dependencies
   isNode: true
 });
 exports.createOperatorNode = createOperatorNode;
-},{"../../utils/array.js":927,"../../utils/customs.js":934,"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/latex.js":939,"../../utils/string.js":948,"../operators.js":627}],621:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/customs.js":935,"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/latex.js":940,"../../utils/string.js":949,"../operators.js":628}],622:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -46680,7 +47125,7 @@ var createParenthesisNode = /* #__PURE__ */(0, _factory.factory)(name, dependenc
   isNode: true
 });
 exports.createParenthesisNode = createParenthesisNode;
-},{"../../utils/factory.js":936,"../../utils/is.js":938}],622:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939}],623:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -46978,7 +47423,7 @@ var createRangeNode = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   isNode: true
 });
 exports.createRangeNode = createRangeNode;
-},{"../../utils/factory.js":936,"../../utils/is.js":938,"../operators.js":627}],623:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"../operators.js":628}],624:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -47212,7 +47657,7 @@ var createRelationalNode = /* #__PURE__ */(0, _factory.factory)(name, dependenci
   isNode: true
 });
 exports.createRelationalNode = createRelationalNode;
-},{"../../utils/customs.js":934,"../../utils/factory.js":936,"../../utils/latex.js":939,"../../utils/string.js":948,"../operators.js":627}],624:[function(require,module,exports){
+},{"../../utils/customs.js":935,"../../utils/factory.js":937,"../../utils/latex.js":940,"../../utils/string.js":949,"../operators.js":628}],625:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -47430,7 +47875,7 @@ var createSymbolNode = /* #__PURE__ */(0, _factory.factory)(name, dependencies, 
   isNode: true
 });
 exports.createSymbolNode = createSymbolNode;
-},{"../../utils/customs.js":934,"../../utils/factory.js":936,"../../utils/latex.js":939,"../../utils/string.js":948}],625:[function(require,module,exports){
+},{"../../utils/customs.js":935,"../../utils/factory.js":937,"../../utils/latex.js":940,"../../utils/string.js":949}],626:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -47484,7 +47929,7 @@ function accessFactory(_ref) {
     }
   };
 }
-},{"../../../utils/customs.js":934,"../../transform/utils/errorTransform.js":646,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],626:[function(require,module,exports){
+},{"../../../utils/customs.js":935,"../../transform/utils/errorTransform.js":647,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],627:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -47544,7 +47989,7 @@ function assignFactory(_ref) {
     }
   };
 }
-},{"../../../utils/customs.js":934,"../../transform/utils/errorTransform.js":646,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],627:[function(require,module,exports){
+},{"../../../utils/customs.js":935,"../../transform/utils/errorTransform.js":647,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],628:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -47869,7 +48314,7 @@ function isAssociativeWith(nodeA, nodeB, parenthesis) {
 
   return null;
 }
-},{"../utils/object.js":944}],628:[function(require,module,exports){
+},{"../utils/object.js":945}],629:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -49641,7 +50086,7 @@ var createParse = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   return parse;
 });
 exports.createParse = createParse;
-},{"../utils/collection.js":932,"../utils/factory.js":936,"../utils/is.js":938,"../utils/object.js":944,"@babel/runtime/helpers/extends":13,"@babel/runtime/helpers/interopRequireDefault":14}],629:[function(require,module,exports){
+},{"../utils/collection.js":933,"../utils/factory.js":937,"../utils/is.js":939,"../utils/object.js":945,"@babel/runtime/helpers/extends":13,"@babel/runtime/helpers/interopRequireDefault":14}],630:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -49697,7 +50142,7 @@ var createApplyTransform = /* #__PURE__ */(0, _factory.factory)(name, dependenci
   isTransformFunction: true
 });
 exports.createApplyTransform = createApplyTransform;
-},{"../../function/matrix/apply.js":742,"../../utils/factory.js":936,"../../utils/is.js":938,"./utils/errorTransform.js":646}],630:[function(require,module,exports){
+},{"../../function/matrix/apply.js":743,"../../utils/factory.js":937,"../../utils/is.js":939,"./utils/errorTransform.js":647}],631:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -49756,7 +50201,7 @@ var createColumnTransform = /* #__PURE__ */(0, _factory.factory)(name, dependenc
   isTransformFunction: true
 });
 exports.createColumnTransform = createColumnTransform;
-},{"../../function/matrix/column.js":743,"../../utils/factory.js":936,"../../utils/is.js":938,"./utils/errorTransform.js":646}],631:[function(require,module,exports){
+},{"../../function/matrix/column.js":744,"../../utils/factory.js":937,"../../utils/is.js":939,"./utils/errorTransform.js":647}],632:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -49814,7 +50259,7 @@ var createConcatTransform = /* #__PURE__ */(0, _factory.factory)(name, dependenc
   isTransformFunction: true
 });
 exports.createConcatTransform = createConcatTransform;
-},{"../../function/matrix/concat.js":744,"../../utils/factory.js":936,"../../utils/is.js":938,"./utils/errorTransform.js":646}],632:[function(require,module,exports){
+},{"../../function/matrix/concat.js":745,"../../utils/factory.js":937,"../../utils/is.js":939,"./utils/errorTransform.js":647}],633:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -49867,7 +50312,7 @@ var createDiffTransform = /* #__PURE__ */(0, _factory.factory)(name, dependencie
   isTransformFunction: true
 });
 exports.createDiffTransform = createDiffTransform;
-},{"../../function/matrix/diff.js":750,"../../utils/factory.js":936,"./utils/errorTransform.js":646,"./utils/lastDimToZeroBase.js":647}],633:[function(require,module,exports){
+},{"../../function/matrix/diff.js":751,"../../utils/factory.js":937,"./utils/errorTransform.js":647,"./utils/lastDimToZeroBase.js":648}],634:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -49961,7 +50406,7 @@ function _filter(x, callback) {
     }
   });
 }
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/function.js":937,"../../utils/is.js":938,"./utils/compileInlineExpression.js":645}],634:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/function.js":938,"../../utils/is.js":939,"./utils/compileInlineExpression.js":646}],635:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50045,7 +50490,7 @@ var createForEachTransform = /* #__PURE__ */(0, _factory.factory)(name, dependen
   isTransformFunction: true
 });
 exports.createForEachTransform = createForEachTransform;
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/function.js":937,"../../utils/is.js":938,"./utils/compileInlineExpression.js":645}],635:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/function.js":938,"../../utils/is.js":939,"./utils/compileInlineExpression.js":646}],636:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50105,7 +50550,7 @@ var createIndexTransform = /* #__PURE__ */(0, _factory.factory)(name, dependenci
   isTransformFunction: true
 });
 exports.createIndexTransform = createIndexTransform;
-},{"../../utils/factory.js":936,"../../utils/is.js":938}],636:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939}],637:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50204,7 +50649,7 @@ function _map(array, callback, orig) {
 
   return recurse(array, []);
 }
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/function.js":937,"../../utils/is.js":938,"./utils/compileInlineExpression.js":645}],637:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/function.js":938,"../../utils/is.js":939,"./utils/compileInlineExpression.js":646}],638:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50256,7 +50701,7 @@ var createMaxTransform = /* #__PURE__ */(0, _factory.factory)(name, dependencies
   isTransformFunction: true
 });
 exports.createMaxTransform = createMaxTransform;
-},{"../../function/statistics/max.js":819,"../../utils/factory.js":936,"./utils/errorTransform.js":646,"./utils/lastDimToZeroBase.js":647}],638:[function(require,module,exports){
+},{"../../function/statistics/max.js":820,"../../utils/factory.js":937,"./utils/errorTransform.js":647,"./utils/lastDimToZeroBase.js":648}],639:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50306,7 +50751,7 @@ var createMeanTransform = /* #__PURE__ */(0, _factory.factory)(name, dependencie
   isTransformFunction: true
 });
 exports.createMeanTransform = createMeanTransform;
-},{"../../function/statistics/mean.js":820,"../../utils/factory.js":936,"./utils/errorTransform.js":646,"./utils/lastDimToZeroBase.js":647}],639:[function(require,module,exports){
+},{"../../function/statistics/mean.js":821,"../../utils/factory.js":937,"./utils/errorTransform.js":647,"./utils/lastDimToZeroBase.js":648}],640:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50358,7 +50803,7 @@ var createMinTransform = /* #__PURE__ */(0, _factory.factory)(name, dependencies
   isTransformFunction: true
 });
 exports.createMinTransform = createMinTransform;
-},{"../../function/statistics/min.js":822,"../../utils/factory.js":936,"./utils/errorTransform.js":646,"./utils/lastDimToZeroBase.js":647}],640:[function(require,module,exports){
+},{"../../function/statistics/min.js":823,"../../utils/factory.js":937,"./utils/errorTransform.js":647,"./utils/lastDimToZeroBase.js":648}],641:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50415,7 +50860,7 @@ var createRangeTransform = /* #__PURE__ */(0, _factory.factory)(name, dependenci
   isTransformFunction: true
 });
 exports.createRangeTransform = createRangeTransform;
-},{"../../function/matrix/range.js":769,"../../utils/factory.js":936}],641:[function(require,module,exports){
+},{"../../function/matrix/range.js":770,"../../utils/factory.js":937}],642:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50474,7 +50919,7 @@ var createRowTransform = /* #__PURE__ */(0, _factory.factory)(name, dependencies
   isTransformFunction: true
 });
 exports.createRowTransform = createRowTransform;
-},{"../../function/matrix/row.js":774,"../../utils/factory.js":936,"../../utils/is.js":938,"./utils/errorTransform.js":646}],642:[function(require,module,exports){
+},{"../../function/matrix/row.js":775,"../../utils/factory.js":937,"../../utils/is.js":939,"./utils/errorTransform.js":647}],643:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50524,7 +50969,7 @@ var createStdTransform = /* #__PURE__ */(0, _factory.factory)(name, dependencies
   isTransformFunction: true
 });
 exports.createStdTransform = createStdTransform;
-},{"../../function/statistics/std.js":826,"../../utils/factory.js":936,"./utils/errorTransform.js":646,"./utils/lastDimToZeroBase.js":647}],643:[function(require,module,exports){
+},{"../../function/statistics/std.js":827,"../../utils/factory.js":937,"./utils/errorTransform.js":647,"./utils/lastDimToZeroBase.js":648}],644:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50567,7 +51012,7 @@ var createSubsetTransform = /* #__PURE__ */(0, _factory.factory)(name, dependenc
   isTransformFunction: true
 });
 exports.createSubsetTransform = createSubsetTransform;
-},{"../../function/matrix/subset.js":779,"../../utils/factory.js":936,"./utils/errorTransform.js":646}],644:[function(require,module,exports){
+},{"../../function/matrix/subset.js":780,"../../utils/factory.js":937,"./utils/errorTransform.js":647}],645:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50618,7 +51063,7 @@ var createSumTransform = /* #__PURE__ */(0, _factory.factory)(name, dependencies
   isTransformFunction: true
 });
 exports.createSumTransform = createSumTransform;
-},{"../../function/statistics/sum.js":827,"../../utils/factory.js":936,"./utils/errorTransform.js":646,"./utils/lastDimToZeroBase.js":647}],645:[function(require,module,exports){
+},{"../../function/statistics/sum.js":828,"../../utils/factory.js":937,"./utils/errorTransform.js":647,"./utils/lastDimToZeroBase.js":648}],646:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50658,7 +51103,7 @@ function compileInlineExpression(expression, math, scope) {
     return eq.evaluate(subScope);
   };
 }
-},{"../../../utils/is.js":938,"../../../utils/scope.js":947}],646:[function(require,module,exports){
+},{"../../../utils/is.js":939,"../../../utils/scope.js":948}],647:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50680,7 +51125,7 @@ function errorTransform(err) {
 
   return err;
 }
-},{"../../../error/IndexError.js":378}],647:[function(require,module,exports){
+},{"../../../error/IndexError.js":379}],648:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50707,7 +51152,7 @@ function lastDimToZeroBase(args) {
 
   return args;
 }
-},{"../../../utils/is.js":938}],648:[function(require,module,exports){
+},{"../../../utils/is.js":939}],649:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50765,7 +51210,7 @@ var createVarianceTransform = /* #__PURE__ */(0, _factory.factory)(name, depende
   isTransformFunction: true
 });
 exports.createVarianceTransform = createVarianceTransform;
-},{"../../function/statistics/variance.js":829,"../../utils/factory.js":936,"./utils/errorTransform.js":646,"./utils/lastDimToZeroBase.js":647}],649:[function(require,module,exports){
+},{"../../function/statistics/variance.js":830,"../../utils/factory.js":937,"./utils/errorTransform.js":647,"./utils/lastDimToZeroBase.js":648}],650:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -53301,7 +53746,7 @@ var _stdTransform = require("./expression/transform/std.transform.js");
 var _sumTransform = require("./expression/transform/sum.transform.js");
 
 var _varianceTransform = require("./expression/transform/variance.transform.js");
-},{"./constants.js":30,"./core/function/typed.js":35,"./expression/Help.js":379,"./expression/Parser.js":380,"./expression/function/compile.js":604,"./expression/function/evaluate.js":605,"./expression/function/help.js":606,"./expression/function/parser.js":607,"./expression/node/AccessorNode.js":609,"./expression/node/ArrayNode.js":610,"./expression/node/AssignmentNode.js":611,"./expression/node/BlockNode.js":612,"./expression/node/ConditionalNode.js":613,"./expression/node/ConstantNode.js":614,"./expression/node/FunctionAssignmentNode.js":615,"./expression/node/FunctionNode.js":616,"./expression/node/IndexNode.js":617,"./expression/node/Node.js":618,"./expression/node/ObjectNode.js":619,"./expression/node/OperatorNode.js":620,"./expression/node/ParenthesisNode.js":621,"./expression/node/RangeNode.js":622,"./expression/node/RelationalNode.js":623,"./expression/node/SymbolNode.js":624,"./expression/parse.js":628,"./expression/transform/apply.transform.js":629,"./expression/transform/column.transform.js":630,"./expression/transform/concat.transform.js":631,"./expression/transform/diff.transform.js":632,"./expression/transform/filter.transform.js":633,"./expression/transform/forEach.transform.js":634,"./expression/transform/index.transform.js":635,"./expression/transform/map.transform.js":636,"./expression/transform/max.transform.js":637,"./expression/transform/mean.transform.js":638,"./expression/transform/min.transform.js":639,"./expression/transform/range.transform.js":640,"./expression/transform/row.transform.js":641,"./expression/transform/std.transform.js":642,"./expression/transform/subset.transform.js":643,"./expression/transform/sum.transform.js":644,"./expression/transform/variance.transform.js":648,"./function/algebra/decomposition/lup.js":650,"./function/algebra/decomposition/qr.js":651,"./function/algebra/decomposition/slu.js":652,"./function/algebra/derivative.js":653,"./function/algebra/rationalize.js":654,"./function/algebra/simplify.js":655,"./function/algebra/solver/lsolve.js":660,"./function/algebra/solver/lsolveAll.js":661,"./function/algebra/solver/lusolve.js":662,"./function/algebra/solver/usolve.js":663,"./function/algebra/solver/usolveAll.js":664,"./function/arithmetic/abs.js":684,"./function/arithmetic/add.js":685,"./function/arithmetic/addScalar.js":686,"./function/arithmetic/cbrt.js":687,"./function/arithmetic/ceil.js":688,"./function/arithmetic/cube.js":689,"./function/arithmetic/divide.js":690,"./function/arithmetic/divideScalar.js":691,"./function/arithmetic/dotDivide.js":692,"./function/arithmetic/dotMultiply.js":693,"./function/arithmetic/dotPow.js":694,"./function/arithmetic/exp.js":695,"./function/arithmetic/expm1.js":696,"./function/arithmetic/fix.js":697,"./function/arithmetic/floor.js":698,"./function/arithmetic/gcd.js":699,"./function/arithmetic/hypot.js":700,"./function/arithmetic/lcm.js":701,"./function/arithmetic/log.js":702,"./function/arithmetic/log10.js":703,"./function/arithmetic/log1p.js":704,"./function/arithmetic/log2.js":705,"./function/arithmetic/mod.js":706,"./function/arithmetic/multiply.js":707,"./function/arithmetic/multiplyScalar.js":708,"./function/arithmetic/norm.js":709,"./function/arithmetic/nthRoot.js":710,"./function/arithmetic/nthRoots.js":711,"./function/arithmetic/pow.js":712,"./function/arithmetic/round.js":713,"./function/arithmetic/sign.js":714,"./function/arithmetic/sqrt.js":715,"./function/arithmetic/square.js":716,"./function/arithmetic/subtract.js":717,"./function/arithmetic/unaryMinus.js":718,"./function/arithmetic/unaryPlus.js":719,"./function/arithmetic/xgcd.js":720,"./function/bitwise/bitAnd.js":721,"./function/bitwise/bitNot.js":722,"./function/bitwise/bitOr.js":723,"./function/bitwise/bitXor.js":724,"./function/bitwise/leftShift.js":725,"./function/bitwise/rightArithShift.js":726,"./function/bitwise/rightLogShift.js":727,"./function/combinatorics/bellNumbers.js":728,"./function/combinatorics/catalan.js":729,"./function/combinatorics/composition.js":730,"./function/combinatorics/stirlingS2.js":731,"./function/complex/arg.js":732,"./function/complex/conj.js":733,"./function/complex/im.js":734,"./function/complex/re.js":735,"./function/geometry/distance.js":736,"./function/geometry/intersect.js":737,"./function/logical/and.js":738,"./function/logical/not.js":739,"./function/logical/or.js":740,"./function/logical/xor.js":741,"./function/matrix/apply.js":742,"./function/matrix/column.js":743,"./function/matrix/concat.js":744,"./function/matrix/count.js":745,"./function/matrix/cross.js":746,"./function/matrix/ctranspose.js":747,"./function/matrix/det.js":748,"./function/matrix/diag.js":749,"./function/matrix/diff.js":750,"./function/matrix/dot.js":751,"./function/matrix/eigs.js":752,"./function/matrix/expm.js":755,"./function/matrix/filter.js":756,"./function/matrix/flatten.js":757,"./function/matrix/forEach.js":758,"./function/matrix/getMatrixDataType.js":759,"./function/matrix/identity.js":760,"./function/matrix/inv.js":761,"./function/matrix/kron.js":762,"./function/matrix/map.js":763,"./function/matrix/matrixFromColumns.js":764,"./function/matrix/matrixFromFunction.js":765,"./function/matrix/matrixFromRows.js":766,"./function/matrix/ones.js":767,"./function/matrix/partitionSelect.js":768,"./function/matrix/range.js":769,"./function/matrix/reshape.js":770,"./function/matrix/resize.js":771,"./function/matrix/rotate.js":772,"./function/matrix/rotationMatrix.js":773,"./function/matrix/row.js":774,"./function/matrix/size.js":775,"./function/matrix/sort.js":776,"./function/matrix/sqrtm.js":777,"./function/matrix/squeeze.js":778,"./function/matrix/subset.js":779,"./function/matrix/trace.js":780,"./function/matrix/transpose.js":781,"./function/matrix/zeros.js":782,"./function/probability/combinations.js":783,"./function/probability/combinationsWithRep.js":784,"./function/probability/factorial.js":785,"./function/probability/gamma.js":786,"./function/probability/kldivergence.js":787,"./function/probability/multinomial.js":788,"./function/probability/permutations.js":789,"./function/probability/pickRandom.js":790,"./function/probability/random.js":791,"./function/probability/randomInt.js":792,"./function/relational/compare.js":795,"./function/relational/compareNatural.js":796,"./function/relational/compareText.js":797,"./function/relational/deepEqual.js":798,"./function/relational/equal.js":799,"./function/relational/equalScalar.js":800,"./function/relational/equalText.js":801,"./function/relational/larger.js":802,"./function/relational/largerEq.js":803,"./function/relational/smaller.js":804,"./function/relational/smallerEq.js":805,"./function/relational/unequal.js":806,"./function/set/setCartesian.js":807,"./function/set/setDifference.js":808,"./function/set/setDistinct.js":809,"./function/set/setIntersect.js":810,"./function/set/setIsSubset.js":811,"./function/set/setMultiplicity.js":812,"./function/set/setPowerset.js":813,"./function/set/setSize.js":814,"./function/set/setSymDifference.js":815,"./function/set/setUnion.js":816,"./function/special/erf.js":817,"./function/statistics/mad.js":818,"./function/statistics/max.js":819,"./function/statistics/mean.js":820,"./function/statistics/median.js":821,"./function/statistics/min.js":822,"./function/statistics/mode.js":823,"./function/statistics/prod.js":824,"./function/statistics/quantileSeq.js":825,"./function/statistics/std.js":826,"./function/statistics/sum.js":827,"./function/statistics/variance.js":829,"./function/string/bin.js":830,"./function/string/format.js":831,"./function/string/hex.js":832,"./function/string/oct.js":833,"./function/string/print.js":834,"./function/trigonometry/acos.js":835,"./function/trigonometry/acosh.js":836,"./function/trigonometry/acot.js":837,"./function/trigonometry/acoth.js":838,"./function/trigonometry/acsc.js":839,"./function/trigonometry/acsch.js":840,"./function/trigonometry/asec.js":841,"./function/trigonometry/asech.js":842,"./function/trigonometry/asin.js":843,"./function/trigonometry/asinh.js":844,"./function/trigonometry/atan.js":845,"./function/trigonometry/atan2.js":846,"./function/trigonometry/atanh.js":847,"./function/trigonometry/cos.js":848,"./function/trigonometry/cosh.js":849,"./function/trigonometry/cot.js":850,"./function/trigonometry/coth.js":851,"./function/trigonometry/csc.js":852,"./function/trigonometry/csch.js":853,"./function/trigonometry/sec.js":854,"./function/trigonometry/sech.js":855,"./function/trigonometry/sin.js":856,"./function/trigonometry/sinh.js":857,"./function/trigonometry/tan.js":858,"./function/trigonometry/tanh.js":859,"./function/unit/to.js":860,"./function/utils/clone.js":861,"./function/utils/hasNumericValue.js":862,"./function/utils/isInteger.js":863,"./function/utils/isNaN.js":864,"./function/utils/isNegative.js":865,"./function/utils/isNumeric.js":866,"./function/utils/isPositive.js":867,"./function/utils/isPrime.js":868,"./function/utils/isZero.js":869,"./function/utils/numeric.js":870,"./function/utils/typeOf.js":871,"./json/replacer.js":873,"./json/reviver.js":874,"./type/bignumber/BigNumber.js":885,"./type/bignumber/function/bignumber.js":886,"./type/boolean.js":887,"./type/chain/Chain.js":888,"./type/chain/function/chain.js":889,"./type/complex/Complex.js":890,"./type/complex/function/complex.js":891,"./type/fraction/Fraction.js":892,"./type/fraction/function/fraction.js":893,"./type/matrix/DenseMatrix.js":894,"./type/matrix/FibonacciHeap.js":895,"./type/matrix/ImmutableDenseMatrix.js":896,"./type/matrix/Matrix.js":897,"./type/matrix/MatrixIndex.js":898,"./type/matrix/Range.js":899,"./type/matrix/Spa.js":900,"./type/matrix/SparseMatrix.js":901,"./type/matrix/function/index.js":902,"./type/matrix/function/matrix.js":903,"./type/matrix/function/sparse.js":904,"./type/number.js":919,"./type/resultset/ResultSet.js":920,"./type/string.js":921,"./type/unit/Unit.js":922,"./type/unit/function/createUnit.js":923,"./type/unit/function/splitUnit.js":924,"./type/unit/function/unit.js":925,"./type/unit/physicalConstants.js":926}],650:[function(require,module,exports){
+},{"./constants.js":31,"./core/function/typed.js":36,"./expression/Help.js":380,"./expression/Parser.js":381,"./expression/function/compile.js":605,"./expression/function/evaluate.js":606,"./expression/function/help.js":607,"./expression/function/parser.js":608,"./expression/node/AccessorNode.js":610,"./expression/node/ArrayNode.js":611,"./expression/node/AssignmentNode.js":612,"./expression/node/BlockNode.js":613,"./expression/node/ConditionalNode.js":614,"./expression/node/ConstantNode.js":615,"./expression/node/FunctionAssignmentNode.js":616,"./expression/node/FunctionNode.js":617,"./expression/node/IndexNode.js":618,"./expression/node/Node.js":619,"./expression/node/ObjectNode.js":620,"./expression/node/OperatorNode.js":621,"./expression/node/ParenthesisNode.js":622,"./expression/node/RangeNode.js":623,"./expression/node/RelationalNode.js":624,"./expression/node/SymbolNode.js":625,"./expression/parse.js":629,"./expression/transform/apply.transform.js":630,"./expression/transform/column.transform.js":631,"./expression/transform/concat.transform.js":632,"./expression/transform/diff.transform.js":633,"./expression/transform/filter.transform.js":634,"./expression/transform/forEach.transform.js":635,"./expression/transform/index.transform.js":636,"./expression/transform/map.transform.js":637,"./expression/transform/max.transform.js":638,"./expression/transform/mean.transform.js":639,"./expression/transform/min.transform.js":640,"./expression/transform/range.transform.js":641,"./expression/transform/row.transform.js":642,"./expression/transform/std.transform.js":643,"./expression/transform/subset.transform.js":644,"./expression/transform/sum.transform.js":645,"./expression/transform/variance.transform.js":649,"./function/algebra/decomposition/lup.js":651,"./function/algebra/decomposition/qr.js":652,"./function/algebra/decomposition/slu.js":653,"./function/algebra/derivative.js":654,"./function/algebra/rationalize.js":655,"./function/algebra/simplify.js":656,"./function/algebra/solver/lsolve.js":661,"./function/algebra/solver/lsolveAll.js":662,"./function/algebra/solver/lusolve.js":663,"./function/algebra/solver/usolve.js":664,"./function/algebra/solver/usolveAll.js":665,"./function/arithmetic/abs.js":685,"./function/arithmetic/add.js":686,"./function/arithmetic/addScalar.js":687,"./function/arithmetic/cbrt.js":688,"./function/arithmetic/ceil.js":689,"./function/arithmetic/cube.js":690,"./function/arithmetic/divide.js":691,"./function/arithmetic/divideScalar.js":692,"./function/arithmetic/dotDivide.js":693,"./function/arithmetic/dotMultiply.js":694,"./function/arithmetic/dotPow.js":695,"./function/arithmetic/exp.js":696,"./function/arithmetic/expm1.js":697,"./function/arithmetic/fix.js":698,"./function/arithmetic/floor.js":699,"./function/arithmetic/gcd.js":700,"./function/arithmetic/hypot.js":701,"./function/arithmetic/lcm.js":702,"./function/arithmetic/log.js":703,"./function/arithmetic/log10.js":704,"./function/arithmetic/log1p.js":705,"./function/arithmetic/log2.js":706,"./function/arithmetic/mod.js":707,"./function/arithmetic/multiply.js":708,"./function/arithmetic/multiplyScalar.js":709,"./function/arithmetic/norm.js":710,"./function/arithmetic/nthRoot.js":711,"./function/arithmetic/nthRoots.js":712,"./function/arithmetic/pow.js":713,"./function/arithmetic/round.js":714,"./function/arithmetic/sign.js":715,"./function/arithmetic/sqrt.js":716,"./function/arithmetic/square.js":717,"./function/arithmetic/subtract.js":718,"./function/arithmetic/unaryMinus.js":719,"./function/arithmetic/unaryPlus.js":720,"./function/arithmetic/xgcd.js":721,"./function/bitwise/bitAnd.js":722,"./function/bitwise/bitNot.js":723,"./function/bitwise/bitOr.js":724,"./function/bitwise/bitXor.js":725,"./function/bitwise/leftShift.js":726,"./function/bitwise/rightArithShift.js":727,"./function/bitwise/rightLogShift.js":728,"./function/combinatorics/bellNumbers.js":729,"./function/combinatorics/catalan.js":730,"./function/combinatorics/composition.js":731,"./function/combinatorics/stirlingS2.js":732,"./function/complex/arg.js":733,"./function/complex/conj.js":734,"./function/complex/im.js":735,"./function/complex/re.js":736,"./function/geometry/distance.js":737,"./function/geometry/intersect.js":738,"./function/logical/and.js":739,"./function/logical/not.js":740,"./function/logical/or.js":741,"./function/logical/xor.js":742,"./function/matrix/apply.js":743,"./function/matrix/column.js":744,"./function/matrix/concat.js":745,"./function/matrix/count.js":746,"./function/matrix/cross.js":747,"./function/matrix/ctranspose.js":748,"./function/matrix/det.js":749,"./function/matrix/diag.js":750,"./function/matrix/diff.js":751,"./function/matrix/dot.js":752,"./function/matrix/eigs.js":753,"./function/matrix/expm.js":756,"./function/matrix/filter.js":757,"./function/matrix/flatten.js":758,"./function/matrix/forEach.js":759,"./function/matrix/getMatrixDataType.js":760,"./function/matrix/identity.js":761,"./function/matrix/inv.js":762,"./function/matrix/kron.js":763,"./function/matrix/map.js":764,"./function/matrix/matrixFromColumns.js":765,"./function/matrix/matrixFromFunction.js":766,"./function/matrix/matrixFromRows.js":767,"./function/matrix/ones.js":768,"./function/matrix/partitionSelect.js":769,"./function/matrix/range.js":770,"./function/matrix/reshape.js":771,"./function/matrix/resize.js":772,"./function/matrix/rotate.js":773,"./function/matrix/rotationMatrix.js":774,"./function/matrix/row.js":775,"./function/matrix/size.js":776,"./function/matrix/sort.js":777,"./function/matrix/sqrtm.js":778,"./function/matrix/squeeze.js":779,"./function/matrix/subset.js":780,"./function/matrix/trace.js":781,"./function/matrix/transpose.js":782,"./function/matrix/zeros.js":783,"./function/probability/combinations.js":784,"./function/probability/combinationsWithRep.js":785,"./function/probability/factorial.js":786,"./function/probability/gamma.js":787,"./function/probability/kldivergence.js":788,"./function/probability/multinomial.js":789,"./function/probability/permutations.js":790,"./function/probability/pickRandom.js":791,"./function/probability/random.js":792,"./function/probability/randomInt.js":793,"./function/relational/compare.js":796,"./function/relational/compareNatural.js":797,"./function/relational/compareText.js":798,"./function/relational/deepEqual.js":799,"./function/relational/equal.js":800,"./function/relational/equalScalar.js":801,"./function/relational/equalText.js":802,"./function/relational/larger.js":803,"./function/relational/largerEq.js":804,"./function/relational/smaller.js":805,"./function/relational/smallerEq.js":806,"./function/relational/unequal.js":807,"./function/set/setCartesian.js":808,"./function/set/setDifference.js":809,"./function/set/setDistinct.js":810,"./function/set/setIntersect.js":811,"./function/set/setIsSubset.js":812,"./function/set/setMultiplicity.js":813,"./function/set/setPowerset.js":814,"./function/set/setSize.js":815,"./function/set/setSymDifference.js":816,"./function/set/setUnion.js":817,"./function/special/erf.js":818,"./function/statistics/mad.js":819,"./function/statistics/max.js":820,"./function/statistics/mean.js":821,"./function/statistics/median.js":822,"./function/statistics/min.js":823,"./function/statistics/mode.js":824,"./function/statistics/prod.js":825,"./function/statistics/quantileSeq.js":826,"./function/statistics/std.js":827,"./function/statistics/sum.js":828,"./function/statistics/variance.js":830,"./function/string/bin.js":831,"./function/string/format.js":832,"./function/string/hex.js":833,"./function/string/oct.js":834,"./function/string/print.js":835,"./function/trigonometry/acos.js":836,"./function/trigonometry/acosh.js":837,"./function/trigonometry/acot.js":838,"./function/trigonometry/acoth.js":839,"./function/trigonometry/acsc.js":840,"./function/trigonometry/acsch.js":841,"./function/trigonometry/asec.js":842,"./function/trigonometry/asech.js":843,"./function/trigonometry/asin.js":844,"./function/trigonometry/asinh.js":845,"./function/trigonometry/atan.js":846,"./function/trigonometry/atan2.js":847,"./function/trigonometry/atanh.js":848,"./function/trigonometry/cos.js":849,"./function/trigonometry/cosh.js":850,"./function/trigonometry/cot.js":851,"./function/trigonometry/coth.js":852,"./function/trigonometry/csc.js":853,"./function/trigonometry/csch.js":854,"./function/trigonometry/sec.js":855,"./function/trigonometry/sech.js":856,"./function/trigonometry/sin.js":857,"./function/trigonometry/sinh.js":858,"./function/trigonometry/tan.js":859,"./function/trigonometry/tanh.js":860,"./function/unit/to.js":861,"./function/utils/clone.js":862,"./function/utils/hasNumericValue.js":863,"./function/utils/isInteger.js":864,"./function/utils/isNaN.js":865,"./function/utils/isNegative.js":866,"./function/utils/isNumeric.js":867,"./function/utils/isPositive.js":868,"./function/utils/isPrime.js":869,"./function/utils/isZero.js":870,"./function/utils/numeric.js":871,"./function/utils/typeOf.js":872,"./json/replacer.js":874,"./json/reviver.js":875,"./type/bignumber/BigNumber.js":886,"./type/bignumber/function/bignumber.js":887,"./type/boolean.js":888,"./type/chain/Chain.js":889,"./type/chain/function/chain.js":890,"./type/complex/Complex.js":891,"./type/complex/function/complex.js":892,"./type/fraction/Fraction.js":893,"./type/fraction/function/fraction.js":894,"./type/matrix/DenseMatrix.js":895,"./type/matrix/FibonacciHeap.js":896,"./type/matrix/ImmutableDenseMatrix.js":897,"./type/matrix/Matrix.js":898,"./type/matrix/MatrixIndex.js":899,"./type/matrix/Range.js":900,"./type/matrix/Spa.js":901,"./type/matrix/SparseMatrix.js":902,"./type/matrix/function/index.js":903,"./type/matrix/function/matrix.js":904,"./type/matrix/function/sparse.js":905,"./type/number.js":920,"./type/resultset/ResultSet.js":921,"./type/string.js":922,"./type/unit/Unit.js":923,"./type/unit/function/createUnit.js":924,"./type/unit/function/splitUnit.js":925,"./type/unit/function/unit.js":926,"./type/unit/physicalConstants.js":927}],651:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -53723,7 +54168,7 @@ var createLup = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   }
 });
 exports.createLup = createLup;
-},{"../../../utils/factory.js":936,"../../../utils/object.js":944}],651:[function(require,module,exports){
+},{"../../../utils/factory.js":937,"../../../utils/object.js":945}],652:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -53970,7 +54415,7 @@ var createQr = /* #__PURE__ */(0, _factory.factory)(name, dependencies, function
   }
 });
 exports.createQr = createQr;
-},{"../../../utils/factory.js":936,"@babel/runtime/helpers/extends":13,"@babel/runtime/helpers/interopRequireDefault":14}],652:[function(require,module,exports){
+},{"../../../utils/factory.js":937,"@babel/runtime/helpers/extends":13,"@babel/runtime/helpers/interopRequireDefault":14}],653:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -54081,7 +54526,7 @@ var createSlu = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   });
 });
 exports.createSlu = createSlu;
-},{"../../../utils/factory.js":936,"../../../utils/number.js":943,"../sparse/csLu.js":674,"../sparse/csSqr.js":681}],653:[function(require,module,exports){
+},{"../../../utils/factory.js":937,"../../../utils/number.js":944,"../sparse/csLu.js":675,"../sparse/csSqr.js":682}],654:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -54710,7 +55155,7 @@ var createDerivative = /* #__PURE__ */(0, _factory.factory)(name, dependencies, 
   return derivative;
 });
 exports.createDerivative = createDerivative;
-},{"../../utils/factory.js":936,"../../utils/is.js":938}],654:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939}],655:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -55592,7 +56037,7 @@ var createRationalize = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
 
 });
 exports.createRationalize = createRationalize;
-},{"../../utils/factory.js":936,"../../utils/number.js":943,"./simplify/simplifyConstant.js":657,"./simplify/simplifyCore.js":658}],655:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/number.js":944,"./simplify/simplifyConstant.js":658,"./simplify/simplifyCore.js":659}],656:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -56429,7 +56874,7 @@ var createSimplify = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fu
   return simplify;
 });
 exports.createSimplify = createSimplify;
-},{"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/map.js":941,"../../utils/object.js":944,"./simplify/resolve.js":656,"./simplify/simplifyConstant.js":657,"./simplify/simplifyCore.js":658,"./simplify/util.js":659,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],656:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/map.js":942,"../../utils/object.js":945,"./simplify/resolve.js":657,"./simplify/simplifyConstant.js":658,"./simplify/simplifyCore.js":659,"./simplify/util.js":660,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],657:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -56506,7 +56951,7 @@ var createResolve = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fun
   return resolve;
 });
 exports.createResolve = createResolve;
-},{"../../../utils/factory.js":936,"../../../utils/is.js":938,"../../../utils/map.js":941}],657:[function(require,module,exports){
+},{"../../../utils/factory.js":937,"../../../utils/is.js":939,"../../../utils/map.js":942}],658:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -56839,7 +57284,7 @@ var createSimplifyConstant = /* #__PURE__ */(0, _factory.factory)(name, dependen
   return simplifyConstant;
 });
 exports.createSimplifyConstant = createSimplifyConstant;
-},{"../../../utils/factory.js":936,"../../../utils/is.js":938,"../../../utils/noop.js":942,"./util.js":659}],658:[function(require,module,exports){
+},{"../../../utils/factory.js":937,"../../../utils/is.js":939,"../../../utils/noop.js":943,"./util.js":660}],659:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -57039,7 +57484,7 @@ var createSimplifyCore = /* #__PURE__ */(0, _factory.factory)(name, dependencies
   return simplifyCore;
 });
 exports.createSimplifyCore = createSimplifyCore;
-},{"../../../utils/factory.js":936,"../../../utils/is.js":938}],659:[function(require,module,exports){
+},{"../../../utils/factory.js":937,"../../../utils/is.js":939}],660:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -57229,7 +57674,7 @@ var createUtil = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   };
 });
 exports.createUtil = createUtil;
-},{"../../../utils/factory.js":936,"../../../utils/is.js":938,"../../../utils/object.js":944}],660:[function(require,module,exports){
+},{"../../../utils/factory.js":937,"../../../utils/is.js":939,"../../../utils/object.js":945}],661:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -57399,7 +57844,7 @@ var createLsolve = /* #__PURE__ */(0, _factory.factory)(name, dependencies, func
   }
 });
 exports.createLsolve = createLsolve;
-},{"../../../utils/factory.js":936,"./utils/solveValidation.js":665}],661:[function(require,module,exports){
+},{"../../../utils/factory.js":937,"./utils/solveValidation.js":666}],662:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -57613,7 +58058,7 @@ var createLsolveAll = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   }
 });
 exports.createLsolveAll = createLsolveAll;
-},{"../../../utils/factory.js":936,"./utils/solveValidation.js":665,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/toConsumableArray":20}],662:[function(require,module,exports){
+},{"../../../utils/factory.js":937,"./utils/solveValidation.js":666,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/toConsumableArray":20}],663:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -57737,7 +58182,7 @@ var createLusolve = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fun
   }
 });
 exports.createLusolve = createLusolve;
-},{"../../../utils/factory.js":936,"../../../utils/is.js":938,"../sparse/csIpvec.js":672,"./utils/solveValidation.js":665}],663:[function(require,module,exports){
+},{"../../../utils/factory.js":937,"../../../utils/is.js":939,"../sparse/csIpvec.js":673,"./utils/solveValidation.js":666}],664:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -57912,7 +58357,7 @@ var createUsolve = /* #__PURE__ */(0, _factory.factory)(name, dependencies, func
   }
 });
 exports.createUsolve = createUsolve;
-},{"../../../utils/factory.js":936,"./utils/solveValidation.js":665}],664:[function(require,module,exports){
+},{"../../../utils/factory.js":937,"./utils/solveValidation.js":666}],665:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -58126,7 +58571,7 @@ var createUsolveAll = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   }
 });
 exports.createUsolveAll = createUsolveAll;
-},{"../../../utils/factory.js":936,"./utils/solveValidation.js":665,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/toConsumableArray":20}],665:[function(require,module,exports){
+},{"../../../utils/factory.js":937,"./utils/solveValidation.js":666,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/toConsumableArray":20}],666:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -58274,7 +58719,7 @@ function createSolveValidation(_ref) {
     }
   };
 }
-},{"../../../../utils/array.js":927,"../../../../utils/is.js":938,"../../../../utils/string.js":948}],666:[function(require,module,exports){
+},{"../../../../utils/array.js":928,"../../../../utils/is.js":939,"../../../../utils/string.js":949}],667:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -58913,7 +59358,7 @@ var createCsAmd = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   }
 });
 exports.createCsAmd = createCsAmd;
-},{"../../../utils/factory.js":936,"./csFkeep.js":670,"./csFlip.js":671,"./csTdfs.js":682}],667:[function(require,module,exports){
+},{"../../../utils/factory.js":937,"./csFkeep.js":671,"./csFlip.js":672,"./csTdfs.js":683}],668:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -59062,7 +59507,7 @@ var createCsCounts = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fu
   };
 });
 exports.createCsCounts = createCsCounts;
-},{"../../../utils/factory.js":936,"./csLeaf.js":673}],668:[function(require,module,exports){
+},{"../../../utils/factory.js":937,"./csLeaf.js":674}],669:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -59151,7 +59596,7 @@ function csDfs(j, g, top, xi, pinv) {
 
   return top;
 }
-},{"./csMark.js":675,"./csMarked.js":676,"./csUnflip.js":683}],669:[function(require,module,exports){
+},{"./csMark.js":676,"./csMarked.js":677,"./csUnflip.js":684}],670:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -59232,7 +59677,7 @@ function csEtree(a, ata) {
 
   return parent;
 }
-},{}],670:[function(require,module,exports){
+},{}],671:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -59300,7 +59745,7 @@ function csFkeep(a, callback, other) {
 
   return nz;
 }
-},{}],671:[function(require,module,exports){
+},{}],672:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -59319,7 +59764,7 @@ function csFlip(i) {
   // flip the value
   return -i - 2;
 }
-},{}],672:[function(require,module,exports){
+},{}],673:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -59357,7 +59802,7 @@ function csIpvec(p, b) {
 
   return x;
 }
-},{}],673:[function(require,module,exports){
+},{}],674:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -59421,7 +59866,7 @@ function csLeaf(i, j, w, first, maxfirst, prevleaf, ancestor) {
     q: q
   };
 }
-},{}],674:[function(require,module,exports){
+},{}],675:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -59628,7 +60073,7 @@ var createCsLu = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   };
 });
 exports.createCsLu = createCsLu;
-},{"../../../utils/factory.js":936,"./csSpsolve.js":680}],675:[function(require,module,exports){
+},{"../../../utils/factory.js":937,"./csSpsolve.js":681}],676:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -59650,7 +60095,7 @@ function csMark(w, j) {
   // mark w[j]
   w[j] = (0, _csFlip.csFlip)(w[j]);
 }
-},{"./csFlip.js":671}],676:[function(require,module,exports){
+},{"./csFlip.js":672}],677:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -59670,7 +60115,7 @@ function csMarked(w, j) {
   // check node is marked
   return w[j] < 0;
 }
-},{}],677:[function(require,module,exports){
+},{}],678:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -59741,7 +60186,7 @@ function csPermute(a, pinv, q, values) {
     datatype: adt
   });
 }
-},{}],678:[function(require,module,exports){
+},{}],679:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -59808,7 +60253,7 @@ function csPost(parent, n) {
 
   return post;
 }
-},{"./csTdfs.js":682}],679:[function(require,module,exports){
+},{"./csTdfs.js":683}],680:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -59870,7 +60315,7 @@ function csReach(g, b, k, xi, pinv) {
 
   return top;
 }
-},{"./csDfs.js":668,"./csMark.js":675,"./csMarked.js":676}],680:[function(require,module,exports){
+},{"./csDfs.js":669,"./csMark.js":676,"./csMarked.js":677}],681:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -59967,7 +60412,7 @@ var createCsSpsolve = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   };
 });
 exports.createCsSpsolve = createCsSpsolve;
-},{"../../../utils/factory.js":936,"./csReach.js":679}],681:[function(require,module,exports){
+},{"../../../utils/factory.js":937,"./csReach.js":680}],682:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -60175,7 +60620,7 @@ var createCsSqr = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   }
 });
 exports.createCsSqr = createCsSqr;
-},{"../../../utils/factory.js":936,"./csAmd.js":666,"./csCounts.js":667,"./csEtree.js":669,"./csPermute.js":677,"./csPost.js":678}],682:[function(require,module,exports){
+},{"../../../utils/factory.js":937,"./csAmd.js":667,"./csCounts.js":668,"./csEtree.js":670,"./csPermute.js":678,"./csPost.js":679}],683:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -60225,7 +60670,7 @@ function csTdfs(j, k, w, head, next, post, stack) {
 
   return k;
 }
-},{}],683:[function(require,module,exports){
+},{}],684:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -60246,7 +60691,7 @@ function csUnflip(i) {
   // flip the value if it is negative
   return i < 0 ? (0, _csFlip.csFlip)(i) : i;
 }
-},{"./csFlip.js":671}],684:[function(require,module,exports){
+},{"./csFlip.js":672}],685:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -60310,7 +60755,7 @@ var createAbs = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   });
 });
 exports.createAbs = createAbs;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],685:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],686:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -60452,7 +60897,7 @@ var createAdd = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   }, addScalar.signatures));
 });
 exports.createAdd = createAdd;
-},{"../../type/matrix/utils/algorithm01.js":905,"../../type/matrix/utils/algorithm04.js":908,"../../type/matrix/utils/algorithm10.js":914,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/factory.js":936,"../../utils/object.js":944}],686:[function(require,module,exports){
+},{"../../type/matrix/utils/algorithm01.js":906,"../../type/matrix/utils/algorithm04.js":909,"../../type/matrix/utils/algorithm10.js":915,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/factory.js":937,"../../utils/object.js":945}],687:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -60504,7 +60949,7 @@ var createAddScalar = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   });
 });
 exports.createAddScalar = createAddScalar;
-},{"../../plain/number/index.js":879,"../../utils/factory.js":936}],687:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/factory.js":937}],688:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -60656,7 +61101,7 @@ var createCbrt = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   }
 });
 exports.createCbrt = createCbrt;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936,"../../utils/is.js":938}],688:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937,"../../utils/is.js":939}],689:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -60816,7 +61261,7 @@ var createCeil = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   });
 });
 exports.createCeil = createCeil;
-},{"../../plain/number/index.js":879,"../../type/matrix/utils/algorithm11.js":915,"../../type/matrix/utils/algorithm14.js":918,"../../utils/bignumber/nearlyEqual.js":931,"../../utils/collection.js":932,"../../utils/factory.js":936,"../../utils/number.js":943,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/slicedToArray":19,"decimal.js":26}],689:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../type/matrix/utils/algorithm11.js":916,"../../type/matrix/utils/algorithm14.js":919,"../../utils/bignumber/nearlyEqual.js":932,"../../utils/collection.js":933,"../../utils/factory.js":937,"../../utils/number.js":944,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/slicedToArray":19,"decimal.js":27}],690:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -60880,7 +61325,7 @@ var createCube = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   });
 });
 exports.createCube = createCube;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],690:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],691:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -60969,7 +61414,7 @@ var createDivide = /* #__PURE__ */(0, _factory.factory)(name, dependencies, func
   }, divideScalar.signatures));
 });
 exports.createDivide = createDivide;
-},{"../../type/matrix/utils/algorithm11.js":915,"../../type/matrix/utils/algorithm14.js":918,"../../utils/factory.js":936,"../../utils/object.js":944}],691:[function(require,module,exports){
+},{"../../type/matrix/utils/algorithm11.js":916,"../../type/matrix/utils/algorithm14.js":919,"../../utils/factory.js":937,"../../utils/object.js":945}],692:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -61033,7 +61478,7 @@ var createDivideScalar = /* #__PURE__ */(0, _factory.factory)(name, dependencies
   });
 });
 exports.createDivideScalar = createDivideScalar;
-},{"../../utils/factory.js":936,"../../utils/is.js":938}],692:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939}],693:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -61166,7 +61611,7 @@ var createDotDivide = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   });
 });
 exports.createDotDivide = createDotDivide;
-},{"../../type/matrix/utils/algorithm02.js":906,"../../type/matrix/utils/algorithm03.js":907,"../../type/matrix/utils/algorithm07.js":911,"../../type/matrix/utils/algorithm11.js":915,"../../type/matrix/utils/algorithm12.js":916,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/factory.js":936}],693:[function(require,module,exports){
+},{"../../type/matrix/utils/algorithm02.js":907,"../../type/matrix/utils/algorithm03.js":908,"../../type/matrix/utils/algorithm07.js":912,"../../type/matrix/utils/algorithm11.js":916,"../../type/matrix/utils/algorithm12.js":917,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/factory.js":937}],694:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -61287,7 +61732,7 @@ var createDotMultiply = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   });
 });
 exports.createDotMultiply = createDotMultiply;
-},{"../../type/matrix/utils/algorithm02.js":906,"../../type/matrix/utils/algorithm09.js":913,"../../type/matrix/utils/algorithm11.js":915,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/factory.js":936}],694:[function(require,module,exports){
+},{"../../type/matrix/utils/algorithm02.js":907,"../../type/matrix/utils/algorithm09.js":914,"../../type/matrix/utils/algorithm11.js":916,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/factory.js":937}],695:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -61411,7 +61856,7 @@ var createDotPow = /* #__PURE__ */(0, _factory.factory)(name, dependencies, func
   });
 });
 exports.createDotPow = createDotPow;
-},{"../../type/matrix/utils/algorithm03.js":907,"../../type/matrix/utils/algorithm07.js":911,"../../type/matrix/utils/algorithm11.js":915,"../../type/matrix/utils/algorithm12.js":916,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/factory.js":936}],695:[function(require,module,exports){
+},{"../../type/matrix/utils/algorithm03.js":908,"../../type/matrix/utils/algorithm07.js":912,"../../type/matrix/utils/algorithm11.js":916,"../../type/matrix/utils/algorithm12.js":917,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/factory.js":937}],696:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -61473,7 +61918,7 @@ var createExp = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   });
 });
 exports.createExp = createExp;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],696:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],697:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -61536,7 +61981,7 @@ var createExpm1 = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   });
 });
 exports.createExpm1 = createExpm1;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],697:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],698:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -61641,7 +62086,7 @@ var createFix = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   });
 });
 exports.createFix = createFix;
-},{"../../type/matrix/utils/algorithm14.js":918,"../../utils/collection.js":932,"../../utils/factory.js":936}],698:[function(require,module,exports){
+},{"../../type/matrix/utils/algorithm14.js":919,"../../utils/collection.js":933,"../../utils/factory.js":937}],699:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -61798,7 +62243,7 @@ var createFloor = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   });
 });
 exports.createFloor = createFloor;
-},{"../../type/matrix/utils/algorithm11.js":915,"../../type/matrix/utils/algorithm14.js":918,"../../utils/bignumber/nearlyEqual.js":931,"../../utils/collection.js":932,"../../utils/factory.js":936,"../../utils/number.js":943,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/slicedToArray":19,"decimal.js":26}],699:[function(require,module,exports){
+},{"../../type/matrix/utils/algorithm11.js":916,"../../type/matrix/utils/algorithm14.js":919,"../../utils/bignumber/nearlyEqual.js":932,"../../utils/collection.js":933,"../../utils/factory.js":937,"../../utils/number.js":944,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/slicedToArray":19,"decimal.js":27}],700:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -61958,7 +62403,7 @@ var createGcd = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   }
 });
 exports.createGcd = createGcd;
-},{"../../plain/number/index.js":879,"../../type/matrix/utils/algorithm01.js":905,"../../type/matrix/utils/algorithm04.js":908,"../../type/matrix/utils/algorithm10.js":914,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/factory.js":936}],700:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../type/matrix/utils/algorithm01.js":906,"../../type/matrix/utils/algorithm04.js":909,"../../type/matrix/utils/algorithm10.js":915,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/factory.js":937}],701:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -62048,7 +62493,7 @@ var createHypot = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   }
 });
 exports.createHypot = createHypot;
-},{"../../utils/array.js":927,"../../utils/factory.js":936}],701:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937}],702:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -62220,7 +62665,7 @@ var createLcm = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   }
 });
 exports.createLcm = createLcm;
-},{"../../plain/number/index.js":879,"../../type/matrix/utils/algorithm02.js":906,"../../type/matrix/utils/algorithm06.js":910,"../../type/matrix/utils/algorithm11.js":915,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/factory.js":936}],702:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../type/matrix/utils/algorithm02.js":907,"../../type/matrix/utils/algorithm06.js":911,"../../type/matrix/utils/algorithm11.js":916,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/factory.js":937}],703:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -62306,7 +62751,7 @@ var createLog = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   });
 });
 exports.createLog = createLog;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],703:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],704:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -62378,7 +62823,7 @@ var createLog10 = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   });
 });
 exports.createLog10 = createLog10;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],704:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],705:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -62473,7 +62918,7 @@ var createLog1p = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   }
 });
 exports.createLog1p = createLog1p;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936,"../../utils/number.js":943}],705:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937,"../../utils/number.js":944}],706:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -62554,7 +62999,7 @@ var createLog2 = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   }
 });
 exports.createLog2 = createLog2;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],706:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],707:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -62712,7 +63157,7 @@ var createMod = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   });
 });
 exports.createMod = createMod;
-},{"../../plain/number/index.js":879,"../../type/matrix/utils/algorithm02.js":906,"../../type/matrix/utils/algorithm03.js":907,"../../type/matrix/utils/algorithm05.js":909,"../../type/matrix/utils/algorithm11.js":915,"../../type/matrix/utils/algorithm12.js":916,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/factory.js":936}],707:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../type/matrix/utils/algorithm02.js":907,"../../type/matrix/utils/algorithm03.js":908,"../../type/matrix/utils/algorithm05.js":910,"../../type/matrix/utils/algorithm11.js":916,"../../type/matrix/utils/algorithm12.js":917,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/factory.js":937}],708:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -63625,7 +64070,7 @@ var createMultiply = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fu
   }, multiplyScalar.signatures));
 });
 exports.createMultiply = createMultiply;
-},{"../../type/matrix/utils/algorithm11.js":915,"../../type/matrix/utils/algorithm14.js":918,"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/object.js":944}],708:[function(require,module,exports){
+},{"../../type/matrix/utils/algorithm11.js":916,"../../type/matrix/utils/algorithm14.js":919,"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/object.js":945}],709:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -63681,7 +64126,7 @@ var createMultiplyScalar = /* #__PURE__ */(0, _factory.factory)(name, dependenci
   });
 });
 exports.createMultiplyScalar = createMultiplyScalar;
-},{"../../plain/number/index.js":879,"../../utils/factory.js":936}],709:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/factory.js":937}],710:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -64006,7 +64451,7 @@ var createNorm = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   }
 });
 exports.createNorm = createNorm;
-},{"../../utils/factory.js":936}],710:[function(require,module,exports){
+},{"../../utils/factory.js":937}],711:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -64229,7 +64674,7 @@ var createNthRootNumber = /* #__PURE__ */(0, _factory.factory)(name, ['typed'], 
   });
 });
 exports.createNthRootNumber = createNthRootNumber;
-},{"../../plain/number/index.js":879,"../../type/matrix/utils/algorithm01.js":905,"../../type/matrix/utils/algorithm02.js":906,"../../type/matrix/utils/algorithm06.js":910,"../../type/matrix/utils/algorithm11.js":915,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/factory.js":936}],711:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../type/matrix/utils/algorithm01.js":906,"../../type/matrix/utils/algorithm02.js":907,"../../type/matrix/utils/algorithm06.js":911,"../../type/matrix/utils/algorithm11.js":916,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/factory.js":937}],712:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -64354,7 +64799,7 @@ var createNthRoots = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fu
   });
 });
 exports.createNthRoots = createNthRoots;
-},{"../../utils/factory.js":936}],712:[function(require,module,exports){
+},{"../../utils/factory.js":937}],713:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -64551,7 +64996,7 @@ var createPow = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   }
 });
 exports.createPow = createPow;
-},{"../../plain/number/index.js":879,"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/number.js":943}],713:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/number.js":944}],714:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -64743,7 +65188,7 @@ var createRoundNumber = /* #__PURE__ */(0, _factory.factory)(name, ['typed'], fu
   return typed(name, roundNumberSignatures);
 });
 exports.createRoundNumber = createRoundNumber;
-},{"../../plain/number/index.js":879,"../../type/matrix/utils/algorithm11.js":915,"../../type/matrix/utils/algorithm12.js":916,"../../type/matrix/utils/algorithm14.js":918,"../../utils/collection.js":932,"../../utils/factory.js":936,"../../utils/number.js":943,"@babel/runtime/helpers/defineProperty":12,"@babel/runtime/helpers/interopRequireDefault":14}],714:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../type/matrix/utils/algorithm11.js":916,"../../type/matrix/utils/algorithm12.js":917,"../../type/matrix/utils/algorithm14.js":919,"../../utils/collection.js":933,"../../utils/factory.js":937,"../../utils/number.js":944,"@babel/runtime/helpers/defineProperty":12,"@babel/runtime/helpers/interopRequireDefault":14}],715:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -64816,7 +65261,7 @@ var createSign = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   });
 });
 exports.createSign = createSign;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],715:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],716:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -64899,7 +65344,7 @@ var createSqrt = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   }
 });
 exports.createSqrt = createSqrt;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936}],716:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937}],717:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -64965,7 +65410,7 @@ var createSquare = /* #__PURE__ */(0, _factory.factory)(name, dependencies, func
   });
 });
 exports.createSquare = createSquare;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],717:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],718:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -65151,7 +65596,7 @@ function checkEqualDimensions(x, y) {
     throw new _DimensionError.DimensionError(xsize.length, ysize.length);
   }
 }
-},{"../../error/DimensionError.js":377,"../../type/matrix/utils/algorithm01.js":905,"../../type/matrix/utils/algorithm03.js":907,"../../type/matrix/utils/algorithm05.js":909,"../../type/matrix/utils/algorithm10.js":914,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/factory.js":936}],718:[function(require,module,exports){
+},{"../../error/DimensionError.js":378,"../../type/matrix/utils/algorithm01.js":906,"../../type/matrix/utils/algorithm03.js":908,"../../type/matrix/utils/algorithm05.js":910,"../../type/matrix/utils/algorithm10.js":915,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/factory.js":937}],719:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -65217,7 +65662,7 @@ var createUnaryMinus = /* #__PURE__ */(0, _factory.factory)(name, dependencies, 
   });
 });
 exports.createUnaryMinus = createUnaryMinus;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],719:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],720:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -65287,7 +65732,7 @@ var createUnaryPlus = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   });
 });
 exports.createUnaryPlus = createUnaryPlus;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],720:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],721:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -65390,7 +65835,7 @@ var createXgcd = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   }
 });
 exports.createXgcd = createXgcd;
-},{"../../plain/number/index.js":879,"../../utils/factory.js":936}],721:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/factory.js":937}],722:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -65511,7 +65956,7 @@ var createBitAnd = /* #__PURE__ */(0, _factory.factory)(name, dependencies, func
   });
 });
 exports.createBitAnd = createBitAnd;
-},{"../../plain/number/index.js":879,"../../type/matrix/utils/algorithm02.js":906,"../../type/matrix/utils/algorithm06.js":910,"../../type/matrix/utils/algorithm11.js":915,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/bignumber/bitwise.js":928,"../../utils/factory.js":936}],722:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../type/matrix/utils/algorithm02.js":907,"../../type/matrix/utils/algorithm06.js":911,"../../type/matrix/utils/algorithm11.js":916,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/bignumber/bitwise.js":929,"../../utils/factory.js":937}],723:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -65563,7 +66008,7 @@ var createBitNot = /* #__PURE__ */(0, _factory.factory)(name, dependencies, func
   });
 });
 exports.createBitNot = createBitNot;
-},{"../../plain/number/index.js":879,"../../utils/bignumber/bitwise.js":928,"../../utils/collection.js":932,"../../utils/factory.js":936}],723:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/bignumber/bitwise.js":929,"../../utils/collection.js":933,"../../utils/factory.js":937}],724:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -65685,7 +66130,7 @@ var createBitOr = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   });
 });
 exports.createBitOr = createBitOr;
-},{"../../plain/number/index.js":879,"../../type/matrix/utils/algorithm01.js":905,"../../type/matrix/utils/algorithm04.js":908,"../../type/matrix/utils/algorithm10.js":914,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/bignumber/bitwise.js":928,"../../utils/factory.js":936}],724:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../type/matrix/utils/algorithm01.js":906,"../../type/matrix/utils/algorithm04.js":909,"../../type/matrix/utils/algorithm10.js":915,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/bignumber/bitwise.js":929,"../../utils/factory.js":937}],725:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -65805,7 +66250,7 @@ var createBitXor = /* #__PURE__ */(0, _factory.factory)(name, dependencies, func
   });
 });
 exports.createBitXor = createBitXor;
-},{"../../plain/number/index.js":879,"../../type/matrix/utils/algorithm03.js":907,"../../type/matrix/utils/algorithm07.js":911,"../../type/matrix/utils/algorithm12.js":916,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/bignumber/bitwise.js":928,"../../utils/factory.js":936}],725:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../type/matrix/utils/algorithm03.js":908,"../../type/matrix/utils/algorithm07.js":912,"../../type/matrix/utils/algorithm12.js":917,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/bignumber/bitwise.js":929,"../../utils/factory.js":937}],726:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -65960,7 +66405,7 @@ var createLeftShift = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   });
 });
 exports.createLeftShift = createLeftShift;
-},{"../../plain/number/index.js":879,"../../type/matrix/utils/algorithm01.js":905,"../../type/matrix/utils/algorithm02.js":906,"../../type/matrix/utils/algorithm08.js":912,"../../type/matrix/utils/algorithm10.js":914,"../../type/matrix/utils/algorithm11.js":915,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/bignumber/bitwise.js":928,"../../utils/factory.js":936}],726:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../type/matrix/utils/algorithm01.js":906,"../../type/matrix/utils/algorithm02.js":907,"../../type/matrix/utils/algorithm08.js":913,"../../type/matrix/utils/algorithm10.js":915,"../../type/matrix/utils/algorithm11.js":916,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/bignumber/bitwise.js":929,"../../utils/factory.js":937}],727:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -66115,7 +66560,7 @@ var createRightArithShift = /* #__PURE__ */(0, _factory.factory)(name, dependenc
   });
 });
 exports.createRightArithShift = createRightArithShift;
-},{"../../plain/number/index.js":879,"../../type/matrix/utils/algorithm01.js":905,"../../type/matrix/utils/algorithm02.js":906,"../../type/matrix/utils/algorithm08.js":912,"../../type/matrix/utils/algorithm10.js":914,"../../type/matrix/utils/algorithm11.js":915,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/bignumber/bitwise.js":928,"../../utils/factory.js":936}],727:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../type/matrix/utils/algorithm01.js":906,"../../type/matrix/utils/algorithm02.js":907,"../../type/matrix/utils/algorithm08.js":913,"../../type/matrix/utils/algorithm10.js":915,"../../type/matrix/utils/algorithm11.js":916,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/bignumber/bitwise.js":929,"../../utils/factory.js":937}],728:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -66268,7 +66713,7 @@ var createRightLogShift = /* #__PURE__ */(0, _factory.factory)(name, dependencie
   });
 });
 exports.createRightLogShift = createRightLogShift;
-},{"../../plain/number/index.js":879,"../../type/matrix/utils/algorithm01.js":905,"../../type/matrix/utils/algorithm02.js":906,"../../type/matrix/utils/algorithm08.js":912,"../../type/matrix/utils/algorithm10.js":914,"../../type/matrix/utils/algorithm11.js":915,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/factory.js":936}],728:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../type/matrix/utils/algorithm01.js":906,"../../type/matrix/utils/algorithm02.js":907,"../../type/matrix/utils/algorithm08.js":913,"../../type/matrix/utils/algorithm10.js":915,"../../type/matrix/utils/algorithm11.js":916,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/factory.js":937}],729:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -66326,7 +66771,7 @@ var createBellNumbers = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   });
 });
 exports.createBellNumbers = createBellNumbers;
-},{"../../utils/factory.js":936}],729:[function(require,module,exports){
+},{"../../utils/factory.js":937}],730:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -66379,7 +66824,7 @@ var createCatalan = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fun
   });
 });
 exports.createCatalan = createCatalan;
-},{"../../utils/factory.js":936}],730:[function(require,module,exports){
+},{"../../utils/factory.js":937}],731:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -66435,7 +66880,7 @@ var createComposition = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   });
 });
 exports.createComposition = createComposition;
-},{"../../utils/factory.js":936}],731:[function(require,module,exports){
+},{"../../utils/factory.js":937}],732:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -66508,7 +66953,7 @@ var createStirlingS2 = /* #__PURE__ */(0, _factory.factory)(name, dependencies, 
   });
 });
 exports.createStirlingS2 = createStirlingS2;
-},{"../../utils/factory.js":936}],732:[function(require,module,exports){
+},{"../../utils/factory.js":937}],733:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -66569,7 +67014,7 @@ var createArg = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   });
 });
 exports.createArg = createArg;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936}],733:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937}],734:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -66627,7 +67072,7 @@ var createConj = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   });
 });
 exports.createConj = createConj;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936}],734:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937}],735:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -66690,7 +67135,7 @@ var createIm = /* #__PURE__ */(0, _factory.factory)(name, dependencies, function
   });
 });
 exports.createIm = createIm;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936}],735:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937}],736:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -66753,7 +67198,7 @@ var createRe = /* #__PURE__ */(0, _factory.factory)(name, dependencies, function
   });
 });
 exports.createRe = createRe;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936}],736:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937}],737:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -67114,7 +67559,7 @@ var createDistance = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fu
   }
 });
 exports.createDistance = createDistance;
-},{"../../utils/factory.js":936,"../../utils/is.js":938}],737:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939}],738:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -67358,7 +67803,7 @@ var createIntersect = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   }
 });
 exports.createIntersect = createIntersect;
-},{"../../utils/factory.js":936,"../../utils/is.js":938}],738:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939}],739:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -67517,7 +67962,7 @@ var createAnd = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   });
 });
 exports.createAnd = createAnd;
-},{"../../plain/number/index.js":879,"../../type/matrix/utils/algorithm02.js":906,"../../type/matrix/utils/algorithm06.js":910,"../../type/matrix/utils/algorithm11.js":915,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/factory.js":936}],739:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../type/matrix/utils/algorithm02.js":907,"../../type/matrix/utils/algorithm06.js":911,"../../type/matrix/utils/algorithm11.js":916,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/factory.js":937}],740:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -67578,7 +68023,7 @@ var createNot = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   });
 });
 exports.createNot = createNot;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],740:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],741:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -67711,7 +68156,7 @@ var createOr = /* #__PURE__ */(0, _factory.factory)(name, dependencies, function
   });
 });
 exports.createOr = createOr;
-},{"../../plain/number/index.js":879,"../../type/matrix/utils/algorithm03.js":907,"../../type/matrix/utils/algorithm05.js":909,"../../type/matrix/utils/algorithm12.js":916,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/factory.js":936}],741:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../type/matrix/utils/algorithm03.js":908,"../../type/matrix/utils/algorithm05.js":910,"../../type/matrix/utils/algorithm12.js":917,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/factory.js":937}],742:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -67843,7 +68288,7 @@ var createXor = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   });
 });
 exports.createXor = createXor;
-},{"../../plain/number/index.js":879,"../../type/matrix/utils/algorithm03.js":907,"../../type/matrix/utils/algorithm07.js":911,"../../type/matrix/utils/algorithm12.js":916,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/factory.js":936}],742:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../type/matrix/utils/algorithm03.js":908,"../../type/matrix/utils/algorithm07.js":912,"../../type/matrix/utils/algorithm12.js":917,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/factory.js":937}],743:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -67980,7 +68425,7 @@ function _switch(mat) {
 
   return ret;
 }
-},{"../../error/IndexError.js":378,"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/is.js":938}],743:[function(require,module,exports){
+},{"../../error/IndexError.js":379,"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/is.js":939}],744:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -68049,7 +68494,7 @@ var createColumn = /* #__PURE__ */(0, _factory.factory)(name, dependencies, func
   }
 });
 exports.createColumn = createColumn;
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/object.js":944}],744:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/object.js":945}],745:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -68203,7 +68648,7 @@ function _concat(a, b, concatDim, dim) {
     return a.concat(b);
   }
 }
-},{"../../error/DimensionError.js":377,"../../error/IndexError.js":378,"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/object.js":944}],745:[function(require,module,exports){
+},{"../../error/DimensionError.js":378,"../../error/IndexError.js":379,"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/object.js":945}],746:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -68251,7 +68696,7 @@ var createCount = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   });
 });
 exports.createCount = createCount;
-},{"../../utils/factory.js":936}],746:[function(require,module,exports){
+},{"../../utils/factory.js":937}],747:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -68345,7 +68790,7 @@ var createCross = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   }
 });
 exports.createCross = createCross;
-},{"../../utils/array.js":927,"../../utils/factory.js":936}],747:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937}],748:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -68391,7 +68836,7 @@ var createCtranspose = /* #__PURE__ */(0, _factory.factory)(name, dependencies, 
   });
 });
 exports.createCtranspose = createCtranspose;
-},{"../../utils/factory.js":936}],748:[function(require,module,exports){
+},{"../../utils/factory.js":937}],749:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -68549,7 +68994,7 @@ var createDet = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   }
 });
 exports.createDet = createDet;
-},{"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/object.js":944,"../../utils/string.js":948}],749:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/object.js":945,"../../utils/string.js":949}],750:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -68724,7 +69169,7 @@ var createDiag = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   }
 });
 exports.createDiag = createDiag;
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/number.js":943}],750:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/number.js":944}],751:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -68917,7 +69362,7 @@ var createDiff = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   }
 });
 exports.createDiff = createDiff;
-},{"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/number.js":943}],751:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/number.js":944}],752:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -69103,7 +69548,7 @@ var createDot = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   }
 });
 exports.createDot = createDot;
-},{"../../utils/factory.js":936,"../../utils/is.js":938}],752:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939}],753:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -69395,7 +69840,7 @@ var createEigs = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   }
 });
 exports.createEigs = createEigs;
-},{"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/string.js":948,"./eigs/complexEigs.js":753,"./eigs/realSymetric.js":754}],753:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/string.js":949,"./eigs/complexEigs.js":754,"./eigs/realSymetric.js":755}],754:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -70177,7 +70622,7 @@ function createComplexEigs(_ref) {
 
   return complexEigs;
 }
-},{"../../../utils/object.js":944,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/toConsumableArray":20}],754:[function(require,module,exports){
+},{"../../../utils/object.js":945,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/toConsumableArray":20}],755:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -70519,7 +70964,7 @@ function createRealSymmetric(_ref) {
 
   return main;
 }
-},{"../../../utils/object.js":944}],755:[function(require,module,exports){
+},{"../../../utils/object.js":945}],756:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -70695,7 +71140,7 @@ var createExpm = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   }
 });
 exports.createExpm = createExpm;
-},{"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/string.js":948}],756:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/string.js":949}],757:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -70779,7 +71224,7 @@ function _filterCallback(x, callback) {
     }
   });
 }
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/function.js":937}],757:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/function.js":938}],758:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -70830,7 +71275,7 @@ var createFlatten = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fun
   });
 });
 exports.createFlatten = createFlatten;
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/object.js":944}],758:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/object.js":945}],759:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -70913,7 +71358,7 @@ function _forEach(array, callback) {
 
   recurse(array, []);
 }
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/function.js":937}],759:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/function.js":938}],760:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -70976,7 +71421,7 @@ var createGetMatrixDataType = /* #__PURE__ */(0, _factory.factory)(name, depende
   });
 });
 exports.createGetMatrixDataType = createGetMatrixDataType;
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/is.js":938}],760:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/is.js":939}],761:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -71134,7 +71579,7 @@ var createIdentity = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fu
   }
 });
 exports.createIdentity = createIdentity;
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/number.js":943}],761:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/number.js":944}],762:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -71348,7 +71793,7 @@ var createInv = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   }
 });
 exports.createInv = createInv;
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/string.js":948}],762:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/string.js":949}],763:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -71446,7 +71891,7 @@ var createKron = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   }
 });
 exports.createKron = createKron;
-},{"../../utils/array.js":927,"../../utils/factory.js":936}],763:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937}],764:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -71529,7 +71974,7 @@ function _map(array, callback) {
 
   return recurse(array, []);
 }
-},{"../../utils/factory.js":936,"../../utils/function.js":937}],764:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/function.js":938}],765:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -71648,7 +72093,7 @@ var createMatrixFromColumns = /* #__PURE__ */(0, _factory.factory)(name, depende
   }
 });
 exports.createMatrixFromColumns = createMatrixFromColumns;
-},{"../../utils/factory.js":936}],765:[function(require,module,exports){
+},{"../../utils/factory.js":937}],766:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -71734,7 +72179,7 @@ var createMatrixFromFunction = /* #__PURE__ */(0, _factory.factory)(name, depend
   }
 });
 exports.createMatrixFromFunction = createMatrixFromFunction;
-},{"../../utils/factory.js":936}],766:[function(require,module,exports){
+},{"../../utils/factory.js":937}],767:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -71843,7 +72288,7 @@ var createMatrixFromRows = /* #__PURE__ */(0, _factory.factory)(name, dependenci
   }
 });
 exports.createMatrixFromRows = createMatrixFromRows;
-},{"../../utils/factory.js":936}],767:[function(require,module,exports){
+},{"../../utils/factory.js":937}],768:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -71985,7 +72430,7 @@ var createOnes = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   }
 });
 exports.createOnes = createOnes;
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/number.js":943}],768:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/number.js":944}],769:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -72143,7 +72588,7 @@ var createPartitionSelect = /* #__PURE__ */(0, _factory.factory)(name, dependenc
   }
 });
 exports.createPartitionSelect = createPartitionSelect;
-},{"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/number.js":943}],769:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/number.js":944}],770:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -72433,7 +72878,7 @@ var createRange = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   }
 });
 exports.createRange = createRange;
-},{"../../utils/factory.js":936,"../../utils/noop.js":942}],770:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/noop.js":943}],771:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -72506,7 +72951,7 @@ var createReshape = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fun
   });
 });
 exports.createReshape = createReshape;
-},{"../../utils/array.js":927,"../../utils/factory.js":936}],771:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937}],772:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -72654,7 +73099,7 @@ var createResize = /* #__PURE__ */(0, _factory.factory)(name, dependencies, func
   }
 });
 exports.createResize = createResize;
-},{"../../error/ArgumentsError.js":376,"../../error/DimensionError.js":377,"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/number.js":943,"../../utils/object.js":944,"../../utils/string.js":948}],772:[function(require,module,exports){
+},{"../../error/ArgumentsError.js":377,"../../error/DimensionError.js":378,"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/number.js":944,"../../utils/object.js":945,"../../utils/string.js":949}],773:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -72743,7 +73188,7 @@ var createRotate = /* #__PURE__ */(0, _factory.factory)(name, dependencies, func
   }
 });
 exports.createRotate = createRotate;
-},{"../../utils/array.js":927,"../../utils/factory.js":936}],773:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937}],774:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -72930,7 +73375,7 @@ var createRotationMatrix = /* #__PURE__ */(0, _factory.factory)(name, dependenci
   }
 });
 exports.createRotationMatrix = createRotationMatrix;
-},{"../../utils/factory.js":936,"../../utils/is.js":938}],774:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939}],775:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -72999,7 +73444,7 @@ var createRow = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   }
 });
 exports.createRow = createRow;
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/object.js":944}],775:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/object.js":945}],776:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -73058,7 +73503,7 @@ var createSize = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   });
 });
 exports.createSize = createSize;
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/noop.js":942}],776:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/noop.js":943}],777:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -73192,7 +73637,7 @@ var createSort = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   }
 });
 exports.createSort = createSort;
-},{"../../utils/array.js":927,"../../utils/factory.js":936}],777:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937}],778:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -73309,7 +73754,7 @@ var createSqrtm = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   });
 });
 exports.createSqrtm = createSqrtm;
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/string.js":948}],778:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/string.js":949}],779:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -73374,7 +73819,7 @@ var createSqueeze = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fun
   });
 });
 exports.createSqueeze = createSqueeze;
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/object.js":944}],779:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/object.js":945}],780:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -73606,7 +74051,7 @@ function _setObjectProperty(object, index, replacement) {
   (0, _customs.setSafeProperty)(updated, key, replacement);
   return updated;
 }
-},{"../../error/DimensionError.js":377,"../../utils/array.js":927,"../../utils/customs.js":934,"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/object.js":944}],780:[function(require,module,exports){
+},{"../../error/DimensionError.js":378,"../../utils/array.js":928,"../../utils/customs.js":935,"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/object.js":945}],781:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -73754,7 +74199,7 @@ var createTrace = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   }
 });
 exports.createTrace = createTrace;
-},{"../../utils/factory.js":936,"../../utils/object.js":944,"../../utils/string.js":948}],781:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/object.js":945,"../../utils/string.js":949}],782:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -73939,7 +74384,7 @@ var createTranspose = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   }
 });
 exports.createTranspose = createTranspose;
-},{"../../utils/factory.js":936,"../../utils/object.js":944,"../../utils/string.js":948}],782:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/object.js":945,"../../utils/string.js":949}],783:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -74080,7 +74525,7 @@ var createZeros = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
 }); // TODO: zeros contains almost the same code as ones. Reuse this?
 
 exports.createZeros = createZeros;
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/number.js":943}],783:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/number.js":944}],784:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -74164,7 +74609,7 @@ exports.createCombinations = createCombinations;
 function isPositiveInteger(n) {
   return n.isInteger() && n.gte(0);
 }
-},{"../../plain/number/combinations.js":877,"../../utils/factory.js":936}],784:[function(require,module,exports){
+},{"../../plain/number/combinations.js":878,"../../utils/factory.js":937}],785:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -74270,7 +74715,7 @@ exports.createCombinationsWithRep = createCombinationsWithRep;
 function isPositiveInteger(n) {
   return n.isInteger() && n.gte(0);
 }
-},{"../../utils/factory.js":936,"../../utils/number.js":943,"../../utils/product.js":946}],785:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/number.js":944,"../../utils/product.js":947}],786:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -74331,7 +74776,7 @@ var createFactorial = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   });
 });
 exports.createFactorial = createFactorial;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936}],786:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937}],787:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -74472,7 +74917,7 @@ var createGamma = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   }
 });
 exports.createGamma = createGamma;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],787:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],788:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -74566,7 +75011,7 @@ var createKldivergence = /* #__PURE__ */(0, _factory.factory)(name, dependencies
   }
 });
 exports.createKldivergence = createKldivergence;
-},{"../../utils/factory.js":936}],788:[function(require,module,exports){
+},{"../../utils/factory.js":937}],789:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -74627,7 +75072,7 @@ var createMultinomial = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   });
 });
 exports.createMultinomial = createMultinomial;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936}],789:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937}],790:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -74724,7 +75169,7 @@ exports.createPermutations = createPermutations;
 function isPositiveInteger(n) {
   return n.isInteger() && n.gte(0);
 }
-},{"../../utils/factory.js":936,"../../utils/number.js":943,"../../utils/product.js":946}],790:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/number.js":944,"../../utils/product.js":947}],791:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -74900,7 +75345,7 @@ var createPickRandom = /* #__PURE__ */(0, _factory.factory)(name, dependencies, 
   }
 });
 exports.createPickRandom = createPickRandom;
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/is.js":938,"./util/seededRNG.js":794}],791:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/is.js":939,"./util/seededRNG.js":795}],792:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -75032,7 +75477,7 @@ var createRandomNumber = /* #__PURE__ */(0, _factory.factory)(name, ['typed', 'c
   }
 });
 exports.createRandomNumber = createRandomNumber;
-},{"../../utils/factory.js":936,"../../utils/is.js":938,"./util/randomMatrix.js":793,"./util/seededRNG.js":794}],792:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"./util/randomMatrix.js":794,"./util/seededRNG.js":795}],793:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -75128,7 +75573,7 @@ var createRandomInt = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   }
 });
 exports.createRandomInt = createRandomInt;
-},{"../../utils/factory.js":936,"../../utils/is.js":938,"./util/randomMatrix.js":793,"./util/seededRNG.js":794}],793:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"./util/randomMatrix.js":794,"./util/seededRNG.js":795}],794:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -75158,7 +75603,7 @@ function randomMatrix(size, random) {
 
   return data;
 }
-},{}],794:[function(require,module,exports){
+},{}],795:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -75188,7 +75633,7 @@ function createRng(randomSeed) {
 
   return rng;
 }
-},{"@babel/runtime/helpers/interopRequireDefault":14,"seedrandom":951}],795:[function(require,module,exports){
+},{"@babel/runtime/helpers/interopRequireDefault":14,"seedrandom":952}],796:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -75357,7 +75802,7 @@ var createCompareNumber = /* #__PURE__ */(0, _factory.factory)(name, ['typed', '
   });
 });
 exports.createCompareNumber = createCompareNumber;
-},{"../../type/matrix/utils/algorithm03.js":907,"../../type/matrix/utils/algorithm05.js":909,"../../type/matrix/utils/algorithm12.js":916,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/bignumber/nearlyEqual.js":931,"../../utils/factory.js":936,"../../utils/number.js":943}],796:[function(require,module,exports){
+},{"../../type/matrix/utils/algorithm03.js":908,"../../type/matrix/utils/algorithm05.js":910,"../../type/matrix/utils/algorithm12.js":917,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/bignumber/nearlyEqual.js":932,"../../utils/factory.js":937,"../../utils/number.js":944}],797:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -75664,7 +76109,7 @@ function compareComplexNumbers(x, y) {
 
   return 0;
 }
-},{"../../utils/factory.js":936,"../../utils/is.js":938,"@babel/runtime/helpers/interopRequireDefault":14,"javascript-natural-sort":29}],797:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"@babel/runtime/helpers/interopRequireDefault":14,"javascript-natural-sort":30}],798:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -75761,7 +76206,7 @@ var createCompareTextNumber = /* #__PURE__ */(0, _factory.factory)(name, ['typed
   });
 });
 exports.createCompareTextNumber = createCompareTextNumber;
-},{"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/factory.js":936,"../../utils/string.js":948}],798:[function(require,module,exports){
+},{"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/factory.js":937,"../../utils/string.js":949}],799:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -75847,7 +76292,7 @@ var createDeepEqual = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   }
 });
 exports.createDeepEqual = createDeepEqual;
-},{"../../utils/factory.js":936}],799:[function(require,module,exports){
+},{"../../utils/factory.js":937}],800:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -76031,7 +76476,7 @@ var createEqualNumber = (0, _factory.factory)(name, ['typed', 'equalScalar'], fu
   });
 });
 exports.createEqualNumber = createEqualNumber;
-},{"../../type/matrix/utils/algorithm03.js":907,"../../type/matrix/utils/algorithm07.js":911,"../../type/matrix/utils/algorithm12.js":916,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/factory.js":936}],800:[function(require,module,exports){
+},{"../../type/matrix/utils/algorithm03.js":908,"../../type/matrix/utils/algorithm07.js":912,"../../type/matrix/utils/algorithm12.js":917,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/factory.js":937}],801:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -76097,7 +76542,7 @@ var createEqualScalarNumber = (0, _factory.factory)(name, ['typed', 'config'], f
   });
 });
 exports.createEqualScalarNumber = createEqualScalarNumber;
-},{"../../utils/bignumber/nearlyEqual.js":931,"../../utils/complex.js":933,"../../utils/factory.js":936,"../../utils/number.js":943}],801:[function(require,module,exports){
+},{"../../utils/bignumber/nearlyEqual.js":932,"../../utils/complex.js":934,"../../utils/factory.js":937,"../../utils/number.js":944}],802:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -76147,7 +76592,7 @@ var createEqualText = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   });
 });
 exports.createEqualText = createEqualText;
-},{"../../utils/factory.js":936}],802:[function(require,module,exports){
+},{"../../utils/factory.js":937}],803:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -76307,7 +76752,7 @@ var createLargerNumber = /* #__PURE__ */(0, _factory.factory)(name, ['typed', 'c
   });
 });
 exports.createLargerNumber = createLargerNumber;
-},{"../../type/matrix/utils/algorithm03.js":907,"../../type/matrix/utils/algorithm07.js":911,"../../type/matrix/utils/algorithm12.js":916,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/bignumber/nearlyEqual.js":931,"../../utils/factory.js":936,"../../utils/number.js":943}],803:[function(require,module,exports){
+},{"../../type/matrix/utils/algorithm03.js":908,"../../type/matrix/utils/algorithm07.js":912,"../../type/matrix/utils/algorithm12.js":917,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/bignumber/nearlyEqual.js":932,"../../utils/factory.js":937,"../../utils/number.js":944}],804:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -76463,7 +76908,7 @@ var createLargerEqNumber = /* #__PURE__ */(0, _factory.factory)(name, ['typed', 
   });
 });
 exports.createLargerEqNumber = createLargerEqNumber;
-},{"../../type/matrix/utils/algorithm03.js":907,"../../type/matrix/utils/algorithm07.js":911,"../../type/matrix/utils/algorithm12.js":916,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/bignumber/nearlyEqual.js":931,"../../utils/factory.js":936,"../../utils/number.js":943}],804:[function(require,module,exports){
+},{"../../type/matrix/utils/algorithm03.js":908,"../../type/matrix/utils/algorithm07.js":912,"../../type/matrix/utils/algorithm12.js":917,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/bignumber/nearlyEqual.js":932,"../../utils/factory.js":937,"../../utils/number.js":944}],805:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -76623,7 +77068,7 @@ var createSmallerNumber = /* #__PURE__ */(0, _factory.factory)(name, ['typed', '
   });
 });
 exports.createSmallerNumber = createSmallerNumber;
-},{"../../type/matrix/utils/algorithm03.js":907,"../../type/matrix/utils/algorithm07.js":911,"../../type/matrix/utils/algorithm12.js":916,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/bignumber/nearlyEqual.js":931,"../../utils/factory.js":936,"../../utils/number.js":943}],805:[function(require,module,exports){
+},{"../../type/matrix/utils/algorithm03.js":908,"../../type/matrix/utils/algorithm07.js":912,"../../type/matrix/utils/algorithm12.js":917,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/bignumber/nearlyEqual.js":932,"../../utils/factory.js":937,"../../utils/number.js":944}],806:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -76779,7 +77224,7 @@ var createSmallerEqNumber = /* #__PURE__ */(0, _factory.factory)(name, ['typed',
   });
 });
 exports.createSmallerEqNumber = createSmallerEqNumber;
-},{"../../type/matrix/utils/algorithm03.js":907,"../../type/matrix/utils/algorithm07.js":911,"../../type/matrix/utils/algorithm12.js":916,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/bignumber/nearlyEqual.js":931,"../../utils/factory.js":936,"../../utils/number.js":943}],806:[function(require,module,exports){
+},{"../../type/matrix/utils/algorithm03.js":908,"../../type/matrix/utils/algorithm07.js":912,"../../type/matrix/utils/algorithm12.js":917,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/bignumber/nearlyEqual.js":932,"../../utils/factory.js":937,"../../utils/number.js":944}],807:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -76967,7 +77412,7 @@ var createUnequalNumber = (0, _factory.factory)(name, ['typed', 'equalScalar'], 
   });
 });
 exports.createUnequalNumber = createUnequalNumber;
-},{"../../type/matrix/utils/algorithm03.js":907,"../../type/matrix/utils/algorithm07.js":911,"../../type/matrix/utils/algorithm12.js":916,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/factory.js":936}],807:[function(require,module,exports){
+},{"../../type/matrix/utils/algorithm03.js":908,"../../type/matrix/utils/algorithm07.js":912,"../../type/matrix/utils/algorithm12.js":917,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/factory.js":937}],808:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -77037,7 +77482,7 @@ var createSetCartesian = /* #__PURE__ */(0, _factory.factory)(name, dependencies
   });
 });
 exports.createSetCartesian = createSetCartesian;
-},{"../../utils/array.js":927,"../../utils/factory.js":936}],808:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937}],809:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -77124,7 +77569,7 @@ var createSetDifference = /* #__PURE__ */(0, _factory.factory)(name, dependencie
   });
 });
 exports.createSetDifference = createSetDifference;
-},{"../../utils/array.js":927,"../../utils/factory.js":936}],809:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937}],810:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -77195,7 +77640,7 @@ var createSetDistinct = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   });
 });
 exports.createSetDistinct = createSetDistinct;
-},{"../../utils/array.js":927,"../../utils/factory.js":936}],810:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937}],811:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -77272,7 +77717,7 @@ var createSetIntersect = /* #__PURE__ */(0, _factory.factory)(name, dependencies
   });
 });
 exports.createSetIntersect = createSetIntersect;
-},{"../../utils/array.js":927,"../../utils/factory.js":936}],811:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937}],812:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -77349,7 +77794,7 @@ var createSetIsSubset = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   });
 });
 exports.createSetIsSubset = createSetIsSubset;
-},{"../../utils/array.js":927,"../../utils/factory.js":936}],812:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937}],813:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -77412,7 +77857,7 @@ var createSetMultiplicity = /* #__PURE__ */(0, _factory.factory)(name, dependenc
   });
 });
 exports.createSetMultiplicity = createSetMultiplicity;
-},{"../../utils/array.js":927,"../../utils/factory.js":936}],813:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937}],814:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -77503,7 +77948,7 @@ var createSetPowerset = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   }
 });
 exports.createSetPowerset = createSetPowerset;
-},{"../../utils/array.js":927,"../../utils/factory.js":936}],814:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937}],815:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -77565,7 +78010,7 @@ var createSetSize = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fun
   });
 });
 exports.createSetSize = createSetSize;
-},{"../../utils/array.js":927,"../../utils/factory.js":936}],815:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937}],816:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -77624,7 +78069,7 @@ var createSetSymDifference = /* #__PURE__ */(0, _factory.factory)(name, dependen
   });
 });
 exports.createSetSymDifference = createSetSymDifference;
-},{"../../utils/array.js":927,"../../utils/factory.js":936}],816:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937}],817:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -77684,7 +78129,7 @@ var createSetUnion = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fu
   });
 });
 exports.createSetUnion = createSetUnion;
-},{"../../utils/array.js":927,"../../utils/factory.js":936}],817:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937}],818:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -77859,7 +78304,7 @@ var Q = [[2.36012909523441209e01, 2.44024637934444173e02, 1.28261652607737228e03
  */
 
 var MAX_NUM = Math.pow(2, 53);
-},{"../../utils/collection.js":932,"../../utils/factory.js":936,"../../utils/number.js":943}],818:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937,"../../utils/number.js":944}],819:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -77937,7 +78382,7 @@ var createMad = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   }
 });
 exports.createMad = createMad;
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"./utils/improveErrorMessage.js":828}],819:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"./utils/improveErrorMessage.js":829}],820:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -78056,7 +78501,7 @@ var createMax = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   }
 });
 exports.createMax = createMax;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936,"./utils/improveErrorMessage.js":828}],820:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937,"./utils/improveErrorMessage.js":829}],821:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -78166,7 +78611,7 @@ var createMean = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   }
 });
 exports.createMean = createMean;
-},{"../../utils/array.js":927,"../../utils/collection.js":932,"../../utils/factory.js":936,"./utils/improveErrorMessage.js":828}],821:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/collection.js":933,"../../utils/factory.js":937,"./utils/improveErrorMessage.js":829}],822:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -78288,7 +78733,7 @@ var createMedian = /* #__PURE__ */(0, _factory.factory)(name, dependencies, func
   });
 });
 exports.createMedian = createMedian;
-},{"../../utils/array.js":927,"../../utils/collection.js":932,"../../utils/factory.js":936,"./utils/improveErrorMessage.js":828}],822:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/collection.js":933,"../../utils/factory.js":937,"./utils/improveErrorMessage.js":829}],823:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -78407,7 +78852,7 @@ var createMin = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   }
 });
 exports.createMin = createMin;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936,"./utils/improveErrorMessage.js":828}],823:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937,"./utils/improveErrorMessage.js":829}],824:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -78501,7 +78946,7 @@ var createMode = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   }
 });
 exports.createMode = createMode;
-},{"../../utils/array.js":927,"../../utils/factory.js":936}],824:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937}],825:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -78590,7 +79035,7 @@ var createProd = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   }
 });
 exports.createProd = createProd;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936,"./utils/improveErrorMessage.js":828}],825:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937,"./utils/improveErrorMessage.js":829}],826:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -78876,7 +79321,7 @@ var createQuantileSeq = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   return quantileSeq;
 });
 exports.createQuantileSeq = createQuantileSeq;
-},{"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/number.js":943}],826:[function(require,module,exports){
+},{"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/number.js":944}],827:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -78977,7 +79422,7 @@ var createStd = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   }
 });
 exports.createStd = createStd;
-},{"../../utils/factory.js":936}],827:[function(require,module,exports){
+},{"../../utils/factory.js":937}],828:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79074,7 +79519,7 @@ var createSum = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   }
 });
 exports.createSum = createSum;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936,"./utils/improveErrorMessage.js":828}],828:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937,"./utils/improveErrorMessage.js":829}],829:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79110,7 +79555,7 @@ function improveErrorMessage(err, fnName, value) {
 
   return err;
 }
-},{"../../../utils/is.js":938}],829:[function(require,module,exports){
+},{"../../../utils/is.js":939}],830:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79284,7 +79729,7 @@ var createVariance = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fu
   }
 });
 exports.createVariance = createVariance;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936,"../../utils/is.js":938,"./utils/improveErrorMessage.js":828}],830:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937,"../../utils/is.js":939,"./utils/improveErrorMessage.js":829}],831:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79336,7 +79781,7 @@ var createBin = (0, _factory.factory)(name, dependencies, function (_ref) {
   });
 });
 exports.createBin = createBin;
-},{"../../utils/factory.js":936}],831:[function(require,module,exports){
+},{"../../utils/factory.js":937}],832:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79471,7 +79916,7 @@ var createFormat = /* #__PURE__ */(0, _factory.factory)(name, dependencies, func
   });
 });
 exports.createFormat = createFormat;
-},{"../../utils/factory.js":936,"../../utils/string.js":948}],832:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/string.js":949}],833:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79523,7 +79968,7 @@ var createHex = (0, _factory.factory)(name, dependencies, function (_ref) {
   });
 });
 exports.createHex = createHex;
-},{"../../utils/factory.js":936}],833:[function(require,module,exports){
+},{"../../utils/factory.js":937}],834:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79575,7 +80020,7 @@ var createOct = (0, _factory.factory)(name, dependencies, function (_ref) {
   });
 });
 exports.createOct = createOct;
-},{"../../utils/factory.js":936}],834:[function(require,module,exports){
+},{"../../utils/factory.js":937}],835:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79676,7 +80121,7 @@ function _print(template, values, options) {
     return original;
   });
 }
-},{"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/string.js":948}],835:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/string.js":949}],836:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79738,7 +80183,7 @@ var createAcos = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   });
 });
 exports.createAcos = createAcos;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936}],836:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937}],837:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79804,7 +80249,7 @@ var createAcosh = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   });
 });
 exports.createAcosh = createAcosh;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],837:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],838:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79861,7 +80306,7 @@ var createAcot = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   });
 });
 exports.createAcot = createAcot;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],838:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],839:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79924,7 +80369,7 @@ var createAcoth = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   });
 });
 exports.createAcoth = createAcoth;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],839:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],840:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79989,7 +80434,7 @@ var createAcsc = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   });
 });
 exports.createAcsc = createAcsc;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],840:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],841:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -80044,7 +80489,7 @@ var createAcsch = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   });
 });
 exports.createAcsch = createAcsch;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],841:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],842:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -80109,7 +80554,7 @@ var createAsec = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   });
 });
 exports.createAsec = createAsec;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],842:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],843:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -80179,7 +80624,7 @@ var createAsech = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   });
 });
 exports.createAsech = createAsech;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],843:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],844:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -80242,7 +80687,7 @@ var createAsin = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   });
 });
 exports.createAsin = createAsin;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936}],844:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937}],845:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -80297,7 +80742,7 @@ var createAsinh = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   });
 });
 exports.createAsinh = createAsinh;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],845:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],846:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -80354,7 +80799,7 @@ var createAtan = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   });
 });
 exports.createAtan = createAtan;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936}],846:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937}],847:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -80494,7 +80939,7 @@ var createAtan2 = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   });
 });
 exports.createAtan2 = createAtan2;
-},{"../../type/matrix/utils/algorithm02.js":906,"../../type/matrix/utils/algorithm03.js":907,"../../type/matrix/utils/algorithm09.js":913,"../../type/matrix/utils/algorithm11.js":915,"../../type/matrix/utils/algorithm12.js":916,"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/factory.js":936}],847:[function(require,module,exports){
+},{"../../type/matrix/utils/algorithm02.js":907,"../../type/matrix/utils/algorithm03.js":908,"../../type/matrix/utils/algorithm09.js":914,"../../type/matrix/utils/algorithm11.js":916,"../../type/matrix/utils/algorithm12.js":917,"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/factory.js":937}],848:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -80557,7 +81002,7 @@ var createAtanh = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   });
 });
 exports.createAtanh = createAtanh;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],848:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],849:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -80621,7 +81066,7 @@ var createCos = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   });
 });
 exports.createCos = createCos;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936}],849:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937}],850:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -80682,7 +81127,7 @@ var createCosh = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   });
 });
 exports.createCosh = createCosh;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936,"../../utils/number.js":943}],850:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937,"../../utils/number.js":944}],851:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -80744,7 +81189,7 @@ var createCot = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   });
 });
 exports.createCot = createCot;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],851:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],852:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -80808,7 +81253,7 @@ var createCoth = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   });
 });
 exports.createCoth = createCoth;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],852:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],853:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -80870,7 +81315,7 @@ var createCsc = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   });
 });
 exports.createCsc = createCsc;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],853:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],854:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -80934,7 +81379,7 @@ var createCsch = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   });
 });
 exports.createCsch = createCsch;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],854:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],855:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -80996,7 +81441,7 @@ var createSec = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   });
 });
 exports.createSec = createSec;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],855:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],856:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -81060,7 +81505,7 @@ var createSech = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   });
 });
 exports.createSech = createSech;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],856:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],857:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -81125,7 +81570,7 @@ var createSin = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   });
 });
 exports.createSin = createSin;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936}],857:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937}],858:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -81187,7 +81632,7 @@ var createSinh = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   });
 });
 exports.createSinh = createSinh;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],858:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],859:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -81249,7 +81694,7 @@ var createTan = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functio
   });
 });
 exports.createTan = createTan;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936}],859:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937}],860:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -81314,7 +81759,7 @@ var createTanh = /* #__PURE__ */(0, _factory.factory)(name, dependencies, functi
   });
 });
 exports.createTanh = createTanh;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936,"../../utils/number.js":943}],860:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937,"../../utils/number.js":944}],861:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -81403,7 +81848,7 @@ var createTo = /* #__PURE__ */(0, _factory.factory)(name, dependencies, function
   });
 });
 exports.createTo = createTo;
-},{"../../type/matrix/utils/algorithm13.js":917,"../../type/matrix/utils/algorithm14.js":918,"../../utils/factory.js":936}],861:[function(require,module,exports){
+},{"../../type/matrix/utils/algorithm13.js":918,"../../type/matrix/utils/algorithm14.js":919,"../../utils/factory.js":937}],862:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -81443,7 +81888,7 @@ var createClone = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   });
 });
 exports.createClone = createClone;
-},{"../../utils/factory.js":936,"../../utils/object.js":944}],862:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/object.js":945}],863:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -81498,7 +81943,7 @@ var createHasNumericValue = /* #__PURE__ */(0, _factory.factory)(name, dependenc
   });
 });
 exports.createHasNumericValue = createHasNumericValue;
-},{"../../utils/factory.js":936}],863:[function(require,module,exports){
+},{"../../utils/factory.js":937}],864:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -81561,7 +82006,7 @@ var createIsInteger = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   });
 });
 exports.createIsInteger = createIsInteger;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936,"../../utils/number.js":943}],864:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937,"../../utils/number.js":944}],865:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -81629,7 +82074,7 @@ var createIsNaN = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   });
 });
 exports.createIsNaN = createIsNaN;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],865:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],866:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -81694,7 +82139,7 @@ var createIsNegative = /* #__PURE__ */(0, _factory.factory)(name, dependencies, 
   });
 });
 exports.createIsNegative = createIsNegative;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],866:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],867:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -81753,7 +82198,7 @@ var createIsNumeric = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   });
 });
 exports.createIsNumeric = createIsNumeric;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936}],867:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937}],868:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -81820,7 +82265,7 @@ var createIsPositive = /* #__PURE__ */(0, _factory.factory)(name, dependencies, 
   });
 });
 exports.createIsPositive = createIsPositive;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],868:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],869:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -81973,7 +82418,7 @@ var createIsPrime = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fun
   });
 });
 exports.createIsPrime = createIsPrime;
-},{"../../utils/collection.js":932,"../../utils/factory.js":936}],869:[function(require,module,exports){
+},{"../../utils/collection.js":933,"../../utils/factory.js":937}],870:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -82045,7 +82490,7 @@ var createIsZero = /* #__PURE__ */(0, _factory.factory)(name, dependencies, func
   });
 });
 exports.createIsZero = createIsZero;
-},{"../../plain/number/index.js":879,"../../utils/collection.js":932,"../../utils/factory.js":936}],870:[function(require,module,exports){
+},{"../../plain/number/index.js":880,"../../utils/collection.js":933,"../../utils/factory.js":937}],871:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -82131,7 +82576,7 @@ var createNumeric = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fun
   };
 });
 exports.createNumeric = createNumeric;
-},{"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/noop.js":942}],871:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/noop.js":943}],872:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -82211,7 +82656,7 @@ var createTypeOf = /* #__PURE__ */(0, _factory.factory)(name, dependencies, func
   });
 });
 exports.createTypeOf = createTypeOf;
-},{"../../utils/factory.js":936,"../../utils/is.js":938}],872:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939}],873:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -82230,7 +82675,7 @@ Object.keys(_mainAny).forEach(function (key) {
     }
   });
 });
-},{"./entry/mainAny.js":373}],873:[function(require,module,exports){
+},{"./entry/mainAny.js":374}],874:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -82268,7 +82713,7 @@ var createReplacer = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fu
   };
 });
 exports.createReplacer = createReplacer;
-},{"../utils/factory.js":936}],874:[function(require,module,exports){
+},{"../utils/factory.js":937}],875:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -82300,7 +82745,7 @@ var createReviver = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fun
   };
 });
 exports.createReviver = createReviver;
-},{"../utils/factory.js":936}],875:[function(require,module,exports){
+},{"../utils/factory.js":937}],876:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -82719,7 +83164,7 @@ function normNumber(x) {
 }
 
 normNumber.signature = n1;
-},{"../../utils/number.js":943}],876:[function(require,module,exports){
+},{"../../utils/number.js":944}],877:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -82807,7 +83252,7 @@ function rightLogShiftNumber(x, y) {
 }
 
 rightLogShiftNumber.signature = n2;
-},{"../../utils/number.js":943}],877:[function(require,module,exports){
+},{"../../utils/number.js":944}],878:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -82845,7 +83290,7 @@ function combinationsNumber(n, k) {
 }
 
 combinationsNumber.signature = 'number, number';
-},{"../../utils/number.js":943,"../../utils/product.js":946}],878:[function(require,module,exports){
+},{"../../utils/number.js":944,"../../utils/product.js":947}],879:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -82861,7 +83306,7 @@ exports.e = e;
 var phi = 1.6180339887498948; // eslint-disable-line no-loss-of-precision
 
 exports.phi = phi;
-},{}],879:[function(require,module,exports){
+},{}],880:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -82984,7 +83429,7 @@ Object.keys(_utils).forEach(function (key) {
     }
   });
 });
-},{"./arithmetic.js":875,"./bitwise.js":876,"./combinations.js":877,"./constants.js":878,"./logical.js":880,"./probability.js":881,"./relational.js":882,"./trigonometry.js":883,"./utils.js":884}],880:[function(require,module,exports){
+},{"./arithmetic.js":876,"./bitwise.js":877,"./combinations.js":878,"./constants.js":879,"./logical.js":881,"./probability.js":882,"./relational.js":883,"./trigonometry.js":884,"./utils.js":885}],881:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -83020,7 +83465,7 @@ function andNumber(x, y) {
 }
 
 andNumber.signature = n2;
-},{}],881:[function(require,module,exports){
+},{}],882:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -83083,9 +83528,9 @@ var gammaG = 4.7421875;
 exports.gammaG = gammaG;
 var gammaP = [0.99999999999999709182, 57.156235665862923517, -59.597960355475491248, 14.136097974741747174, -0.49191381609762019978, 0.33994649984811888699e-4, 0.46523628927048575665e-4, -0.98374475304879564677e-4, 0.15808870322491248884e-3, -0.21026444172410488319e-3, 0.21743961811521264320e-3, -0.16431810653676389022e-3, 0.84418223983852743293e-4, -0.26190838401581408670e-4, 0.36899182659531622704e-5];
 exports.gammaP = gammaP;
-},{"../../utils/number.js":943,"../../utils/product.js":946}],882:[function(require,module,exports){
+},{"../../utils/number.js":944,"../../utils/product.js":947}],883:[function(require,module,exports){
 "use strict";
-},{}],883:[function(require,module,exports){
+},{}],884:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -83280,7 +83725,7 @@ function tanhNumber(x) {
 }
 
 tanhNumber.signature = n1;
-},{"../../utils/number.js":943}],884:[function(require,module,exports){
+},{"../../utils/number.js":944}],885:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -83325,7 +83770,7 @@ function isNaNNumber(x) {
 }
 
 isNaNNumber.signature = n1;
-},{"../../utils/number.js":943}],885:[function(require,module,exports){
+},{"../../utils/number.js":944}],886:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -83398,7 +83843,7 @@ var createBigNumberClass = /* #__PURE__ */(0, _factory.factory)(name, dependenci
   isClass: true
 });
 exports.createBigNumberClass = createBigNumberClass;
-},{"../../utils/factory.js":936,"@babel/runtime/helpers/interopRequireDefault":14,"decimal.js":26}],886:[function(require,module,exports){
+},{"../../utils/factory.js":937,"@babel/runtime/helpers/interopRequireDefault":14,"decimal.js":27}],887:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -83489,7 +83934,7 @@ var createBignumber = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   });
 });
 exports.createBignumber = createBignumber;
-},{"../../../utils/collection.js":932,"../../../utils/factory.js":936}],887:[function(require,module,exports){
+},{"../../../utils/collection.js":933,"../../../utils/factory.js":937}],888:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -83574,7 +84019,7 @@ var createBoolean = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fun
   });
 });
 exports.createBoolean = createBoolean;
-},{"../utils/collection.js":932,"../utils/factory.js":936}],888:[function(require,module,exports){
+},{"../utils/collection.js":933,"../utils/factory.js":937}],889:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -83800,7 +84245,7 @@ var createChainClass = /* #__PURE__ */(0, _factory.factory)(name, dependencies, 
   isClass: true
 });
 exports.createChainClass = createChainClass;
-},{"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/object.js":944,"../../utils/string.js":948}],889:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/object.js":945,"../../utils/string.js":949}],890:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -83861,7 +84306,7 @@ var createChain = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   });
 });
 exports.createChain = createChain;
-},{"../../../utils/factory.js":936}],890:[function(require,module,exports){
+},{"../../../utils/factory.js":937}],891:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -84088,7 +84533,7 @@ var createComplexClass = /* #__PURE__ */(0, _factory.factory)(name, dependencies
   isClass: true
 });
 exports.createComplexClass = createComplexClass;
-},{"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/number.js":943,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21,"complex.js":25}],891:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/number.js":944,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21,"complex.js":26}],892:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -84187,7 +84632,7 @@ var createComplex = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fun
   });
 });
 exports.createComplex = createComplex;
-},{"../../../utils/collection.js":932,"../../../utils/factory.js":936}],892:[function(require,module,exports){
+},{"../../../utils/collection.js":933,"../../../utils/factory.js":937}],893:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -84239,7 +84684,7 @@ var createFractionClass = /* #__PURE__ */(0, _factory.factory)(name, dependencie
   isClass: true
 });
 exports.createFractionClass = createFractionClass;
-},{"../../utils/factory.js":936,"@babel/runtime/helpers/interopRequireDefault":14,"fraction.js":28}],893:[function(require,module,exports){
+},{"../../utils/factory.js":937,"@babel/runtime/helpers/interopRequireDefault":14,"fraction.js":29}],894:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -84314,7 +84759,7 @@ var createFraction = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fu
   });
 });
 exports.createFraction = createFraction;
-},{"../../../utils/collection.js":932,"../../../utils/factory.js":936}],894:[function(require,module,exports){
+},{"../../../utils/collection.js":933,"../../../utils/factory.js":937}],895:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -85404,7 +85849,7 @@ var createDenseMatrixClass = /* #__PURE__ */(0, _factory.factory)(name, dependen
   isClass: true
 });
 exports.createDenseMatrixClass = createDenseMatrixClass;
-},{"../../error/DimensionError.js":377,"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/number.js":943,"../../utils/object.js":944,"../../utils/string.js":948,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/regenerator":23}],895:[function(require,module,exports){
+},{"../../error/DimensionError.js":378,"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/number.js":944,"../../utils/object.js":945,"../../utils/string.js":949,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/regenerator":23}],896:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -85801,7 +86246,7 @@ var createFibonacciHeapClass = /* #__PURE__ */(0, _factory.factory)(name, depend
   isClass: true
 });
 exports.createFibonacciHeapClass = createFibonacciHeapClass;
-},{"../../utils/factory.js":936}],896:[function(require,module,exports){
+},{"../../utils/factory.js":937}],897:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -86051,7 +86496,7 @@ var createImmutableDenseMatrixClass = /* #__PURE__ */(0, _factory.factory)(name,
   isClass: true
 });
 exports.createImmutableDenseMatrixClass = createImmutableDenseMatrixClass;
-},{"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/object.js":944}],897:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/object.js":945}],898:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -86321,7 +86766,7 @@ var createMatrixClass = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   isClass: true
 });
 exports.createMatrixClass = createMatrixClass;
-},{"../../utils/factory.js":936}],898:[function(require,module,exports){
+},{"../../utils/factory.js":937}],899:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -86634,7 +87079,7 @@ var createIndexClass = /* #__PURE__ */(0, _factory.factory)(name, dependencies, 
   isClass: true
 });
 exports.createIndexClass = createIndexClass;
-},{"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/number.js":943,"../../utils/object.js":944}],899:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/number.js":944,"../../utils/object.js":945}],900:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -86982,7 +87427,7 @@ var createRangeClass = /* #__PURE__ */(0, _factory.factory)(name, dependencies, 
   isClass: true
 });
 exports.createRangeClass = createRangeClass;
-},{"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/number.js":943}],900:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/number.js":944}],901:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -87144,7 +87589,7 @@ var createSpaClass = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fu
   isClass: true
 });
 exports.createSpaClass = createSpaClass;
-},{"../../utils/factory.js":936}],901:[function(require,module,exports){
+},{"../../utils/factory.js":937}],902:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -88770,7 +89215,7 @@ var createSparseMatrixClass = /* #__PURE__ */(0, _factory.factory)(name, depende
   isClass: true
 });
 exports.createSparseMatrixClass = createSparseMatrixClass;
-},{"../../error/DimensionError.js":377,"../../utils/array.js":927,"../../utils/factory.js":936,"../../utils/is.js":938,"../../utils/number.js":943,"../../utils/object.js":944,"../../utils/string.js":948,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/regenerator":23}],902:[function(require,module,exports){
+},{"../../error/DimensionError.js":378,"../../utils/array.js":928,"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/number.js":944,"../../utils/object.js":945,"../../utils/string.js":949,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/regenerator":23}],903:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -88842,7 +89287,7 @@ var createIndex = /* #__PURE__ */(0, _factory.factory)(name, dependencies, funct
   });
 });
 exports.createIndex = createIndex;
-},{"../../../utils/factory.js":936,"../../../utils/is.js":938}],903:[function(require,module,exports){
+},{"../../../utils/factory.js":937,"../../../utils/is.js":939}],904:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -88935,7 +89380,7 @@ var createMatrix = /* #__PURE__ */(0, _factory.factory)(name, dependencies, func
   }
 });
 exports.createMatrix = createMatrix;
-},{"../../../utils/factory.js":936}],904:[function(require,module,exports){
+},{"../../../utils/factory.js":937}],905:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -88994,7 +89439,7 @@ var createSparse = /* #__PURE__ */(0, _factory.factory)(name, dependencies, func
   });
 });
 exports.createSparse = createSparse;
-},{"../../../utils/factory.js":936}],905:[function(require,module,exports){
+},{"../../../utils/factory.js":937}],906:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -89112,7 +89557,7 @@ var createAlgorithm01 = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   };
 });
 exports.createAlgorithm01 = createAlgorithm01;
-},{"../../../error/DimensionError.js":377,"../../../utils/factory.js":936}],906:[function(require,module,exports){
+},{"../../../error/DimensionError.js":378,"../../../utils/factory.js":937}],907:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -89234,7 +89679,7 @@ var createAlgorithm02 = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   };
 });
 exports.createAlgorithm02 = createAlgorithm02;
-},{"../../../error/DimensionError.js":377,"../../../utils/factory.js":936}],907:[function(require,module,exports){
+},{"../../../error/DimensionError.js":378,"../../../utils/factory.js":937}],908:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -89362,7 +89807,7 @@ var createAlgorithm03 = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   };
 });
 exports.createAlgorithm03 = createAlgorithm03;
-},{"../../../error/DimensionError.js":377,"../../../utils/factory.js":936}],908:[function(require,module,exports){
+},{"../../../error/DimensionError.js":378,"../../../utils/factory.js":937}],909:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -89547,7 +89992,7 @@ var createAlgorithm04 = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   };
 });
 exports.createAlgorithm04 = createAlgorithm04;
-},{"../../../error/DimensionError.js":377,"../../../utils/factory.js":936}],909:[function(require,module,exports){
+},{"../../../error/DimensionError.js":378,"../../../utils/factory.js":937}],910:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -89725,7 +90170,7 @@ var createAlgorithm05 = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   };
 });
 exports.createAlgorithm05 = createAlgorithm05;
-},{"../../../error/DimensionError.js":377,"../../../utils/factory.js":936}],910:[function(require,module,exports){
+},{"../../../error/DimensionError.js":378,"../../../utils/factory.js":937}],911:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -89884,7 +90329,7 @@ var createAlgorithm06 = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   };
 });
 exports.createAlgorithm06 = createAlgorithm06;
-},{"../../../error/DimensionError.js":377,"../../../utils/collection.js":932,"../../../utils/factory.js":936}],911:[function(require,module,exports){
+},{"../../../error/DimensionError.js":378,"../../../utils/collection.js":933,"../../../utils/factory.js":937}],912:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -90011,7 +90456,7 @@ var createAlgorithm07 = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   }
 });
 exports.createAlgorithm07 = createAlgorithm07;
-},{"../../../error/DimensionError.js":377,"../../../utils/factory.js":936}],912:[function(require,module,exports){
+},{"../../../error/DimensionError.js":378,"../../../utils/factory.js":937}],913:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -90171,7 +90616,7 @@ var createAlgorithm08 = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   };
 });
 exports.createAlgorithm08 = createAlgorithm08;
-},{"../../../error/DimensionError.js":377,"../../../utils/factory.js":936}],913:[function(require,module,exports){
+},{"../../../error/DimensionError.js":378,"../../../utils/factory.js":937}],914:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -90318,7 +90763,7 @@ var createAlgorithm09 = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   };
 });
 exports.createAlgorithm09 = createAlgorithm09;
-},{"../../../error/DimensionError.js":377,"../../../utils/factory.js":936}],914:[function(require,module,exports){
+},{"../../../error/DimensionError.js":378,"../../../utils/factory.js":937}],915:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -90429,7 +90874,7 @@ var createAlgorithm10 = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   };
 });
 exports.createAlgorithm10 = createAlgorithm10;
-},{"../../../utils/factory.js":936}],915:[function(require,module,exports){
+},{"../../../utils/factory.js":937}],916:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -90537,7 +90982,7 @@ var createAlgorithm11 = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   };
 });
 exports.createAlgorithm11 = createAlgorithm11;
-},{"../../../utils/factory.js":936}],916:[function(require,module,exports){
+},{"../../../utils/factory.js":937}],917:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -90648,7 +91093,7 @@ var createAlgorithm12 = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   };
 });
 exports.createAlgorithm12 = createAlgorithm12;
-},{"../../../utils/factory.js":936}],917:[function(require,module,exports){
+},{"../../../utils/factory.js":937}],918:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -90750,7 +91195,7 @@ var createAlgorithm13 = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   }
 });
 exports.createAlgorithm13 = createAlgorithm13;
-},{"../../../error/DimensionError.js":377,"../../../utils/factory.js":936}],918:[function(require,module,exports){
+},{"../../../error/DimensionError.js":378,"../../../utils/factory.js":937}],919:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -90833,7 +91278,7 @@ var createAlgorithm14 = /* #__PURE__ */(0, _factory.factory)(name, dependencies,
   }
 });
 exports.createAlgorithm14 = createAlgorithm14;
-},{"../../../utils/factory.js":936,"../../../utils/object.js":944}],919:[function(require,module,exports){
+},{"../../../utils/factory.js":937,"../../../utils/object.js":945}],920:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -91005,7 +91450,7 @@ var createNumber = /* #__PURE__ */(0, _factory.factory)(name, dependencies, func
   return number;
 });
 exports.createNumber = createNumber;
-},{"../utils/collection.js":932,"../utils/factory.js":936}],920:[function(require,module,exports){
+},{"../utils/collection.js":933,"../utils/factory.js":937}],921:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -91089,7 +91534,7 @@ var createResultSet = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   isClass: true
 });
 exports.createResultSet = createResultSet;
-},{"../../utils/factory.js":936}],921:[function(require,module,exports){
+},{"../../utils/factory.js":937}],922:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -91156,7 +91601,7 @@ var createString = /* #__PURE__ */(0, _factory.factory)(name, dependencies, func
   });
 });
 exports.createString = createString;
-},{"../utils/collection.js":932,"../utils/factory.js":936,"../utils/number.js":943}],922:[function(require,module,exports){
+},{"../utils/collection.js":933,"../utils/factory.js":937,"../utils/number.js":944}],923:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -95165,7 +95610,7 @@ var createUnitClass = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   isClass: true
 });
 exports.createUnitClass = createUnitClass;
-},{"../../utils/bignumber/constants.js":929,"../../utils/factory.js":936,"../../utils/function.js":937,"../../utils/is.js":938,"../../utils/object.js":944,"../../utils/string.js":948,"@babel/runtime/helpers/defineProperty":12,"@babel/runtime/helpers/extends":13,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],923:[function(require,module,exports){
+},{"../../utils/bignumber/constants.js":930,"../../utils/factory.js":937,"../../utils/function.js":938,"../../utils/is.js":939,"../../utils/object.js":945,"../../utils/string.js":949,"@babel/runtime/helpers/defineProperty":12,"@babel/runtime/helpers/extends":13,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],924:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -95252,7 +95697,7 @@ var createCreateUnit = /* #__PURE__ */(0, _factory.factory)(name, dependencies, 
   });
 });
 exports.createCreateUnit = createCreateUnit;
-},{"../../../utils/factory.js":936}],924:[function(require,module,exports){
+},{"../../../utils/factory.js":937}],925:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -95293,7 +95738,7 @@ var createSplitUnit = /* #__PURE__ */(0, _factory.factory)(name, dependencies, f
   });
 });
 exports.createSplitUnit = createSplitUnit;
-},{"../../../utils/factory.js":936}],925:[function(require,module,exports){
+},{"../../../utils/factory.js":937}],926:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -95357,7 +95802,7 @@ var createUnitFunction = /* #__PURE__ */(0, _factory.factory)(name, dependencies
   });
 });
 exports.createUnitFunction = createUnitFunction;
-},{"../../../utils/collection.js":932,"../../../utils/factory.js":936}],926:[function(require,module,exports){
+},{"../../../utils/collection.js":933,"../../../utils/factory.js":937}],927:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -95508,7 +95953,7 @@ function numberFactory(name, value) {
     return config.number === 'BigNumber' ? new BigNumber(value) : value;
   });
 }
-},{"../../utils/factory.js":936}],927:[function(require,module,exports){
+},{"../../utils/factory.js":937}],928:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -96191,7 +96636,7 @@ function initial(array) {
 function contains(array, item) {
   return array.indexOf(item) !== -1;
 }
-},{"../error/DimensionError.js":377,"../error/IndexError.js":378,"./is.js":938,"./number.js":943,"./string.js":948}],928:[function(require,module,exports){
+},{"../error/DimensionError.js":378,"../error/IndexError.js":379,"./is.js":939,"./number.js":944,"./string.js":949}],929:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -96686,7 +97131,7 @@ function rightArithShiftBigNumber(x, y) {
 
   return x.div(new BigNumber(2).pow(y)).floor();
 }
-},{}],929:[function(require,module,exports){
+},{}],930:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -96756,7 +97201,7 @@ exports.createBigNumberTau = createBigNumberTau;
 function hasher(args) {
   return args[0].precision;
 }
-},{"../function.js":937}],930:[function(require,module,exports){
+},{"../function.js":938}],931:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -97042,7 +97487,7 @@ function toExponential(value, precision) {
 function toFixed(value, precision) {
   return value.toFixed(precision);
 }
-},{"../number.js":943}],931:[function(require,module,exports){
+},{"../number.js":944}],932:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -97092,7 +97537,7 @@ function nearlyEqual(x, y, epsilon) {
 
   return false;
 }
-},{}],932:[function(require,module,exports){
+},{}],933:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -97322,7 +97767,7 @@ function scatter(a, j, w, x, u, mark, cindex, f, inverse, update, value) {
     }
   }
 }
-},{"../error/IndexError.js":378,"./array.js":927,"./is.js":938}],933:[function(require,module,exports){
+},{"../error/IndexError.js":379,"./array.js":928,"./is.js":939}],934:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -97343,7 +97788,7 @@ var _number = require("./number.js");
 function complexEquals(x, y, epsilon) {
   return (0, _number.nearlyEqual)(x.re, y.re, epsilon) && (0, _number.nearlyEqual)(x.im, y.im, epsilon);
 }
-},{"./number.js":943}],934:[function(require,module,exports){
+},{"./number.js":944}],935:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -97529,7 +97974,7 @@ var safeNativeMethods = {
   valueOf: true,
   toLocaleString: true
 };
-},{"./object.js":944,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],935:[function(require,module,exports){
+},{"./object.js":945,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],936:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -97556,7 +98001,7 @@ function mixin(obj) {
   obj.emit = emitter.emit.bind(emitter);
   return obj;
 }
-},{"@babel/runtime/helpers/interopRequireDefault":14,"tiny-emitter":959}],936:[function(require,module,exports){
+},{"@babel/runtime/helpers/interopRequireDefault":14,"tiny-emitter":960}],937:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -97726,7 +98171,7 @@ function isOptionalDependency(dependency) {
 function stripOptionalNotation(dependency) {
   return dependency && dependency[0] === '?' ? dependency.slice(1) : dependency;
 }
-},{"./array.js":927,"./object.js":944}],937:[function(require,module,exports){
+},{"./array.js":928,"./object.js":945}],938:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -97851,7 +98296,7 @@ function maxArgumentCount(fn) {
     return Math.max(args, count);
   }, -1);
 }
-},{"./lruQueue.js":940,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],938:[function(require,module,exports){
+},{"./lruQueue.js":941,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],939:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -98110,7 +98555,7 @@ function typeOf(x) {
   if (t === 'function') return 'Function';
   return t; // can be 'string', 'number', 'boolean', ...
 }
-},{"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],939:[function(require,module,exports){
+},{"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],940:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -98611,7 +99056,7 @@ function toSymbol(name, isUnit) {
 
   return escapeLatex(name);
 }
-},{"./object.js":944,"@babel/runtime/helpers/interopRequireDefault":14,"escape-latex":27}],940:[function(require,module,exports){
+},{"./object.js":945,"@babel/runtime/helpers/interopRequireDefault":14,"escape-latex":28}],941:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -98684,7 +99129,7 @@ function lruQueue(limit) {
 }
 
 ;
-},{}],941:[function(require,module,exports){
+},{}],942:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -98882,7 +99327,7 @@ function assign(map) {
 
   return map;
 }
-},{"./customs.js":934,"./is.js":938,"@babel/runtime/helpers/classCallCheck":10,"@babel/runtime/helpers/createClass":11,"@babel/runtime/helpers/interopRequireDefault":14}],942:[function(require,module,exports){
+},{"./customs.js":935,"./is.js":939,"@babel/runtime/helpers/classCallCheck":10,"@babel/runtime/helpers/createClass":11,"@babel/runtime/helpers/interopRequireDefault":14}],943:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -98913,7 +99358,7 @@ function noIndex() {
 function noSubset() {
   throw new Error('No "matrix" implementation available');
 }
-},{}],943:[function(require,module,exports){
+},{}],944:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -99666,7 +100111,7 @@ var tanh = Math.tanh || function (x) {
 };
 
 exports.tanh = tanh;
-},{"./is.js":938}],944:[function(require,module,exports){
+},{"./is.js":939}],945:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -100122,7 +100567,7 @@ function values(object) {
 function isPath(str) {
   return str.indexOf('.') !== -1;
 }
-},{"./is.js":938,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],945:[function(require,module,exports){
+},{"./is.js":939,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],946:[function(require,module,exports){
 "use strict";
 
 // TODO: remove these polyfills as soon as we have a build process that transpiles the code to ES5
@@ -100137,7 +100582,7 @@ Number.isFinite = Number.isFinite || function (value) {
 Number.isNaN = Number.isNaN || function (value) {
   return value !== value; // eslint-disable-line no-self-compare
 };
-},{}],946:[function(require,module,exports){
+},{}],947:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -100162,7 +100607,7 @@ function product(i, n) {
 
   return product(i, half) * product(half + 1, n);
 }
-},{}],947:[function(require,module,exports){
+},{}],948:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -100196,7 +100641,7 @@ function createSubScope(parentScope) {
 
   return _map.assign.apply(void 0, [(0, _map.createEmptyMap)(), parentScope].concat(args));
 }
-},{"./map.js":941}],948:[function(require,module,exports){
+},{"./map.js":942}],949:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -100424,7 +100869,7 @@ function compareText(x, y) {
 
   return x === y ? 0 : x > y ? 1 : -1;
 }
-},{"./bignumber/formatter.js":930,"./is.js":938,"./number.js":943,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],949:[function(require,module,exports){
+},{"./bignumber/formatter.js":931,"./is.js":939,"./number.js":944,"@babel/runtime/helpers/interopRequireDefault":14,"@babel/runtime/helpers/typeof":21}],950:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -100435,7 +100880,7 @@ var version = '9.4.4'; // Note: This file is automatically generated when buildi
 // Changes made in this file will be overwritten.
 
 exports.version = version;
-},{}],950:[function(require,module,exports){
+},{}],951:[function(require,module,exports){
 /**
  * Copyright (c) 2014-present, Facebook, Inc.
  *
@@ -101185,7 +101630,7 @@ try {
   Function("r", "regeneratorRuntime = r")(runtime);
 }
 
-},{}],951:[function(require,module,exports){
+},{}],952:[function(require,module,exports){
 // A library of seedable RNGs implemented in Javascript.
 //
 // Usage:
@@ -101247,7 +101692,7 @@ sr.tychei = tychei;
 
 module.exports = sr;
 
-},{"./lib/alea":952,"./lib/tychei":953,"./lib/xor128":954,"./lib/xor4096":955,"./lib/xorshift7":956,"./lib/xorwow":957,"./seedrandom":958}],952:[function(require,module,exports){
+},{"./lib/alea":953,"./lib/tychei":954,"./lib/xor128":955,"./lib/xor4096":956,"./lib/xorshift7":957,"./lib/xorwow":958,"./seedrandom":959}],953:[function(require,module,exports){
 // A port of an algorithm by Johannes Baagøe <baagoe@baagoe.com>, 2010
 // http://baagoe.com/en/RandomMusings/javascript/
 // https://github.com/nquinlan/better-random-numbers-for-javascript-mirror
@@ -101363,7 +101808,7 @@ if (module && module.exports) {
 
 
 
-},{}],953:[function(require,module,exports){
+},{}],954:[function(require,module,exports){
 // A Javascript implementaion of the "Tyche-i" prng algorithm by
 // Samuel Neves and Filipe Araujo.
 // See https://eden.dei.uc.pt/~sneves/pubs/2011-snfa2.pdf
@@ -101468,7 +101913,7 @@ if (module && module.exports) {
 
 
 
-},{}],954:[function(require,module,exports){
+},{}],955:[function(require,module,exports){
 // A Javascript implementaion of the "xor128" prng algorithm by
 // George Marsaglia.  See http://www.jstatsoft.org/v08/i14/paper
 
@@ -101551,7 +101996,7 @@ if (module && module.exports) {
 
 
 
-},{}],955:[function(require,module,exports){
+},{}],956:[function(require,module,exports){
 // A Javascript implementaion of Richard Brent's Xorgens xor4096 algorithm.
 //
 // This fast non-cryptographic random number generator is designed for
@@ -101699,7 +102144,7 @@ if (module && module.exports) {
   (typeof define) == 'function' && define   // present with an AMD loader
 );
 
-},{}],956:[function(require,module,exports){
+},{}],957:[function(require,module,exports){
 // A Javascript implementaion of the "xorshift7" algorithm by
 // François Panneton and Pierre L'ecuyer:
 // "On the Xorgshift Random Number Generators"
@@ -101798,7 +102243,7 @@ if (module && module.exports) {
 );
 
 
-},{}],957:[function(require,module,exports){
+},{}],958:[function(require,module,exports){
 // A Javascript implementaion of the "xorwow" prng algorithm by
 // George Marsaglia.  See http://www.jstatsoft.org/v08/i14/paper
 
@@ -101886,7 +102331,7 @@ if (module && module.exports) {
 
 
 
-},{}],958:[function(require,module,exports){
+},{}],959:[function(require,module,exports){
 /*
 Copyright 2019 David Bau.
 
@@ -102141,7 +102586,7 @@ if ((typeof module) == 'object' && module.exports) {
   Math    // math: package containing random, pow, and seedrandom
 );
 
-},{"crypto":1}],959:[function(require,module,exports){
+},{"crypto":24}],960:[function(require,module,exports){
 function E () {
   // Keep this empty so it's easier to inherit from
   // (via https://github.com/lipsmack from https://github.com/scottcorgan/tiny-emitter/issues/3)
@@ -102210,7 +102655,7 @@ E.prototype = {
 module.exports = E;
 module.exports.TinyEmitter = E;
 
-},{}],960:[function(require,module,exports){
+},{}],961:[function(require,module,exports){
 /**
  * typed-function
  *
@@ -103603,7 +104048,7 @@ module.exports.TinyEmitter = E;
   return create();
 }));
 
-},{}],961:[function(require,module,exports){
+},{}],962:[function(require,module,exports){
 module.exports={
     "name": "@quantalabs/epijs",
     "version": "1.3.1",
@@ -103631,6 +104076,7 @@ module.exports={
     },
     "homepage": "epi.js.org",
     "devDependencies": {
+        "browserify": "^17.0.0",
         "documentation": "^13.2.5",
         "mocha": "^9.0.0",
         "puppeteer": "^10.1.0",
@@ -103657,3 +104103,14 @@ let Community = EpiJS.com.Community
 let compare = EpiJS.com.compare
 let Idiom = EpiJS.comp.Idiom
 let Model = EpiJS.model.Model
+let Susceptible = EpiJS.comp.Susceptible
+let Infected = EpiJS.comp.Infected
+let Exposed = EpiJS.comp.Exposed
+let Hospitalized = EpiJS.comp.Hospitalized
+let Vaccinated = EpiJS.comp.Vaccinated
+let Dead = EpiJS.comp.Dead
+let Recovered = EpiJS.comp.Recovered
+let Critical = EpiJS.comp.Critical
+let rn = EpiJS.utils.rn
+let u = EpiJS.utils.u
+let b = EpiJS.utils.b
