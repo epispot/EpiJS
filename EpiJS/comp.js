@@ -75,8 +75,8 @@ class Susceptible {
       this.equation += "-(S*" + String(next[x]) + ")"
     }
 
-    for (var x in prev) {
-      this.equation += "+("+String(prev[x][0])+"*" + String(prev[x][1])+")"
+    for (var y in prev) {
+      this.equation += "+("+String(prev[y][0])+"*" + String(prev[y][1])+")"
     }
   }
 
@@ -123,8 +123,8 @@ class Infected {
       this.equation += "-(I*" + String(next[x]) + ")"
     }
 
-    for (var x in prev) {
-      this.equation += "+("+String(prev[x][0])+"*" + String(prev[x][1])+")"
+    for (var y in prev) {
+      this.equation += "+("+String(prev[y][0])+"*" + String(prev[y][1])+")"
     }
   }
 
@@ -171,8 +171,8 @@ class Exposed {
       this.equation += "-(E*" + String(next[x]) + ")"
     }
 
-    for (var x in prev) {
-      this.equation += "+("+String(prev[x][0])+"*" + String(prev[x][1])+")"
+    for (var y in prev) {
+      this.equation += "+("+String(prev[y][0])+"*" + String(prev[y][1])+")"
     }
   }
 
@@ -219,8 +219,8 @@ class Critical {
       this.equation += "-(C*" + String(next[x]) + ")"
     }
 
-    for (var x in prev) {
-      this.equation += "+("+String(prev[x][0])+"*" + String(prev[x][1])+")"
+    for (var y in prev) {
+      this.equation += "+("+String(prev[y][0])+"*" + String(prev[y][1])+")"
     }
   }
 
@@ -267,8 +267,8 @@ class Hospitalized {
       this.equation += "-(H*" + String(next[x]) + ")"
     }
 
-    for (var x in prev) {
-      this.equation += "+("+String(prev[x][0])+"*" + String(prev[x][1])+")"
+    for (var y in prev) {
+      this.equation += "+("+String(prev[y][0])+"*" + String(prev[y][1])+")"
     }
   }
 
@@ -316,8 +316,8 @@ class Dead {
       this.equation += "-(D*" + String(next[x]) + ")"
     }
 
-    for (var x in prev) {
-      this.equation += "+("+String(prev[x][0])+"*" + String(prev[x][1])+")"
+    for (var y in prev) {
+      this.equation += "+("+String(prev[y][0])+"*" + String(prev[y][1])+")"
     }
   }
 
@@ -412,8 +412,8 @@ class Recovered {
       this.equation += "-(R*" + String(next[x]) + ")"
     }
 
-    for (var x in prev) {
-      this.equation += "+("+String(prev[x][0])+"*" + String(prev[x][1])+")"
+    for (var y in prev) {
+      this.equation += "+("+String(prev[y][0])+"*" + String(prev[y][1])+")"
     }
   }
 

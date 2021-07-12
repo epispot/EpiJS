@@ -19,5 +19,5 @@ let key1 = {
 };
 
 let sirm2 = new Model([[S, "S"], [I, "I"], [R, "R"]], key1)
-var data = sirm2.get_data(100)
-console.log(data)
+var data2 = sirm2.get_data(100)
+console.log(data2)
