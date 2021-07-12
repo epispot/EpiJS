@@ -1,6 +1,9 @@
 module.exports = {
     title: 'EpiJS',
     description: 'A disease modeling package for JS.',
+    plugins: [ 
+      'tabs'
+    ],
     themeConfig: {
       nav: [
         { text: 'Documentation', link: '/getting-started' },
@@ -22,7 +25,15 @@ module.exports = {
             ['pre', 'Pre Module'],
             ['com', 'Com Module'],
             ['comp', 'Comp Module'],
-            ['model', 'Model Module']
+            ['model', 'Model Module'],
+            ['utils', 'Utils Module']
+          ]
+        },
+        {
+          title: 'The EpiJS Manual',
+          collapsable: false,
+          children: [
+            ['manual/SIR', 'SIR Models'],
           ]
         }
       ]
