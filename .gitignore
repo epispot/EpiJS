@@ -98,3 +98,7 @@ typings/
 
 # Other
 docs.sh
+
+# Lock Files
+package-lock.json
+yarn.lock
