@@ -9,6 +9,5 @@ updates:
     commit-message:
       prefix: "[DEP]"
       prefix-development: "[DEV/DEP]"
-      include: "scope"
     labels:
       - "dependencies"
