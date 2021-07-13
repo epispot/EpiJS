@@ -1,15 +1,15 @@
-let community = new Community(10000, 1, 9999)
+let community = new Community(9999, 1, 10000)
 let covid = new Virus(4, 1/21, 1/14, 1/25)
 let anothervirus = new Virus(4, 1/10, 1/12, 1/50)
 
-let sirout = community.sir(covid, 100)
-let sirout2 = community.sir(anothervirus, 100)
+let sirout = community.sir(covid, 100, true)
+let sirout2 = community.sir(anothervirus, 100, true)
 
-let seirout = community.seir(covid, 100)
-let seirout2 = community.seir(anothervirus, 100)
+let seirout = community.seir(covid, 100, true)
+let seirout2 = community.seir(anothervirus, 100, true)
 
-let seirdout = community.seird(covid, 200)
-let seirdout2 = community.seird(anothervirus, 200)
+let seirdout = community.seird(covid, 200, true)
+let seirdout2 = community.seird(anothervirus, 200, true)
 
 compare("canvas-com1", sirout, sirout2, "1", "2", 100)
 compare("canvas-com2", seirout, seirout2, "1", "2", 100)
