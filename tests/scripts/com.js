@@ -1,4 +1,4 @@
-let community = new Community(9999, 1, 10000)
+let community = new Community(10000, 1, 9999)
 let covid = new Virus(4, 1/21, 1/14, 1/25)
 let anothervirus = new Virus(4, 1/10, 1/12, 1/50)
 

@@ -63,10 +63,17 @@ function sir(c, rn, s, i, time, u, p, stochastic=false) {
 			f2 = 0
 		}
 		
-		data.datasets[0].data.push(data.datasets[0].data[x]-((rn*u)*data.datasets[0].data[x]*data.datasets[1].data[x]/p)+f1*omega1)
-		data.datasets[1].data.push(data.datasets[1].data[x]+((rn*u)*data.datasets[0].data[x]*data.datasets[1].data[x]/p)-(u*data.datasets[1].data[x]+f2*omega2)+f1*omega1)
-		data.datasets[2].data.push(data.datasets[2].data[x]+u*data.datasets[1].data[x]+f2*omega2)
+		data.datasets[0].data.push(data.datasets[0].data[x]-(((rn*u)*data.datasets[0].data[x]*data.datasets[1].data[x]/p)+f1*omega1))
+		data.datasets[1].data.push(data.datasets[1].data[x]+(((rn*u)*data.datasets[0].data[x]*data.datasets[1].data[x]/p)+f1*omega1)-((u*data.datasets[1].data[x]+f2*omega2)))
+		data.datasets[2].data.push(data.datasets[2].data[x]+(u*data.datasets[1].data[x]+f2*omega2))
 		data.labels.push("Day " +(x+1).toString())
+
+		// Check if any of the new values are below 0, if so, set them to 0
+		for(let i = 0; i<data.datasets.length; i++){
+			if(data.datasets[i].data[x+1] < 0){
+				data.datasets[i].data[x+1] = 0
+			}
+		}
 	}
 	console.log(data.datasets)
 
@@ -143,11 +150,18 @@ function seir(c, rn, s, i, t, u, a, p, stochastic=false) {
 			f3 = 0
 		}
 
-		data.datasets[0].data.push(data.datasets[0].data[x]-((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p)+f1*omega1)
-		data.datasets[1].data.push(data.datasets[1].data[x]+((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p)-(a*data.datasets[1].data[x])+f1*omega1+f3*omega3)
-		data.datasets[2].data.push(data.datasets[2].data[x]+(a*data.datasets[1].data[x])-(u*data.datasets[2].data[x])+f3*omega3+f2*omega2)
-		data.datasets[3].data.push(data.datasets[3].data[x]+(u*data.datasets[2].data[x])+f2*omega2)
+		data.datasets[0].data.push(data.datasets[0].data[x]-(((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p)+f1*omega1))
+		data.datasets[1].data.push(data.datasets[1].data[x]+(((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p)+f1*omega1)-((a*data.datasets[1].data[x])+f3*omega3))
+		data.datasets[2].data.push(data.datasets[2].data[x]+((a*data.datasets[1].data[x])+f3*omega3)-((u*data.datasets[2].data[x])+f2*omega2))
+		data.datasets[3].data.push(data.datasets[3].data[x]+((u*data.datasets[2].data[x])+f2*omega2))
 		data.labels.push("Day " +(x+1).toString())
+
+		// Check if any of the new values are below 0, if so, set them to 0
+		for(let i = 0; i<data.datasets.length; i++){
+			if(data.datasets[i].data[x+1] < 0){
+				data.datasets[i].data[x+1] = 0
+			}
+		}
 	}
 	console.log(data.datasets)
 	
@@ -232,12 +246,19 @@ function seird(c, rn, s, i, t, u, a, d, p, stochastic=false) {
 			f3 = 0
 			f4 = 0
 		}
-		data.datasets[0].data.push(data.datasets[0].data[x]-((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p)+f1*omega1)
-		data.datasets[1].data.push(data.datasets[1].data[x]+((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p)-(a*data.datasets[1].data[x])+f1*omega1+f3*omega3)
-		data.datasets[2].data.push(data.datasets[2].data[x]+(a*data.datasets[1].data[x])-(u*data.datasets[2].data[x])-(d*data.datasets[2].data[x])+f2*omega2+f3*omega3+f4*omega4)
-		data.datasets[3].data.push(data.datasets[3].data[x]+(u*data.datasets[2].data[x])+f2*omega2)
-		data.datasets[4].data.push(data.datasets[4].data[x]+(d*data.datasets[2].data[x])+f4*omega4)
+		data.datasets[0].data.push(data.datasets[0].data[x]-(((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p)+f1*omega1))
+		data.datasets[1].data.push(data.datasets[1].data[x]+(((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p)+f1*omega1)-((a*data.datasets[1].data[x])+f3*omega3))
+		data.datasets[2].data.push(data.datasets[2].data[x]+((a*data.datasets[1].data[x])+f3*omega3)-((u*data.datasets[2].data[x])+f2*omega2)-((d*data.datasets[2].data[x])+f4*omega4))
+		data.datasets[3].data.push(data.datasets[3].data[x]+((u*data.datasets[2].data[x])+f2*omega2))
+		data.datasets[4].data.push(data.datasets[4].data[x]+((d*data.datasets[2].data[x])+f4*omega4))
 		data.labels.push("Day " +(x+1).toString())
+
+		// Check if any of the new values are below 0, if so, set them to 0
+		for(let i = 0; i<data.datasets.length; i++){
+			if(data.datasets[i].data[x+1] < 0){
+				data.datasets[i].data[x+1] = 0
+			}
+		}
 	}
 	console.log(data.datasets)
 	
@@ -344,13 +365,20 @@ function seihrd(c, rn, s, i, t, u, uh, a, di, dh, h, p, stochastic=false) {
 			f6 = 0
 			f7 = 0
 		}
-		data.datasets[0].data.push(data.datasets[0].data[x]-((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p)+f1*omega1) // Susceptible
-		data.datasets[1].data.push(data.datasets[1].data[x]+((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p)-(a*data.datasets[1].data[x])+f1*omega1+f3*omega3) // Exposed
-		data.datasets[2].data.push(data.datasets[2].data[x]+(a*data.datasets[1].data[x])-(u*data.datasets[2].data[x])-(di*data.datasets[2].data[x])-(h*data.datasets[2].data[x])+f3*omega3+f2*omega2+f4*omega4+f6*omega6) // Infected
-		data.datasets[3].data.push(data.datasets[3].data[x]+(h*data.datasets[2].data[x])-(uh*data.datasets[3].data[x])-(dh*data.datasets[3].data[x])+f6*omega6+f5*omega5+f7*omega7) // Hospitalized
-		data.datasets[4].data.push(data.datasets[4].data[x]+(u*data.datasets[2].data[x])+(uh*data.datasets[3].data[x])+f2*omega2+f5*omega5) // Recovered
-		data.datasets[5].data.push(data.datasets[5].data[x]+(di*data.datasets[2].data[x])+(dh*data.datasets[3].data[x])+f4*omega4+f7*omega7) // Dead
+		data.datasets[0].data.push(data.datasets[0].data[x]-(((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p)+f1*omega1)) // Susceptible
+		data.datasets[1].data.push(data.datasets[1].data[x]+(((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p)+f1*omega1)-((a*data.datasets[1].data[x])+f3*omega3)) // Exposed
+		data.datasets[2].data.push(data.datasets[2].data[x]+((a*data.datasets[1].data[x])+f3*omega3)-((u*data.datasets[2].data[x])+f2*omega2)-((di*data.datasets[2].data[x])+f4*omega4)-((h*data.datasets[2].data[x])+f6*omega6)) // Infected
+		data.datasets[3].data.push(data.datasets[3].data[x]+(h*data.datasets[2].data[x]+f6*omega6)-(uh*data.datasets[3].data[x]+f5*omega5)-(dh*data.datasets[3].data[x]+f7*omega7)) // Hospitalized
+		data.datasets[4].data.push(data.datasets[4].data[x]+(u*data.datasets[2].data[x]+f2*omega2)+(uh*data.datasets[3].data[x]+f5*omega5)) // Recovered
+		data.datasets[5].data.push(data.datasets[5].data[x]+(di*data.datasets[2].data[x]+f4*omega4)+(dh*data.datasets[3].data[x]+f7*omega7)) // Dead
 		data.labels.push("Day " +(x+1).toString())
+
+		// Check if any of the new values are below 0, if so, set them to 0
+		for(let i = 0; i<data.datasets.length; i++){
+			if(data.datasets[i].data[x+1] < 0){
+				data.datasets[i].data[x+1] = 0
+			}
+		}
 	}
 	console.log(data.datasets)
 	
@@ -491,14 +519,21 @@ function seihrd(c, rn, s, i, t, u, uh, a, di, dh, h, p, stochastic=false) {
 		f12 = 0
 		f13 = 0
 	}
-	data.datasets[0].data.push(data.datasets[0].data[x]-((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p)+f1*omega1) // Susceptible
-	data.datasets[1].data.push(data.datasets[1].data[x]+((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p)-(a*data.datasets[1].data[x])+f1*omega1+f3*omega3) // Exposed
-	data.datasets[2].data.push(data.datasets[2].data[x]+(a*data.datasets[1].data[x])-(u*data.datasets[2].data[x])-(di*data.datasets[2].data[x])-(ci*data.datasets[2].data[x])+(ic*data.datasets[4].data[x])-(h*data.datasets[2].data[x])+f3*omega3+f2*omega2+f4*omega4+f9*omega9+f13*omega13+f6*omega6) // Infected
-	data.datasets[3].data.push(data.datasets[3].data[x]+(h*data.datasets[2].data[x])-(uh*data.datasets[3].data[x])-(dh*data.datasets[3].data[x])-(ch*data.datasets[3].data[x])+(hc*data.datasets[4].data[x])+f6*omega6+f5*omega5+f7*omega7+f8*omega8+f12*omega12) // Hospitalized
-	data.datasets[4].data.push(data.datasets[4].data[x]+(ci*data.datasets[2].data[x])+(ch*data.datasets[3].data[x])-(uc*data.datasets[4].data[x])-(dc*data.datasets[4].data[x])-(hc*data.datasets[4].data[x])-(ic*data.datasets[4].data[x])+f9*omega9+f8*omega8+f11*omega11+f10*omega10+f12*omega12+f13*omega13) // Critical
-	data.datasets[5].data.push(data.datasets[5].data[x]+(u*data.datasets[2].data[x])+(uh*data.datasets[3].data[x])+(uc*data.datasets[4].data[x])+f2*omega2+f5*omega5+f11*omega11) // Recovered
-	data.datasets[6].data.push(data.datasets[6].data[x]+(di*data.datasets[2].data[x])+(dh*data.datasets[3].data[x])+(dc*data.datasets[4].data[x])+f4*omega4+f7*omega7+f10*omega10) // Dead
+	data.datasets[0].data.push(data.datasets[0].data[x]-((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p+f1*omega1)) // Susceptible
+	data.datasets[1].data.push(data.datasets[1].data[x]+((rn*u)*data.datasets[0].data[x]*data.datasets[2].data[x]/p+f1*omega1)-(a*data.datasets[1].data[x]+f3*omega3)) // Exposed
+	data.datasets[2].data.push(data.datasets[2].data[x]+(a*data.datasets[1].data[x]+f3*omega3)-(u*data.datasets[2].data[x]+f2*omega2)-(di*data.datasets[2].data[x]+f4*omega4)-(ci*data.datasets[2].data[x]+f9*omega9)+(ic*data.datasets[4].data[x]+f13*omega13)-(h*data.datasets[2].data[x]+f6*omega6)) // Infected
+	data.datasets[3].data.push(data.datasets[3].data[x]+(h*data.datasets[2].data[x]+f6*omega6)-(uh*data.datasets[3].data[x]+f5*omega5)-(dh*data.datasets[3].data[x]+f7*omega7)-(ch*data.datasets[3].data[x]+f8*omega8)+(hc*data.datasets[4].data[x]+f12*omega12)) // Hospitalized
+	data.datasets[4].data.push(data.datasets[4].data[x]+(ci*data.datasets[2].data[x]+f9*omega9)+(ch*data.datasets[3].data[x]+f8*omega8)-(uc*data.datasets[4].data[x]+f11*omega11)-(dc*data.datasets[4].data[x]+f10*omega10)-(hc*data.datasets[4].data[x]+f12*omega12)-(ic*data.datasets[4].data[x]+f13*omega13)) // Critical
+	data.datasets[5].data.push(data.datasets[5].data[x]+(u*data.datasets[2].data[x]+f2*omega2)+(uh*data.datasets[3].data[x]+f5*omega5)+(uc*data.datasets[4].data[x]+f11*omega11)) // Recovered
+	data.datasets[6].data.push(data.datasets[6].data[x]+(di*data.datasets[2].data[x]+f4*omega4)+(dh*data.datasets[3].data[x]+f7*omega7)+(dc*data.datasets[4].data[x]+f10*omega10)) // Dead
 	data.labels.push("Day " +(x+1).toString())
+
+	// Check if any of the new values are below 0, if so, set them to 0
+	for(let i = 0; i<data.datasets.length; i++){
+		if(data.datasets[i].data[x+1] < 0){
+			data.datasets[i].data[x+1] = 0
+		}
+	}
   }
   console.log(data.datasets)
   
