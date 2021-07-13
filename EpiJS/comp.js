@@ -50,7 +50,7 @@ class Idiom {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        distribution = new gaussian(0, 1)
+        var distribution = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
@@ -113,7 +113,7 @@ class Susceptible {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        distribution = new gaussian(0, 1)
+        var distribution = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
@@ -174,7 +174,7 @@ class Infected {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        distribution = new gaussian(0, 1)
+        var distribution = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
@@ -235,7 +235,7 @@ class Exposed {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        distribution = new gaussian(0, 1)
+        var distribution = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
@@ -296,7 +296,7 @@ class Critical {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        distribution = new gaussian(0, 1)
+        var distribution = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
@@ -357,7 +357,7 @@ class Hospitalized {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        distribution = new gaussian(0, 1)
+        var distribution = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
@@ -419,7 +419,7 @@ class Dead {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        distribution = new gaussian(0, 1)
+        var distribution = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
@@ -480,7 +480,7 @@ class Vaccinated {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        distribution = new gaussian(0, 1)
+        var distribution = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
@@ -541,7 +541,7 @@ class Recovered {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        distribution = new gaussian(0, 1)
+        var distribution = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
