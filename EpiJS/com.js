@@ -9,6 +9,8 @@
 
 
 const chart = require('chart.js')
+const gaussian = require('gaussian')
+
 
 /**
  * Class representing a virus, which can infect a community.
@@ -51,6 +53,7 @@ class Community {
      * SIR model for the community
      * @param {Number} disease A virus class. The virus to infect the community with and model for.
      * @param {Number} time Time to predict for.
+     * @param {Boolean} stochastic - Defaults to false, whether to make the model stochastic or not.
      * @example
      *
      *      let NewYorkCity = new Community(8419000, 300, 8418700)
@@ -58,7 +61,7 @@ class Community {
      *
      *outbreak = NewYorkCity.sir(covid, 100)
      */
-    sir (disease, time) {
+    sir (disease, time, stochastic=false) {
         let data = {
             datasets: [{
                 data: [this.s],
@@ -73,11 +76,35 @@ class Community {
                 label: "Recovered",
             }]
         }
-
+        var f1 = 0;
+        var f2 = 0;
+    
         for(let x = 0; x<time; x++){
-            data.datasets[0].data.push(data.datasets[0].data[x]-((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop))
-            data.datasets[1].data.push(data.datasets[1].data[x]+((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)-disease.u*data.datasets[1].data[x])
-            data.datasets[2].data.push(data.datasets[2].data[x]+disease.u*data.datasets[1].data[x])
+            f1 = Math.sqrt((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)
+            f2 = Math.sqrt(disease.u*data.datasets[1].data[x])
+    
+            if (stochastic === true) {
+                var distribution = gaussian(0, 1)
+                var omega1 = distribution.random(1)[0]
+                var omega2 = distribution.random(1)[0]
+            }
+            else {
+                var omega1 = 0
+                var omega2 = 0
+                f1 = 0
+                f2 = 0
+            }
+
+            data.datasets[0].data.push(data.datasets[0].data[x]-(((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)+f1*omega1))
+            data.datasets[1].data.push(data.datasets[1].data[x]+(((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)+f1*omega1)-((disease.u*data.datasets[1].data[x])+f2*omega2))
+            data.datasets[2].data.push(data.datasets[2].data[x]+(disease.u*data.datasets[1].data[x]+f2*omega2))
+
+            // Check if any of the new values are below 0, if so, set them to 0
+            for(let i = 0; i<data.datasets.length; i++){
+                if(data.datasets[i].data[x+1] < 0){
+                    data.datasets[i].data[x+1] = 0
+                }
+            }
         }
 
         return data
@@ -87,6 +114,7 @@ class Community {
      * SEIR model for the community
      * @param {Number} disease A virus class. The virus to infect the community with and model for.
      * @param {Number} time Time to predict for.
+     * @param {Boolean} stochastic - Defaults to false, whether to make the model stochastic or not.
      * @example
      *
      *      let NewYorkCity = new Community(8419000, 300, 8418700)
@@ -94,7 +122,7 @@ class Community {
      *
      *outbreak = NewYorkCity.seir(covid, 100)
      */
-     seir (disease, time) {
+     seir (disease, time, stochastic=false) {
         let data = {
             datasets: [{
                 data: [this.s],
@@ -113,12 +141,40 @@ class Community {
                 label: "Recovered",
             }]
         }
+        var f1 = 0;
+        var f2 = 0;
+        var f3 = 0;
 
         for(let x = 0; x<time; x++){
-            data.datasets[0].data.push(data.datasets[0].data[x]-((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop))
-            data.datasets[1].data.push(data.datasets[1].data[x]+((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)-(disease.a*data.datasets[1].data[x]))
-            data.datasets[2].data.push(data.datasets[2].data[x]+(disease.a*data.datasets[1].data[x])-disease.u*data.datasets[2].data[x])
-            data.datasets[3].data.push(data.datasets[3].data[x]+disease.u*data.datasets[2].data[x])
+            f1 = Math.sqrt((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)
+            f2 = Math.sqrt(disease.u*data.datasets[2].data[x])
+            f3 = Math.sqrt(disease.a*data.datasets[1].data[x])
+
+            if (stochastic === true) {
+                var distribution = gaussian(0, 1)
+                var omega1 = distribution.random(1)[0]
+                var omega2 = distribution.random(1)[0]
+                var omega3 = distribution.random(1)[0]
+            }
+            else {
+                var omega1 = 0
+                var omega2 = 0
+                var omega3 = 0
+                f1 = 0
+                f2 = 0
+                f3 = 0
+            }
+            data.datasets[0].data.push(data.datasets[0].data[x]-(((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)+f1*omega1))
+            data.datasets[1].data.push(data.datasets[1].data[x]+(((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)+f1*omega1)-((disease.a*data.datasets[1].data[x]+f3*omega3)))
+            data.datasets[2].data.push(data.datasets[2].data[x]+((disease.a*data.datasets[1].data[x])+f3*omega3)-(disease.u*data.datasets[2].data[x]+f2*omega2))
+            data.datasets[3].data.push(data.datasets[3].data[x]+((disease.u*data.datasets[2].data[x])+f2*omega2))
+
+            // Check if any of the new values are below 0, if so, set them to 0
+            for(let i = 0; i<data.datasets.length; i++){
+                if(data.datasets[i].data[x+1] < 0){
+                    data.datasets[i].data[x+1] = 0
+                }
+            }
         }
 
         return data
@@ -128,6 +184,7 @@ class Community {
      * SEIRD model for the community
      * @param {Number} disease A virus class. The virus to infect the community with and model for.
      * @param {Number} time Time to predict for.
+     * @param {Boolean} stochastic - Defaults to false, whether to make the model stochastic or not.
      * @example
      *
      *      let NewYorkCity = new Community(8419000, 300, 8418700)
@@ -135,39 +192,72 @@ class Community {
      *
      *outbreak = NewYorkCity.seird(covid, 100)
      */
-    seird (disease, time) {
-      let data = {
-          datasets: [{
-              data: [this.s],
-              label: "Suseptible",
-          },
-          {
-              data: [this.i],
-              label: "Exposed",
-          },
-          {
-              data: [0],
-              label: "Infected",
-          },
-          {
-              data: [this.r],
-              label: "Recovered",
-          },
-          {
-              data: [0],
-              label: "Dead",
-          }]
-      }
+    seird (disease, time, stochastic=false) {
+        let data = {
+            datasets: [{
+                data: [this.s],
+                label: "Suseptible",
+            },
+            {
+                data: [this.i],
+                label: "Exposed",
+            },
+            {
+                data: [0],
+                label: "Infected",
+            },
+            {
+                data: [this.r],
+                label: "Recovered",
+            },
+            {
+                data: [0],
+                label: "Dead",
+            }]
+        }
+        var f1 = 0;
+        var f2 = 0;
+        var f3 = 0;
+        var f4 = 0;
 
-      for(let x = 0; x<time; x++){
-          data.datasets[0].data.push(data.datasets[0].data[x]-((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop))
-          data.datasets[1].data.push(data.datasets[1].data[x]+((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)-(disease.a*data.datasets[1].data[x]))
-          data.datasets[2].data.push(data.datasets[2].data[x]+(disease.a*data.datasets[1].data[x])-disease.u*data.datasets[2].data[x]-disease.d*data.datasets[2].data[x])
-          data.datasets[3].data.push(data.datasets[3].data[x]+disease.u*data.datasets[2].data[x])
-          data.datasets[4].data.push(data.datasets[4].data[x]+(disease.d*data.datasets[2].data[x]))
-      }
+        for(let x = 0; x<time; x++){
+            f1 = Math.sqrt((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop) // Rn * U * S * I / N
+            f2 = Math.sqrt(disease.u*data.datasets[2].data[x]) // u*I
+            f3 = Math.sqrt(disease.a*data.datasets[1].data[x]) // a*I
+            f4 = Math.sqrt(disease.d*data.datasets[2].data[x]) // d*I
 
-      return data
+            if (stochastic === true) {
+                var distribution = gaussian(0, 1)
+                var omega1 = distribution.random(1)[0]
+                var omega2 = distribution.random(1)[0]
+                var omega3 = distribution.random(1)[0]
+                var omega4 = distribution.random(1)[0]
+            }
+            else {
+                var omega1 = 0
+                var omega2 = 0
+                var omega3 = 0
+                var omega4 = 0
+                f1 = 0
+                f2 = 0
+                f3 = 0
+                f4 = 0
+            }
+            data.datasets[0].data.push(data.datasets[0].data[x]-(((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)+f1*omega1))
+            data.datasets[1].data.push(data.datasets[1].data[x]+(((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)+f1*omega1)-((disease.a*data.datasets[1].data[x])+f3*omega3))
+            data.datasets[2].data.push(data.datasets[2].data[x]+((disease.a*data.datasets[1].data[x])+f3*omega3)-(disease.u*data.datasets[2].data[x]+f2*omega2)-(disease.d*data.datasets[2].data[x]+f4*omega4))
+            data.datasets[3].data.push(data.datasets[3].data[x]+(disease.u*data.datasets[2].data[x]+f2*omega2))
+            data.datasets[4].data.push(data.datasets[4].data[x]+((disease.d*data.datasets[2].data[x])+f4*omega4))
+
+            // Check if any of the new values are below 0, if so, set them to 0
+            for(let i = 0; i<data.datasets.length; i++){
+                if(data.datasets[i].data[x+1] < 0){
+                    data.datasets[i].data[x+1] = 0
+                }
+            }
+        }
+
+        return data
     }
 
     /** 
