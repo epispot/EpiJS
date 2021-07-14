@@ -1,3 +1,17 @@
+# v2.0.0 - LTS
+- Add stochastic modelling ([#37](https://github.com/Quantalabs/EpiJS/issues/37))
+- Drop 10.x support, unfortunatley ([`03e2ebc`](https://github.com/Quantalabs/EpiJS/commit/03e2ebc067f671a5ec52b945ca14f7380c530fa1) and [#54](https://github.com/Quantalabs/EpiJS/pulls/54))
+- Add extra pre-built compartments to the `comp` module. ([#49](https://github.com/Quantalabs/EpiJS/pulls/49))
+- Compartmental infections in `com` module ([#40](https://github.com/Quantalabs/EpiJS/issues/40))
+
+## What makes this a major release?
+This release is a major release for 2 reasons:
+- Drops 10.x support
+- Syntax for functions/classes was changed with stochastic models
+
+This release is also an LTS release, so bug fixes and security fixes will continue until the EOL date, which is until August 14, 2022.
+
+---
 # v1.3.1
 ## Bug Fixes
 - Fix formula parsing error in the `model` module.
@@ -40,7 +54,7 @@
 None.
 
 ---
-# v1.0.1
+# v1.0.1 (DEPRECATED)
 Minor update
 
 ## New Features
@@ -49,11 +63,8 @@ None.
 ## Bug Fixes
 None.
 
-## Deprecations
-Remove the `check` function from the `pre` module.
-
 ---
-# v1.0.0
+# v1.0.0 (DEPRECATED)
 
 Initial release.
 
