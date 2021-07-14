@@ -76,8 +76,8 @@ class Community {
                 label: "Recovered",
             }]
         }
-        var f1;
-        var f2;
+        var f1 = 0;
+        var f2 = 0;
     
         for(let x = 0; x<time; x++){
             f1 = Math.sqrt((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)
@@ -141,9 +141,9 @@ class Community {
                 label: "Recovered",
             }]
         }
-        var f1;
-        var f2;
-        var f3;
+        var f1 = 0;
+        var f2 = 0;
+        var f3 = 0;
 
         for(let x = 0; x<time; x++){
             f1 = Math.sqrt((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)
@@ -215,10 +215,10 @@ class Community {
                 label: "Dead",
             }]
         }
-        var f1;
-        var f2;
-        var f3;
-        var f4;
+        var f1 = 0;
+        var f2 = 0;
+        var f3 = 0;
+        var f4 = 0;
 
         for(let x = 0; x<time; x++){
             f1 = Math.sqrt((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop) // Rn * U * S * I / N
