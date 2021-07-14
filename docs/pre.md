@@ -6,21 +6,21 @@ title: EpiJS Module - Pre
 ### Table of Contents
 
 
--   [sir][2]
-    -   [Parameters][3]
-    -   [Examples][4]
--   [seir][5]
-    -   [Parameters][6]
-    -   [Examples][7]
--   [seird][8]
-    -   [Parameters][9]
-    -   [Examples][10]
--   [seihrd][11]
-    -   [Parameters][12]
-    -   [Examples][13]
--   [seihcrd][14]
-    -   [Parameters][15]
-    -   [Examples][16]
+*   [sir][2]
+    *   [Parameters][3]
+    *   [Examples][4]
+*   [seir][5]
+    *   [Parameters][6]
+    *   [Examples][7]
+*   [seird][8]
+    *   [Parameters][9]
+    *   [Examples][10]
+*   [seihrd][11]
+    *   [Parameters][12]
+    *   [Examples][13]
+*   [seihcrd][14]
+    *   [Parameters][15]
+    *   [Examples][16]
 
 # Pre
 
@@ -36,14 +36,14 @@ The SIR Model. Returns a chart.js graph with the total Susceptible, Infected, an
 
 ### Parameters
 
--   `c` **[HTMLElement][17]** The HTML5 Canvas Element.
--   `rn` **[Number][18]** R Naught, or the amount of people one infected infects whlie infected.
--   `s` **[Number][18]** The Susceptible population at the beggining of the outbreak
--   `i` **[Number][18]** The Infected population at the beggining of th outbreak
--   `time` **[Number][18]** The time the total simulation lasts.
--   `u` **[Number][18]** The recovery rate
--   `p` **[Number][18]** The total population.
--   `stochastic` **[Boolean][19]** Defaults to false, whether to make the model stochastic or not. (optional, default `false`)
+*   `c` **[HTMLElement][17]** The HTML5 Canvas Element.
+*   `rn` **[Number][18]** R Naught, or the amount of people one infected infects whlie infected.
+*   `s` **[Number][18]** The Susceptible population at the beggining of the outbreak
+*   `i` **[Number][18]** The Infected population at the beggining of th outbreak
+*   `time` **[Number][18]** The time the total simulation lasts.
+*   `u` **[Number][18]** The recovery rate
+*   `p` **[Number][18]** The total population.
+*   `stochastic` **[Boolean][19]** Defaults to false, whether to make the model stochastic or not. (optional, default `false`)
 
 ### Examples
 
@@ -57,15 +57,15 @@ The SEIR Model. Returns a chart.js graph with the total Susceptible, Exposed, In
 
 ### Parameters
 
--   `c` **[HTMLElement][17]** The HTML5 Canvas Element.
--   `rn` **[Number][18]** R Naught, or the amount of people one infected infects whlie infected.
--   `s` **[Number][18]** The Susceptible population at the beggining of the outbreak
--   `i` **[Number][18]** The Infected population at the beggining of th outbreak
--   `t` **[Number][18]** The time the total simulation lasts.
--   `u` **[Number][18]** The recovery rate
--   `a` **[Number][18]** The incubation period
--   `p` **[Number][18]** The total population.
--   `stochastic` **[Boolean][19]** Defaults to false, whether to make the model stochastic or not. (optional, default `false`)
+*   `c` **[HTMLElement][17]** The HTML5 Canvas Element.
+*   `rn` **[Number][18]** R Naught, or the amount of people one infected infects whlie infected.
+*   `s` **[Number][18]** The Susceptible population at the beggining of the outbreak
+*   `i` **[Number][18]** The Infected population at the beggining of th outbreak
+*   `t` **[Number][18]** The time the total simulation lasts.
+*   `u` **[Number][18]** The recovery rate
+*   `a` **[Number][18]** The incubation period
+*   `p` **[Number][18]** The total population.
+*   `stochastic` **[Boolean][19]** Defaults to false, whether to make the model stochastic or not. (optional, default `false`)
 
 ### Examples
 
@@ -79,16 +79,16 @@ The SEIRD Model. Returns a chart.js graph with the total Susceptible, Exposed, I
 
 ### Parameters
 
--   `c` **[HTMLElement][17]** The HTML5 Canvas Element.
--   `rn` **[Number][18]** R Naught, or the amount of people one infected infects whlie infected.
--   `s` **[Number][18]** The Susceptible population at the beggining of the outbreak
--   `i` **[Number][18]** The Infected population at the beggining of the outbreak
--   `t` **[Number][18]** The time the total simulation lasts.
--   `u` **[Number][18]** The recovery rate
--   `a` **[Number][18]** The incubation period
--   `d` **[Number][18]** The death rate
--   `p` **[Number][18]** The total population.
--   `stochastic` **[Boolean][19]** Defaults to false, whether to make the model stochastic or not. (optional, default `false`)
+*   `c` **[HTMLElement][17]** The HTML5 Canvas Element.
+*   `rn` **[Number][18]** R Naught, or the amount of people one infected infects whlie infected.
+*   `s` **[Number][18]** The Susceptible population at the beggining of the outbreak
+*   `i` **[Number][18]** The Infected population at the beggining of the outbreak
+*   `t` **[Number][18]** The time the total simulation lasts.
+*   `u` **[Number][18]** The recovery rate
+*   `a` **[Number][18]** The incubation period
+*   `d` **[Number][18]** The death rate
+*   `p` **[Number][18]** The total population.
+*   `stochastic` **[Boolean][19]** Defaults to false, whether to make the model stochastic or not. (optional, default `false`)
 
 ### Examples
 
@@ -102,19 +102,19 @@ The SEIHRD Model. Returns a chart.js graph with the total Susceptible, Exposed, 
 
 ### Parameters
 
--   `c` **[HTMLElement][17]** The HTML5 Canvas Element.
--   `rn` **[Number][18]** R Naught, or the amount of people one infected infects whlie infected.
--   `s` **[Number][18]** The Susceptible population at the beggining of the outbreak
--   `i` **[Number][18]** The Infected population at the beggining of the outbreak
--   `t` **[Number][18]** The time the total simulation lasts.
--   `u` **[Number][18]** The recovery rate for the infected population
--   `uh` **[Number][18]** The recovery rate for the hospitalized population
--   `a` **[Number][18]** The incubation period
--   `di` **[Number][18]** The death rate for the infected population
--   `dh` **[Number][18]** The death rate for the hospitalized population
--   `h` **[Number][18]** The hospitalization rate
--   `p` **[Number][18]** The total population.
--   `stochastic` **[Boolean][19]** Defaults to false, whether to make the model stochastic or not. (optional, default `false`)
+*   `c` **[HTMLElement][17]** The HTML5 Canvas Element.
+*   `rn` **[Number][18]** R Naught, or the amount of people one infected infects whlie infected.
+*   `s` **[Number][18]** The Susceptible population at the beggining of the outbreak
+*   `i` **[Number][18]** The Infected population at the beggining of the outbreak
+*   `t` **[Number][18]** The time the total simulation lasts.
+*   `u` **[Number][18]** The recovery rate for the infected population
+*   `uh` **[Number][18]** The recovery rate for the hospitalized population
+*   `a` **[Number][18]** The incubation period
+*   `di` **[Number][18]** The death rate for the infected population
+*   `dh` **[Number][18]** The death rate for the hospitalized population
+*   `h` **[Number][18]** The hospitalization rate
+*   `p` **[Number][18]** The total population.
+*   `stochastic` **[Boolean][19]** Defaults to false, whether to make the model stochastic or not. (optional, default `false`)
 
 ### Examples
 
@@ -128,25 +128,25 @@ The SEIHCRD Model. Returns a chart.js graph with the total Susceptible, Exposed,
 
 ### Parameters
 
--   `c` **[HTMLElement][17]** The HTML5 Canvas Element.
--   `rn` **[Number][18]** R Naught, or the amount of people one infected infects whlie infected.
--   `s` **[Number][18]** The Susceptible population at the beggining of the outbreak
--   `i` **[Number][18]** The Infected population at the beggining of the outbreak
--   `t` **[Number][18]** The time the total simulation lasts.
--   `u` **[Number][18]** The recovery rate for the infected population
--   `uh` **[Number][18]** The recovery rate for the hospitalized population
--   `a` **[Number][18]** The incubation period
--   `di` **[Number][18]** The death rate for the infected population
--   `dh` **[Number][18]** The death rate for the hospitalized population
--   `ch` **[Number][18]** The rate at which patients go to the critical stage from the hospitalized compartment.
--   `ci` **[Number][18]** The rate at which patients go to the critical stage from the infected compartemnt.
--   `dc` **[Number][18]** The death rate for critical patients
--   `uc` **[Number][18]** The recovery rate for critical patients
--   `hc` **[Number][18]** The rate at which a critical patient goes to the hospitalized compartment, and are no longer critical.
--   `ic` **[Number][18]** The rate at which a critical patient goes to the infected compartment, and are no longer critical.
--   `h` **[Number][18]** The hospitalization rate
--   `p` **[Number][18]** The total population.
--   `stochastic` **[Boolean][19]** Defaults to false, whether to make the model stochastic or not. (optional, default `false`)
+*   `c` **[HTMLElement][17]** The HTML5 Canvas Element.
+*   `rn` **[Number][18]** R Naught, or the amount of people one infected infects whlie infected.
+*   `s` **[Number][18]** The Susceptible population at the beggining of the outbreak
+*   `i` **[Number][18]** The Infected population at the beggining of the outbreak
+*   `t` **[Number][18]** The time the total simulation lasts.
+*   `u` **[Number][18]** The recovery rate for the infected population
+*   `uh` **[Number][18]** The recovery rate for the hospitalized population
+*   `a` **[Number][18]** The incubation period
+*   `di` **[Number][18]** The death rate for the infected population
+*   `dh` **[Number][18]** The death rate for the hospitalized population
+*   `ch` **[Number][18]** The rate at which patients go to the critical stage from the hospitalized compartment.
+*   `ci` **[Number][18]** The rate at which patients go to the critical stage from the infected compartemnt.
+*   `dc` **[Number][18]** The death rate for critical patients
+*   `uc` **[Number][18]** The recovery rate for critical patients
+*   `hc` **[Number][18]** The rate at which a critical patient goes to the hospitalized compartment, and are no longer critical.
+*   `ic` **[Number][18]** The rate at which a critical patient goes to the infected compartment, and are no longer critical.
+*   `h` **[Number][18]** The hospitalization rate
+*   `p` **[Number][18]** The total population.
+*   `stochastic` **[Boolean][19]** Defaults to false, whether to make the model stochastic or not. (optional, default `false`)
 
 ### Examples
 

@@ -15,7 +15,8 @@ module.exports = {
           title: "Introduction",
           collapsable: false,
           children: [
-            ['getting-started', 'Getting Started']
+            ['getting-started', 'Getting Started'],
+            ['installation', 'Installation']
           ]
         },
         {
