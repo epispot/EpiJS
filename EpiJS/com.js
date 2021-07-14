@@ -85,12 +85,12 @@ class Community {
     
             if (stochastic === true) {
                 var distribution = gaussian(0, 1)
-                omega1 = distribution.random(1)[0]
-                omega2 = distribution.random(1)[0]
+                var omega1 = distribution.random(1)[0]
+                var omega2 = distribution.random(1)[0]
             }
             else {
-                omega1 = 0
-                omega2 = 0
+                var omega1 = 0
+                var omega2 = 0
                 f1 = 0
                 f2 = 0
             }
@@ -152,14 +152,14 @@ class Community {
 
             if (stochastic === true) {
                 var distribution = gaussian(0, 1)
-                omega1 = distribution.random(1)[0]
-                omega2 = distribution.random(1)[0]
-                omega3 = distribution.random(1)[0]
+                var omega1 = distribution.random(1)[0]
+                var omega2 = distribution.random(1)[0]
+                var omega3 = distribution.random(1)[0]
             }
             else {
-                omega1 = 0
-                omega2 = 0
-                omega3 = 0
+                var omega1 = 0
+                var omega2 = 0
+                var omega3 = 0
                 f1 = 0
                 f2 = 0
                 f3 = 0
@@ -228,16 +228,16 @@ class Community {
 
             if (stochastic === true) {
                 var distribution = gaussian(0, 1)
-                omega1 = distribution.random(1)[0]
-                omega2 = distribution.random(1)[0]
-                omega3 = distribution.random(1)[0]
-                omega4 = distribution.random(1)[0]
+                var omega1 = distribution.random(1)[0]
+                var omega2 = distribution.random(1)[0]
+                var omega3 = distribution.random(1)[0]
+                var omega4 = distribution.random(1)[0]
             }
             else {
-                omega1 = 0
-                omega2 = 0
-                omega3 = 0
-                omega4 = 0
+                var omega1 = 0
+                var omega2 = 0
+                var omega3 = 0
+                var omega4 = 0
                 f1 = 0
                 f2 = 0
                 f3 = 0
