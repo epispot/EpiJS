@@ -5,10 +5,10 @@ title: EpiJS Module - Model
 
 ### Table of Contents
 
--   [Model][1]
-    -   [Parameters][2]
-    -   [get_data][3]
-        -   [Examples][11]
+*   [Model][1]
+    *   [Parameters][2]
+    *   [get_data][3]
+        *   [Examples][11]
 
 # Model
 
@@ -24,8 +24,8 @@ Create a model.
 
 ### Parameters
 
--   `compartments` **[Array][13]** Compartments in the model. Each should be a list, with the first value being the compartment, and the second being it's start value in the key.
--   `key` **[Object][14]** The key of values for any variable used in the equation. If you use any variable which represents the population of a compartment, add the starting value into the key.
+*   `compartments` **[Array][13]** Compartments in the model. Each should be a list, with the first value being the compartment, and the second being it's start value in the key.
+*   `key` **[Object][14]** The key of values for any variable used in the equation. If you use any variable which represents the population of a compartment, add the starting value into the key.
 
 ### Examples
 
@@ -52,7 +52,7 @@ Get data for the outbreak.
 
 #### Parameters
 
--   `time` **[Number][12]** The total time to model.
+*   `time` **[Number][12]** The total time to model.
 
 #### Examples
 

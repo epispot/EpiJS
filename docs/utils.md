@@ -4,12 +4,12 @@
 
 
 
--   [calcrn][3]
-    -   [Parameters][4]
--   [calcb][5]
-    -   [Parameters][6]
--   [calcu][7]
-    -   [Parameters][8]
+*   [calcrn][3]
+    *   [Parameters][4]
+*   [calcb][5]
+    *   [Parameters][6]
+*   [calcu][7]
+    *   [Parameters][8]
 
 # Utils
 
@@ -25,8 +25,8 @@ Calculate R-Naught
 
 ### Parameters
 
--   `b` **[Number][9]** The infection rate
--   `u` **[Number][9]** The recovery rate
+*   `b` **[Number][9]** The infection rate
+*   `u` **[Number][9]** The recovery rate
 
 ## calcb
 
@@ -34,8 +34,8 @@ Calculate Infection rate
 
 ### Parameters
 
--   `rn` **[Number][9]** R-Naught Value
--   `u1` **[Number][9]** The recovery rate
+*   `rn` **[Number][9]** R-Naught Value
+*   `u1` **[Number][9]** The recovery rate
 
 ## calcu
 
@@ -43,8 +43,8 @@ Calculate Recovery Rate
 
 ### Parameters
 
--   `rn1` **[Number][9]** R-Naught Value
--   `b1` **[Number][9]** The infection rate
+*   `rn1` **[Number][9]** R-Naught Value
+*   `b1` **[Number][9]** The infection rate
 
 [1]: #calcrn
 

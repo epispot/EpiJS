@@ -6,27 +6,27 @@ title: EpiJS Module - Com
 ### Table of Contents
 
 
--   [Virus][2]
-    -   [Parameters][3]
-    -   [Examples][4]
--   [Community][5]
-    -   [Parameters][6]
-    -   [Examples][7]
-    -   [sir][8]
-        -   [Parameters][9]
-        -   [Examples][10]
-    -   [seir][11]
-        -   [Parameters][12]
-        -   [Examples][13]
-    -   [seird][14]
-        -   [Parameters][15]
-        -   [Examples][16]
-    -   [custom][17]
-        -   [Parameters][18]
-        -   [Examples][19]
--   [compare][20]
-    -   [Parameters][21]
-    -   [Examples][22]
+*   [Virus][2]
+    *   [Parameters][3]
+    *   [Examples][4]
+*   [Community][5]
+    *   [Parameters][6]
+    *   [Examples][7]
+    *   [sir][8]
+        *   [Parameters][9]
+        *   [Examples][10]
+    *   [seir][11]
+        *   [Parameters][12]
+        *   [Examples][13]
+    *   [seird][14]
+        *   [Parameters][15]
+        *   [Examples][16]
+    *   [custom][17]
+        *   [Parameters][18]
+        *   [Examples][19]
+*   [compare][20]
+    *   [Parameters][21]
+    *   [Examples][22]
 
 # Com
 
@@ -42,10 +42,10 @@ Class representing a virus, which can infect a community.
 
 ### Parameters
 
--   `rnaught` **[Number][23]** The disease's R-Naught
--   `u` **[Number][23]** The disease's recovery rate
--   `a` **[Number][23]** The disease's incubation period (optional, default `0`)
--   `d` **[Number][23]** The disease's death rate (for infected population) (optional, default `0`)
+*   `rnaught` **[Number][23]** The disease's R-Naught
+*   `u` **[Number][23]** The disease's recovery rate
+*   `a` **[Number][23]** The disease's incubation period (optional, default `0`)
+*   `d` **[Number][23]** The disease's death rate (for infected population) (optional, default `0`)
 
 ### Examples
 
@@ -59,9 +59,9 @@ Class representing a community, which can be infected with a disease, and compar
 
 ### Parameters
 
--   `pop` **[Number][23]** The population of the community
--   `i` **[Number][23]** The start infected population of the community.
--   `s` **[Number][23]** The start susceptible population of the community
+*   `pop` **[Number][23]** The population of the community
+*   `i` **[Number][23]** The start infected population of the community.
+*   `s` **[Number][23]** The start susceptible population of the community
 
 ### Examples
 
@@ -75,8 +75,9 @@ SIR model for the community
 
 #### Parameters
 
--   `disease` **[Number][23]** A virus class. The virus to infect the community with and model for.
--   `time` **[Number][23]** Time to predict for.
+*   `disease` **[Number][23]** A virus class. The virus to infect the community with and model for.
+*   `time` **[Number][23]** Time to predict for.
+*   `stochastic` **[Boolean][24]** Defaults to false, whether to make the model stochastic or not. (optional, default `false`)
 
 #### Examples
 
@@ -93,8 +94,9 @@ SEIR model for the community
 
 #### Parameters
 
--   `disease` **[Number][23]** A virus class. The virus to infect the community with and model for.
--   `time` **[Number][23]** Time to predict for.
+*   `disease` **[Number][23]** A virus class. The virus to infect the community with and model for.
+*   `time` **[Number][23]** Time to predict for.
+*   `stochastic` **[Boolean][24]** Defaults to false, whether to make the model stochastic or not. (optional, default `false`)
 
 #### Examples
 
@@ -111,8 +113,9 @@ SEIRD model for the community
 
 #### Parameters
 
--   `disease` **[Number][23]** A virus class. The virus to infect the community with and model for.
--   `time` **[Number][23]** Time to predict for.
+*   `disease` **[Number][23]** A virus class. The virus to infect the community with and model for.
+*   `time` **[Number][23]** Time to predict for.
+*   `stochastic` **[Boolean][24]** Defaults to false, whether to make the model stochastic or not. (optional, default `false`)
 
 #### Examples
 
@@ -129,16 +132,16 @@ Custom model for the community
 
 #### Parameters
 
--   `compartments` **[Array][24]** The compartments for the model. Pass in as an array with sub arrays of the form [compartment, name in key].
-         Note that the 'name in key' is a string with the same value that is stored in your extra key, otherwise it should be the same name that we store it as. You can find these names below.        - Susceptible - stored as 'S'
+*   `compartments` **[Array][25]** The compartments for the model. Pass in as an array with sub arrays of the form \[compartment, name in key].
+    Note that the 'name in key' is a string with the same value that is stored in your extra key, otherwise it should be the same name that we store it as. You can find these names below.        - Susceptible - stored as 'S'
             - Infected - stored as 'I'
             - Recovered - stored as 'R'
 
          Make sure that you use the same names that are stored in the key in the equations for the compartments. These values are found from parameters passed into the virus class and the community class.
--   `time` **[Number][23]** The time to predict for.
--   `virus`  The virus class to infect the community with.
--   `extrakey` **[Object][25]** Any extra parameters for the compartments equations.
-         We already have the following parameters:       - Population - stored as 'p' in our key.
+*   `time` **[Number][23]** The time to predict for.
+*   `virus`  The virus class to infect the community with.
+*   `extrakey` **[Object][26]** Any extra parameters for the compartments equations.
+    We already have the following parameters:       - Population - stored as 'p' in our key.
            - Susceptible Population - stored as 'S' in our key.
            - R-naught - stored as 'rn' in our key.
            - Recovery rate - stored as 'u' in our key.
@@ -166,12 +169,12 @@ Compare's two different outbreaks, communities, or anything else.
 
 ### Parameters
 
--   `c` **[HTMLCanvasElement][26]** The canvas element
--   `model1` **[Function][27]** The first model to compare.
--   `model2` **[Function][27]** The second model to compare.
--   `m1name` **[String][28]** The name of the first model
--   `m2name` **[String][28]** The name of the second model
--   `days` **[Number][23]** The total amount of days to compare for.
+*   `c` **[HTMLCanvasElement][27]** The canvas element
+*   `model1` **[Function][28]** The first model to compare.
+*   `model2` **[Function][28]** The second model to compare.
+*   `m1name` **[String][29]** The name of the first model
+*   `m2name` **[String][29]** The name of the second model
+*   `days` **[Number][23]** The total amount of days to compare for.
 
 ### Examples
 
@@ -234,12 +237,14 @@ compare(chart, covid_outbreak, variant_outbreak, "COVID-19", "COVID-19 Variant",
 
 [23]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
 
-[24]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+[24]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
 
-[25]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+[25]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
 
-[26]: https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement
+[26]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
 
-[27]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+[27]: https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement
 
-[28]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+[28]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+
+[29]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
