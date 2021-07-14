@@ -44,21 +44,21 @@ function sir(c, rn, s, i, time, u, p, stochastic=false) {
 			borderColor: "#"+Math.floor(Math.random()*16777215).toString(16),
 		}]
 	}
-	let f1;
-	let f2;
+	var f1 = 0;
+	var f2 = 0;
 
 	for(let x = 0; x<time; x++){
 		f1 = Math.sqrt((rn*u)*data.datasets[0].data[x]*data.datasets[1].data[x]/p)
 		f2 = Math.sqrt(u*data.datasets[1].data[x])
 
-		if (stochastic == true) {
+		if (stochastic === true) {
 			var distribution = gaussian(0, 1)
-			omega1 = distribution.random(1)[0]
-			omega2 = distribution.random(1)[0]
+			var omega1 = distribution.random(1)[0]
+			var omega2 = distribution.random(1)[0]
 		}
 		else {
-			omega1 = 0
-			omega2 = 0
+			var omega1 = 0
+			var omega2 = 0
 			f1 = 0
 			f2 = 0
 		}
@@ -69,7 +69,7 @@ function sir(c, rn, s, i, time, u, p, stochastic=false) {
 		data.labels.push("Day " +(x+1).toString())
 
 		// Check if any of the new values are below 0, if so, set them to 0
-		for(let i = 0; i<data.datasets.length; i++){
+		for(let i = 0; i<data.datasets.length; i++){ // skipcq: JS-0123
 			if(data.datasets[i].data[x+1] < 0){
 				data.datasets[i].data[x+1] = 0
 			}
@@ -131,20 +131,20 @@ function seir(c, rn, s, i, t, u, a, p, stochastic=false) {
 	}
 
 	for(let x = 0; x<t; x++){
-		f1 = Math.sqrt((rn*u)*data.datasets[0].data[x]*data.datasets[1].data[x]/p)
-		f2 = Math.sqrt(u*data.datasets[1].data[x])
-		f3 = Math.sqrt(a*data.datasets[1].data[x])
+		var f1 = Math.sqrt((rn*u)*data.datasets[0].data[x]*data.datasets[1].data[x]/p)
+		var f2 = Math.sqrt(u*data.datasets[1].data[x])
+		var f3 = Math.sqrt(a*data.datasets[1].data[x])
 
-		if (stochastic == true) {
+		if (stochastic === true) {
 			var distribution = gaussian(0, 1)
-			omega1 = distribution.random(1)[0]
-			omega2 = distribution.random(1)[0]
-			omega3 = distribution.random(1)[0]
+			var omega1 = distribution.random(1)[0]
+			var omega2 = distribution.random(1)[0]
+			var omega3 = distribution.random(1)[0]
 		}
 		else {
-			omega1 = 0
-			omega2 = 0
-			omega3 = 0
+			var omega1 = 0
+			var omega2 = 0
+			var omega3 = 0
 			f1 = 0
 			f2 = 0
 			f3 = 0
@@ -157,7 +157,7 @@ function seir(c, rn, s, i, t, u, a, p, stochastic=false) {
 		data.labels.push("Day " +(x+1).toString())
 
 		// Check if any of the new values are below 0, if so, set them to 0
-		for(let i = 0; i<data.datasets.length; i++){
+		for(let i = 0; i<data.datasets.length; i++){ // skipcq: JS-0123
 			if(data.datasets[i].data[x+1] < 0){
 				data.datasets[i].data[x+1] = 0
 			}
@@ -224,23 +224,23 @@ function seird(c, rn, s, i, t, u, a, d, p, stochastic=false) {
 	}
 
 	for(let x = 0; x<t; x++){
-		f1 = Math.sqrt((rn*u)*data.datasets[0].data[x]*data.datasets[1].data[x]/p)
-		f2 = Math.sqrt(u*data.datasets[1].data[x])
-		f3 = Math.sqrt(a*data.datasets[1].data[x])
-		f4 = Math.sqrt(d*data.datasets[2].data[x])
+		var f1 = Math.sqrt((rn*u)*data.datasets[0].data[x]*data.datasets[1].data[x]/p)
+		var f2 = Math.sqrt(u*data.datasets[1].data[x])
+		var f3 = Math.sqrt(a*data.datasets[1].data[x])
+		var f4 = Math.sqrt(d*data.datasets[2].data[x])
 
-		if (stochastic == true) {
+		if (stochastic === true) {
 			var distribution = gaussian(0, 1)
-			omega1 = distribution.random(1)[0]
-			omega2 = distribution.random(1)[0]
-			omega3 = distribution.random(1)[0]
-			omega4 = distribution.random(1)[0]
+			var omega1 = distribution.random(1)[0]
+			var omega2 = distribution.random(1)[0]
+			var omega3 = distribution.random(1)[0]
+			var omega4 = distribution.random(1)[0]
 		}
 		else {
-			omega1 = 0
-			omega2 = 0
-			omega3 = 0
-			omega4 = 0
+			var omega1 = 0
+			var omega2 = 0
+			var omega3 = 0
+			var omega4 = 0
 			f1 = 0
 			f2 = 0
 			f3 = 0
@@ -254,7 +254,7 @@ function seird(c, rn, s, i, t, u, a, d, p, stochastic=false) {
 		data.labels.push("Day " +(x+1).toString())
 
 		// Check if any of the new values are below 0, if so, set them to 0
-		for(let i = 0; i<data.datasets.length; i++){
+		for(let i = 0; i<data.datasets.length; i++){ // skipcq: JS-0123
 			if(data.datasets[i].data[x+1] < 0){
 				data.datasets[i].data[x+1] = 0
 			}
@@ -329,34 +329,34 @@ function seihrd(c, rn, s, i, t, u, uh, a, di, dh, h, p, stochastic=false) {
 	}
 
 	for(let x = 0; x<t; x++){
-		f1 = Math.sqrt((rn*u)*data.datasets[0].data[x]*data.datasets[1].data[x]/p)
-		f2 = Math.sqrt(u*data.datasets[1].data[x])
-		f3 = Math.sqrt(a*data.datasets[1].data[x])
-		f4 = Math.sqrt(di*data.datasets[2].data[x])
-		f5 = Math.sqrt(uh*data.datasets[3].data[x])
-		f6 = Math.sqrt(h*data.datasets[2].data[x])
-		f7 = Math.sqrt(dh*data.datasets[3].data[x])
+		var f1 = Math.sqrt((rn*u)*data.datasets[0].data[x]*data.datasets[1].data[x]/p)
+		var f2 = Math.sqrt(u*data.datasets[1].data[x])
+		var f3 = Math.sqrt(a*data.datasets[1].data[x])
+		var f4 = Math.sqrt(di*data.datasets[2].data[x])
+		var f5 = Math.sqrt(uh*data.datasets[3].data[x])
+		var f6 = Math.sqrt(h*data.datasets[2].data[x])
+		var f7 = Math.sqrt(dh*data.datasets[3].data[x])
 
 
-		if (stochastic == true) {
+		if (stochastic === true) {
 			var distribution = gaussian(0, 1)
-			omega1 = distribution.random(1)[0]
-			omega2 = distribution.random(1)[0]
-			omega3 = distribution.random(1)[0]
-			omega4 = distribution.random(1)[0]
-			omega5 = distribution.random(1)[0]
-			omega6 = distribution.random(1)[0]
-			omega7 = distribution.random(1)[0]
+			var omega1 = distribution.random(1)[0]
+			var omega2 = distribution.random(1)[0]
+			var omega3 = distribution.random(1)[0]
+			var omega4 = distribution.random(1)[0]
+			var omega5 = distribution.random(1)[0]
+			var omega6 = distribution.random(1)[0]
+			var omega7 = distribution.random(1)[0]
 		}
 		else {
-			omega1 = 0
-			omega2 = 0
-			omega3 = 0
-			omega4 = 0
-			omega5 = 0
-			omega6 = 0
-			omega7 = 0
-			omega8 = 0
+			var omega1 = 0
+			var omega2 = 0
+			var omega3 = 0
+			var omega4 = 0
+			var omega5 = 0
+			var omega6 = 0
+			var omega7 = 0
+			var omega8 = 0
 			f1 = 0
 			f2 = 0
 			f3 = 0
@@ -374,7 +374,7 @@ function seihrd(c, rn, s, i, t, u, uh, a, di, dh, h, p, stochastic=false) {
 		data.labels.push("Day " +(x+1).toString())
 
 		// Check if any of the new values are below 0, if so, set them to 0
-		for(let i = 0; i<data.datasets.length; i++){
+		for(let i = 0; i<data.datasets.length; i++){ // skipcq: JS-0123
 			if(data.datasets[i].data[x+1] < 0){
 				data.datasets[i].data[x+1] = 0
 			}
@@ -460,51 +460,51 @@ function seihrd(c, rn, s, i, t, u, uh, a, di, dh, h, p, stochastic=false) {
   }
 
   for(let x = 0; x<t; x++){
-	f1 = Math.sqrt((rn*u)*data.datasets[0].data[x]*data.datasets[1].data[x]/p)
-	f2 = Math.sqrt(u*data.datasets[1].data[x])
-	f3 = Math.sqrt(a*data.datasets[1].data[x])
-	f4 = Math.sqrt(di*data.datasets[2].data[x])
-	f5 = Math.sqrt(uh*data.datasets[3].data[x])
-	f6 = Math.sqrt(h*data.datasets[2].data[x])
-	f7 = Math.sqrt(dh*data.datasets[3].data[x])
-	f8 = Math.sqrt(ch*data.datasets[3].data[x])
-	f9 = Math.sqrt(ci*data.datasets[2].data[x])
-	f10 = Math.sqrt(dc*data.datasets[4].data[x])
-	f11 = Math.sqrt(uc*data.datasets[4].data[x])
-	f12 = Math.sqrt(hc*data.datasets[4].data[x])
-	f13 = Math.sqrt(ic*data.datasets[4].data[x])
+	var f1 = Math.sqrt((rn*u)*data.datasets[0].data[x]*data.datasets[1].data[x]/p)
+	var f2 = Math.sqrt(u*data.datasets[1].data[x])
+	var f3 = Math.sqrt(a*data.datasets[1].data[x])
+	var f4 = Math.sqrt(di*data.datasets[2].data[x])
+	var f5 = Math.sqrt(uh*data.datasets[3].data[x])
+	var f6 = Math.sqrt(h*data.datasets[2].data[x])
+	var f7 = Math.sqrt(dh*data.datasets[3].data[x])
+	var f8 = Math.sqrt(ch*data.datasets[3].data[x])
+	var f9 = Math.sqrt(ci*data.datasets[2].data[x])
+	var f10 = Math.sqrt(dc*data.datasets[4].data[x])
+	var f11 = Math.sqrt(uc*data.datasets[4].data[x])
+	var f12 = Math.sqrt(hc*data.datasets[4].data[x])
+	var f13 = Math.sqrt(ic*data.datasets[4].data[x])
 
 
-	if (stochastic == true) {
+	if (stochastic === true) {
 		var distribution = gaussian(0, 1)
-		omega1 = distribution.random(1)[0]
-		omega2 = distribution.random(1)[0]
-		omega3 = distribution.random(1)[0]
-		omega4 = distribution.random(1)[0]
-		omega5 = distribution.random(1)[0]
-		omega6 = distribution.random(1)[0]
-		omega7 = distribution.random(1)[0]
-		omega8 = distribution.random(1)[0]
-		omega9 = distribution.random(1)[0]
-		omega10 = distribution.random(1)[0]
-		omega11 = distribution.random(1)[0]
-		omega12 = distribution.random(1)[0]
-		omega13 = distribution.random(1)[0]
+		var omega1 = distribution.random(1)[0]
+		var omega2 = distribution.random(1)[0]
+		var omega3 = distribution.random(1)[0]
+		var omega4 = distribution.random(1)[0]
+		var omega5 = distribution.random(1)[0]
+		var omega6 = distribution.random(1)[0]
+		var omega7 = distribution.random(1)[0]
+		var omega8 = distribution.random(1)[0]
+		var omega9 = distribution.random(1)[0]
+		var omega10 = distribution.random(1)[0]
+		var omega11 = distribution.random(1)[0]
+		var omega12 = distribution.random(1)[0]
+		var omega13 = distribution.random(1)[0]
 	}
 	else {
-		omega1 = 0
-		omega2 = 0
-		omega3 = 0
-		omega4 = 0
-		omega5 = 0
-		omega6 = 0
-		omega7 = 0
-		omega8 = 0
-		omega9 = 0
-		omega10 = 0
-		omega11 = 0
-		omega12 = 0
-		omega13 = 0
+		var omega1 = 0
+		var omega2 = 0
+		var omega3 = 0
+		var omega4 = 0
+		var omega5 = 0
+		var omega6 = 0
+		var omega7 = 0
+		var omega8 = 0
+		var omega9 = 0
+		var omega10 = 0
+		var omega11 = 0
+		var omega12 = 0
+		var omega13 = 0
 		f1 = 0
 		f2 = 0
 		f3 = 0
@@ -529,7 +529,7 @@ function seihrd(c, rn, s, i, t, u, uh, a, di, dh, h, p, stochastic=false) {
 	data.labels.push("Day " +(x+1).toString())
 
 	// Check if any of the new values are below 0, if so, set them to 0
-	for(let i = 0; i<data.datasets.length; i++){
+	for(let i = 0; i<data.datasets.length; i++){ // skipcq: JS-0123
 		if(data.datasets[i].data[x+1] < 0){
 			data.datasets[i].data[x+1] = 0
 		}

@@ -80,7 +80,7 @@ class Susceptible {
     this.equation = "S"
     
     for (var x in next) {
-      if (stochastic == true) {
+      if (stochastic === true) {
         this.equation += "-((S*" + String(next[x]) + ")+sqrt(S*"+String(next[x])+"))*w"
       } else {
         this.equation += "-(S*" + String(next[x]) + ")"
@@ -88,7 +88,7 @@ class Susceptible {
     }
 
     for (var y in prev) {
-      if (stochastic == true) {
+      if (stochastic === true) {
         this.equation += "+(("+String(prev[y][0])+"*" + String(prev[y][1])+")+sqrt("+String(prev[y][0])+"*" + String(prev[y][1])+"))*w"
       } else {
         this.equation += "+("+String(prev[y][0])+"*" + String(prev[y][1])+")"
@@ -141,7 +141,7 @@ class Infected {
     this.equation = "I"
     
     for (var x in next) {
-      if (stochastic == true) {
+      if (stochastic === true) {
         this.equation += "-((I*" + String(next[x]) + ")+sqrt(I*"+String(next[x])+"))"
       } else {
         this.equation += "-(I*" + String(next[x]) + ")"
@@ -149,7 +149,7 @@ class Infected {
     }
 
     for (var y in prev) {
-      if (stochastic == true) {
+      if (stochastic === true) {
         this.equation += "+(("+String(prev[y][0])+"*" + String(prev[y][1])+")+sqrt("+String(prev[y][0])+"*" + String(prev[y][1])+"))*w"
       } else {
         this.equation += "+("+String(prev[y][0])+"*" + String(prev[y][1])+")"
@@ -202,7 +202,7 @@ class Exposed {
     this.equation = "E"
     
     for (var x in next) {
-      if (stochastic == true) {
+      if (stochastic === true) {
         this.equation += "-((E*" + String(next[x]) + ")+sqrt(E*"+String(next[x])+"))"
       } else {
         this.equation += "-(E*" + String(next[x]) + ")"
@@ -210,7 +210,7 @@ class Exposed {
     }
 
     for (var y in prev) {
-      if (stochastic == true) {
+      if (stochastic === true) {
         this.equation += "+(("+String(prev[y][0])+"*" + String(prev[y][1])+")+sqrt("+String(prev[y][0])+"*" + String(prev[y][1])+"))*w"
       } else {
         this.equation += "+("+String(prev[y][0])+"*" + String(prev[y][1])+")"
@@ -263,7 +263,7 @@ class Critical {
     this.equation = "C"
     
     for (var x in next) {
-      if (stochastic == true) {
+      if (stochastic === true) {
         this.equation += "-((C*" + String(next[x]) + ")+sqrt(C*"+String(next[x])+"))"
       } else {
         this.equation += "-(C*" + String(next[x]) + ")"
@@ -271,7 +271,7 @@ class Critical {
     }
 
     for (var y in prev) {
-      if (stochastic == true) {
+      if (stochastic === true) {
         this.equation += "+(("+String(prev[y][0])+"*" + String(prev[y][1])+")+sqrt("+String(prev[y][0])+"*" + String(prev[y][1])+"))*w"
       } else {
         this.equation += "+("+String(prev[y][0])+"*" + String(prev[y][1])+")"
@@ -324,7 +324,7 @@ class Hospitalized {
     this.equation = "H"
     
     for (var x in next) {
-      if (stochastic == true) {
+      if (stochastic === true) {
         this.equation += "-((H*" + String(next[x]) + ")+sqrt(H*"+String(next[x])+"))"
       } else {
         this.equation += "-(H*" + String(next[x]) + ")"
@@ -332,7 +332,7 @@ class Hospitalized {
     }
 
     for (var y in prev) {
-      if (stochastic == true) {
+      if (stochastic === true) {
         this.equation += "+(("+String(prev[y][0])+"*" + String(prev[y][1])+")+sqrt("+String(prev[y][0])+"*" + String(prev[y][1])+"))*w"
       } else {
         this.equation += "+("+String(prev[y][0])+"*" + String(prev[y][1])+")"
@@ -386,7 +386,7 @@ class Dead {
     this.equation = "D"
     
     for (var x in next) {
-      if (stochastic == true) {
+      if (stochastic === true) {
         this.equation += "-((D*" + String(next[x]) + ")+sqrt(D*"+String(next[x])+"))"
       } else {
         this.equation += "-(D*" + String(next[x]) + ")"
@@ -394,7 +394,7 @@ class Dead {
     }
 
     for (var y in prev) {
-      if (stochastic == true) {
+      if (stochastic === true) {
         this.equation += "+(("+String(prev[y][0])+"*" + String(prev[y][1])+")+sqrt("+String(prev[y][0])+"*" + String(prev[y][1])+"))*w"
       } else {
         this.equation += "+("+String(prev[y][0])+"*" + String(prev[y][1])+")"
@@ -447,7 +447,7 @@ class Vaccinated {
     this.equation = "V"
     
     for (var x in next) {
-      if (stochastic == true) {
+      if (stochastic === true) {
         this.equation += "-((V*" + String(next[x]) + ")+sqrt(V*"+String(next[x])+"))"
       } else {
         this.equation += "-(V*" + String(next[x]) + ")"
@@ -455,7 +455,7 @@ class Vaccinated {
     }
 
     for (var y in prev) {
-      if (stochastic == true) {
+      if (stochastic === true) {
         this.equation += "+(("+String(prev[y][0])+"*" + String(prev[y][1])+")+sqrt("+String(prev[y][0])+"*" + String(prev[y][1])+"))*w"
       } else {
         this.equation += "+("+String(prev[y][0])+"*" + String(prev[y][1])+")"
@@ -508,7 +508,7 @@ class Recovered {
     this.equation = "R"
     
     for (var x in next) {
-      if (stochastic == true) {
+      if (stochastic === true) {
         this.equation += "-((R*" + String(next[x]) + ")+sqrt(R*"+String(next[x])+"))"
       } else {
         this.equation += "-(R*" + String(next[x]) + ")"
@@ -516,7 +516,7 @@ class Recovered {
     }
 
     for (var y in prev) {
-      if (stochastic == true) {
+      if (stochastic === true) {
         this.equation += "+(("+String(prev[y][0])+"*" + String(prev[y][1])+")+sqrt("+String(prev[y][0])+"*" + String(prev[y][1])+"))*w"
       } else {
         this.equation += "+("+String(prev[y][0])+"*" + String(prev[y][1])+")"

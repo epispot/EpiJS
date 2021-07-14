@@ -76,14 +76,14 @@ class Community {
                 label: "Recovered",
             }]
         }
-        let f1;
-        let f2;
+        var f1;
+        var f2;
     
         for(let x = 0; x<time; x++){
             f1 = Math.sqrt((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)
             f2 = Math.sqrt(disease.u*data.datasets[1].data[x])
     
-            if (stochastic == true) {
+            if (stochastic === true) {
                 var distribution = gaussian(0, 1)
                 omega1 = distribution.random(1)[0]
                 omega2 = distribution.random(1)[0]
@@ -141,16 +141,16 @@ class Community {
                 label: "Recovered",
             }]
         }
-        let f1;
-        let f2;
-        let f3;
+        var f1;
+        var f2;
+        var f3;
 
         for(let x = 0; x<time; x++){
             f1 = Math.sqrt((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)
             f2 = Math.sqrt(disease.u*data.datasets[2].data[x])
             f3 = Math.sqrt(disease.a*data.datasets[1].data[x])
 
-            if (stochastic == true) {
+            if (stochastic === true) {
                 var distribution = gaussian(0, 1)
                 omega1 = distribution.random(1)[0]
                 omega2 = distribution.random(1)[0]
@@ -215,10 +215,10 @@ class Community {
                 label: "Dead",
             }]
         }
-        let f1;
-        let f2;
-        let f3;
-        let f4;
+        var f1;
+        var f2;
+        var f3;
+        var f4;
 
         for(let x = 0; x<time; x++){
             f1 = Math.sqrt((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop) // Rn * U * S * I / N
@@ -226,7 +226,7 @@ class Community {
             f3 = Math.sqrt(disease.a*data.datasets[1].data[x]) // a*I
             f4 = Math.sqrt(disease.d*data.datasets[2].data[x]) // d*I
 
-            if (stochastic == true) {
+            if (stochastic === true) {
                 var distribution = gaussian(0, 1)
                 omega1 = distribution.random(1)[0]
                 omega2 = distribution.random(1)[0]
