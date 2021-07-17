@@ -67,7 +67,7 @@ class Idiom {
  *       If reffering to this compartment's population, use "S" as the id. This parameter is useful
  *       if you want to model a disease with re-susceptibility.
  * @param {Boolean} stochastic If true, the compartment will be stochastic. You can still pass in your normal equation, and epijs will
- *       auto generate the equations from what you pass in. Defaults to false, optional.
+ *       auto generate the equations from what you pass in. 
  * @example
  * 
  *      // Note that you can pass in a number as a rate too, 
@@ -76,7 +76,7 @@ class Idiom {
  *      let S = new Susceptible(["I*0.4/N"], [], true) 
 */
 class Susceptible {
-  constructor (next, prev, stochastic=false) {
+  constructor (next, prev, stochastic) {
     this.equation = "S"
     
     for (var x in next) {
@@ -128,7 +128,7 @@ class Susceptible {
  * @param {Array} prev List of rates of the previous compartments, which include sub-arrays
  *       with the compartment id (one letter only), as a string, and the rate for the compartment.
  *       If reffering to this compartment's population, use "I" as the id.
- * @param {Boolean} stochastic If true, the compartment will be stochastic. Defaults to false, optional.
+ * @param {Boolean} stochastic If true, the compartment will be stochastic. 
  * @example
  * 
  *      // Note that you can pass in a string as a rate too, 
@@ -137,7 +137,7 @@ class Susceptible {
  *      let I = new Infected([0.3], [["S", "I*0.4/N"]]) 
 */
 class Infected {
-  constructor (next, prev, stochastic=false) {
+  constructor (next, prev, stochastic) {
     this.equation = "I"
     
     for (var x in next) {
@@ -189,7 +189,7 @@ class Infected {
  * @param {Array} prev List of rates of the previous compartments, which include sub-arrays
  *       with the compartment id (one letter only), as a string, and the rate for the compartment.
  *       If reffering to this compartment's population, use "E" as the id.
- * @param {Boolean} stochastic If true, the compartment will be stochastic. Defaults to false, optional.
+ * @param {Boolean} stochastic If true, the compartment will be stochastic. 
  * @example
  * 
  *      // Note that you can pass in a string as a rate too, 
@@ -198,7 +198,7 @@ class Infected {
  *      let E = new Exposed([1/14], ["S*0.4/N"]) 
 */
 class Exposed {
-  constructor (next, prev, stochastic=false) {
+  constructor (next, prev, stochastic) {
     this.equation = "E"
     
     for (var x in next) {
@@ -250,7 +250,7 @@ class Exposed {
  * @param {Array} prev List of rates of the previous compartments, which include sub-arrays
  *       with the compartment id (one letter only), as a string, and the rate for the compartment.
  *       If reffering to this compartment's population, use "C" as the id.
- * @param {Boolean} stochastic If true, the compartment will be stochastic. Defaults to false, optional.
+ * @param {Boolean} stochastic If true, the compartment will be stochastic. 
  * @example
  * 
  *      // Note that you can pass in a string as a rate too, 
@@ -259,7 +259,7 @@ class Exposed {
  *      let C = new Critical([0.14, 0.1], [["H", 0.3]]) 
 */
 class Critical {
-  constructor (next, prev, stochastic=false) {
+  constructor (next, prev, stochastic) {
     this.equation = "C"
     
     for (var x in next) {
@@ -311,7 +311,7 @@ class Critical {
  * @param {Array} prev List of rates of the previous compartments, which include sub-arrays
  *       with the compartment id (one letter only), as a string, and the rate for the compartment.
  *       If reffering to this compartment's population, use "H" as the id.
- * @param {Boolean} stochastic If true, the compartment will be stochastic. Defaults to false, optional.
+ * @param {Boolean} stochastic If true, the compartment will be stochastic. 
  * @example
  * 
  *      // Note that you can pass in a string as a rate too, 
@@ -320,7 +320,7 @@ class Critical {
  *      let H = new Hospitalized([0.3], [["I", 0.1], ["E", 0.2]])
 */
 class Hospitalized {
-  constructor (next, prev, stochastic=false) {
+  constructor (next, prev, stochastic) {
     this.equation = "H"
     
     for (var x in next) {
@@ -373,7 +373,7 @@ class Hospitalized {
  * @param {Array} prev List of rates of the previous compartments, which include sub-arrays
  *       with the compartment id (one letter only), as a string, and the rate for the compartment.
  *       If reffering to this compartment's population, use "D" as the id.
- * @param {Boolean} stochastic If true, the compartment will be stochastic. Defaults to false, optional.
+ * @param {Boolean} stochastic If true, the compartment will be stochastic. 
  * @example
  * 
  *      // Note that you can pass in a string as a rate too, 
@@ -382,7 +382,7 @@ class Hospitalized {
  *      let D = new Dead([0.3], [["I", 0.3]]) // This disease also gives you a 3/10 chance to come alive after death.
 */
 class Dead {
-  constructor (next, prev, stochastic=false) {
+  constructor (next, prev, stochastic) {
     this.equation = "D"
     
     for (var x in next) {
@@ -434,7 +434,7 @@ class Dead {
  * @param {Array} prev List of rates of the previous compartments, which include sub-arrays
  *       with the compartment id (one letter only), as a string, and the rate for the compartment.
  *       If reffering to this compartment's population, use "V" as the id.
- * @param {Boolean} stochastic If true, the compartment will be stochastic. Defaults to false, optional.
+ * @param {Boolean} stochastic If true, the compartment will be stochastic. 
  * @example
  * 
  *      // Note that you can pass in a string as a rate too, 
@@ -443,7 +443,7 @@ class Dead {
  *      let I = new Infected([0.001], ["S*0.4"])
 */
 class Vaccinated {
-  constructor (next, prev, stochastic=false) {
+  constructor (next, prev, stochastic) {
     this.equation = "V"
     
     for (var x in next) {
@@ -495,7 +495,7 @@ class Vaccinated {
  * @param {Array} prev List of rates of the previous compartments, which include sub-arrays
  *       with the compartment id (one letter only), as a string, and the rate for the compartment.
  *       If reffering to this compartment's population, use "V" as the id.
- * @param {Boolean} stochastic If true, the compartment will be stochastic. Defaults to false, optional.
+ * @param {Boolean} stochastic If true, the compartment will be stochastic. 
  * @example
  * 
  *      // Note that you can pass in a string as a rate too, 
@@ -504,7 +504,7 @@ class Vaccinated {
  *      let R = new Recovered([ ], [["I", 0.1]])
 */
 class Recovered {
-  constructor (next, prev, stochastic=false) {
+  constructor (next, prev, stochastic) {
     this.equation = "R"
     
     for (var x in next) {
