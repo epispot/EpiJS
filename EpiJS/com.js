@@ -53,7 +53,7 @@ class Community {
      * SIR model for the community
      * @param {Number} disease A virus class. The virus to infect the community with and model for.
      * @param {Number} time Time to predict for.
-     * @param {Boolean} stochastic - Defaults to false, whether to make the model stochastic or not.
+     * @param {Boolean} stochastic - Whether to make the model stochastic or not.
      * @example
      *
      *      let NewYorkCity = new Community(8419000, 300, 8418700)
@@ -61,7 +61,7 @@ class Community {
      *
      *outbreak = NewYorkCity.sir(covid, 100)
      */
-    sir (disease, time, stochastic=false) {
+    sir (disease, time, stochastic) {
         let data = {
             datasets: [{
                 data: [this.s],
@@ -114,7 +114,7 @@ class Community {
      * SEIR model for the community
      * @param {Number} disease A virus class. The virus to infect the community with and model for.
      * @param {Number} time Time to predict for.
-     * @param {Boolean} stochastic - Defaults to false, whether to make the model stochastic or not.
+     * @param {Boolean} stochastic - Whether to make the model stochastic or not.
      * @example
      *
      *      let NewYorkCity = new Community(8419000, 300, 8418700)
@@ -122,7 +122,7 @@ class Community {
      *
      *outbreak = NewYorkCity.seir(covid, 100)
      */
-     seir (disease, time, stochastic=false) {
+     seir (disease, time, stochastic) {
         let data = {
             datasets: [{
                 data: [this.s],
@@ -184,7 +184,7 @@ class Community {
      * SEIRD model for the community
      * @param {Number} disease A virus class. The virus to infect the community with and model for.
      * @param {Number} time Time to predict for.
-     * @param {Boolean} stochastic - Defaults to false, whether to make the model stochastic or not.
+     * @param {Boolean} stochastic - Whether to make the model stochastic or not.
      * @example
      *
      *      let NewYorkCity = new Community(8419000, 300, 8418700)
@@ -192,7 +192,7 @@ class Community {
      *
      *outbreak = NewYorkCity.seird(covid, 100)
      */
-    seird (disease, time, stochastic=false) {
+    seird (disease, time, stochastic) {
         let data = {
             datasets: [{
                 data: [this.s],
