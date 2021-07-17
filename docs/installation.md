@@ -71,11 +71,23 @@ EpiJS is avaliable on multiple CDNs:
 ```
 :::
 ::: tab CDNJS
-Coming soon. Our PR has been submitted, we are waiting for approval. Watch the status [here](https://github.com/cdnjs/packages/pull/775)
+```HTML
+<script src="https://cdnjs.cloudflare.com/ajax/libs/epijs/1.3.1/index.min.js"></script>
+```
 :::
 ::: tab Download
 Alternatively, you can download the minified js attachment and use that yourself from [here](https://github.com/Quantalabs/EpiJS/releases/)
 ```HTML
 <script src="./epijs.min.js"></script>
+```
+Download is also avaliable through npm/yarn:
+```SH
+yarn add @quantalabs/epijs
+npm install @quantalabs/epijs
+```
+And in your html:
+```HTML
+<script src="./node_modules/@quantalabs/epijs/web/index.min.js"></script>
+```
 :::
 ::::
