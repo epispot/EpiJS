@@ -20,3 +20,4 @@ let Critical = EpiJS.comp.Critical
 let calcrn = EpiJS.utils.calcrn
 let calcu = EpiJS.utils.calcu
 let calcb = EpiJS.utils.calcb
+let plot = EpiJS.plots.plot

@@ -1,5 +1,5 @@
 /**
- * @file Pre-made graphs for modelling outbreaks.
+ * @file Pre-made models for disease outbreaks.
  * 
  * Import it with:
  * ```
@@ -7,8 +7,6 @@
  * ```
  */
 
-
-const chart = require('chart.js')
 const gaussian = require('gaussian')
 
 /**
@@ -21,6 +19,7 @@ const gaussian = require('gaussian')
  * @param {Number} u - The recovery rate
  * @param {Number} p - The total population.
  * @param {Boolean} stochastic - Whether to make the model stochastic or not.
+ * @returns The data for the model as a list.
  * @example
  * 
  *      sir(sirchart, 4, 9999, 1, 100, 1/21, 10000)
@@ -85,6 +84,7 @@ function sir(rn, s, i, time, u, p, stochastic) {
  * @param {Number} a - The incubation period
  * @param {Number} p - The total population.
  * @param {Boolean} stochastic - Whether to make the model stochastic or not.
+ * @returns The data for the model as a list.
  * @example
  * 
  *      seir(seirchart, 4, 9999, 1, 100, 1/7, 1/7, 10000)
@@ -156,6 +156,7 @@ function seir(rn, s, i, t, u, a, p, stochastic) {
  * @param {Number} d - The death rate
  * @param {Number} p - The total population.
  * @param {Boolean} stochastic - Whether to make the model stochastic or not.
+ * @returns The data for the model as a list.
  * @example
  * 
  *      seird(seirdchart, 4, 99999, 1, 100, 1/21, 1/14, 1/100, 10000)
@@ -239,6 +240,7 @@ function seird(rn, s, i, t, u, a, d, p, stochastic) {
  * @param {Number} h - The hospitalization rate
  * @param {Number} p - The total population.
  * @param {Boolean} stochastic - Whether to make the model stochastic or not.
+ * @returns The data for the model as a list.
  * @example
  * 
  *      seihrd(seihrdmodelchart, 4, 9999, 1, 265, 1/21, 1/40, 1/14, 1/100, 1/20, 1/30, 10000)
@@ -346,6 +348,7 @@ function seihrd(rn, s, i, t, u, uh, a, di, dh, h, p, stochastic) {
  * @param {Number} h - The hospitalization rate
  * @param {Number} p - The total population.
  * @param {Boolean} stochastic - Whether to make the model stochastic or not.
+ * @returns The data for the model as a list.
  * @example
  * 
  *      seihcrd(seihcrdchart, 4, 9999, 1, 265, 1/21, 1/40, 1/14, 1/100, 1/20, 1/10, 1/40, 2/5, 1/5, 1/5, 1/5, 1/30, 10000)
