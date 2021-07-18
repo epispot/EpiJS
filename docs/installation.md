@@ -62,7 +62,7 @@ EpiJS is avaliable on multiple CDNs:
 :::: tabs
 ::: tab JSDelivr
 ```HTML
-<script src="https://cdn.jsdelivr.net/gh/Quantalabs/EpiJS/web/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/Quantalabs/EpiJS@2.0.0/web/index.min.js"></script>
 ```
 :::
 ::: tab Unpkg
@@ -72,7 +72,7 @@ EpiJS is avaliable on multiple CDNs:
 :::
 ::: tab CDNJS
 ```HTML
-<script src="https://cdnjs.cloudflare.com/ajax/libs/epijs/1.3.1/index.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/epijs/2.0.0/index.min.js"></script>
 ```
 :::
 ::: tab Download

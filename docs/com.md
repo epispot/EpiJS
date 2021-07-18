@@ -153,7 +153,7 @@ We already have the following parameters:
     *   Recovered - stored as 'R' in our key.
     *   Infected - stored as 'I' in our key.
     *   Death Rate - stored as 'd' in our key.
-    *   Incubation Period - stored as 'a' in our key.
+    *   Incubation Period - stored as 'a' in our key
 #### Examples
 
 ```javascript
