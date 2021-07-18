@@ -24,9 +24,10 @@ const gaussian = require('gaussian')
  * 
  *      sir(sirchart, 4, 9999, 1, 100, 1/21, 10000)
  */
+
 function sir(rn, s, i, time, u, p, stochastic) {
 	let data = [
-		{ 
+		{
 			data: [s],
 			label: "Suseptible"
 		},
