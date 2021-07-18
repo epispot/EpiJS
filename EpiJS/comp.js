@@ -54,8 +54,14 @@ class Idiom {
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
+    let out = math.evaluate(parsed.join(''))
 
-    return math.evaluate(parsed.join(''))
+    // Round up to 0 if below 0 for out
+    if (out < 0) {
+      out = 0
+    }
+    
+    return out
   }
 }
 
@@ -118,7 +124,14 @@ class Susceptible {
       }
     }
 
-    return math.evaluate(parsed.join(''))
+    let out = math.evaluate(parsed.join(''))
+
+    // Round up to 0 if below 0 for out
+    if (out < 0) {
+      out = 0
+    }
+    
+    return out
   }
 }
 
@@ -142,7 +155,7 @@ class Infected {
     
     for (var x in next) {
       if (stochastic === true) {
-        this.equation += "-((I*" + String(next[x]) + ")+sqrt(I*"+String(next[x])+"))"
+        this.equation += "-((I*" + String(next[x]) + ")+sqrt(I*"+String(next[x])+")*w)"
       } else {
         this.equation += "-(I*" + String(next[x]) + ")"
       }
@@ -179,7 +192,14 @@ class Infected {
       }
     }
 
-    return math.evaluate(parsed.join(''))
+    let out = math.evaluate(parsed.join(''))
+
+    // Round up to 0 if below 0 for out
+    if (out < 0) {
+      out = 0
+    }
+    
+    return out
   }
 }
 
@@ -203,7 +223,7 @@ class Exposed {
     
     for (var x in next) {
       if (stochastic === true) {
-        this.equation += "-((E*" + String(next[x]) + ")+sqrt(E*"+String(next[x])+"))"
+        this.equation += "-((E*" + String(next[x]) + ")+sqrt(E*"+String(next[x])+")*w)"
       } else {
         this.equation += "-(E*" + String(next[x]) + ")"
       }
@@ -239,8 +259,14 @@ class Exposed {
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
+    let out = math.evaluate(parsed.join(''))
 
-    return math.evaluate(parsed.join(''))
+    // Round up to 0 if below 0 for out
+    if (out < 0) {
+      out = 0
+    }
+    
+    return out
   }
 }
 
@@ -264,7 +290,7 @@ class Critical {
     
     for (var x in next) {
       if (stochastic === true) {
-        this.equation += "-((C*" + String(next[x]) + ")+sqrt(C*"+String(next[x])+"))"
+        this.equation += "-((C*" + String(next[x]) + ")+sqrt(C*"+String(next[x])+")*w)"
       } else {
         this.equation += "-(C*" + String(next[x]) + ")"
       }
@@ -300,8 +326,14 @@ class Critical {
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
+    let out = math.evaluate(parsed.join(''))
 
-    return math.evaluate(parsed.join(''))
+    // Round up to 0 if below 0 for out
+    if (out < 0) {
+      out = 0
+    }
+    
+    return out
   }
 }
 
@@ -325,7 +357,7 @@ class Hospitalized {
     
     for (var x in next) {
       if (stochastic === true) {
-        this.equation += "-((H*" + String(next[x]) + ")+sqrt(H*"+String(next[x])+"))"
+        this.equation += "-((H*" + String(next[x]) + ")+sqrt(H*"+String(next[x])+")*w)"
       } else {
         this.equation += "-(H*" + String(next[x]) + ")"
       }
@@ -361,8 +393,14 @@ class Hospitalized {
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
+    let out = math.evaluate(parsed.join(''))
 
-    return math.evaluate(parsed.join(''))
+    // Round up to 0 if below 0 for out
+    if (out < 0) {
+      out = 0
+    }
+    
+    return out
   }
 }
 
@@ -387,7 +425,7 @@ class Dead {
     
     for (var x in next) {
       if (stochastic === true) {
-        this.equation += "-((D*" + String(next[x]) + ")+sqrt(D*"+String(next[x])+"))"
+        this.equation += "-((D*" + String(next[x]) + ")+sqrt(D*"+String(next[x])+")*w)"
       } else {
         this.equation += "-(D*" + String(next[x]) + ")"
       }
@@ -423,8 +461,14 @@ class Dead {
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
+    let out = math.evaluate(parsed.join(''))
 
-    return math.evaluate(parsed.join(''))
+    // Round up to 0 if below 0 for out
+    if (out < 0) {
+      out = 0
+    }
+    
+    return out
   }
 }
 
@@ -448,7 +492,7 @@ class Vaccinated {
     
     for (var x in next) {
       if (stochastic === true) {
-        this.equation += "-((V*" + String(next[x]) + ")+sqrt(V*"+String(next[x])+"))"
+        this.equation += "-((V*" + String(next[x]) + ")+sqrt(V*"+String(next[x])+")*w)"
       } else {
         this.equation += "-(V*" + String(next[x]) + ")"
       }
@@ -484,8 +528,14 @@ class Vaccinated {
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
+    let out = math.evaluate(parsed.join(''))
 
-    return math.evaluate(parsed.join(''))
+    // Round up to 0 if below 0 for out
+    if (out < 0) {
+      out = 0
+    }
+    
+    return out
   }
 }
 
@@ -509,7 +559,7 @@ class Recovered {
     
     for (var x in next) {
       if (stochastic === true) {
-        this.equation += "-((R*" + String(next[x]) + ")+sqrt(R*"+String(next[x])+"))"
+        this.equation += "-((R*" + String(next[x]) + ")+sqrt(R*"+String(next[x])+")*w)"
       } else {
         this.equation += "-(R*" + String(next[x]) + ")"
       }
@@ -545,8 +595,14 @@ class Recovered {
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
+    let out = math.evaluate(parsed.join(''))
 
-    return math.evaluate(parsed.join(''))
+    // Round up to 0 if below 0 for out
+    if (out < 0) {
+      out = 0
+    }
+    
+    return out
   }
 }
 

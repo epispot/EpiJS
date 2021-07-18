@@ -3,7 +3,7 @@
  *
  * Import it with:
  * ```
- *    const comp = require('@quantalabs/epijs').model
+ *    const model = require('@quantalabs/epijs').model
  * ```
  */
 
