@@ -48,7 +48,7 @@ function plot(model, canvas, days, colors=null, options={title: {display: true, 
     for (let i = 0; i < days; i++) {
         data.labels.push('Day '+i)
     }
-    if (colors != null) {
+    if (colors !== null) {
         for (let i = 0; i < model.length; i++) {
             data.datasets.push({
                 label: model[i].name,
