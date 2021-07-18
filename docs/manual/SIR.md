@@ -114,7 +114,7 @@ Let's start by setting up your program:
 ```
 Now, we can use the one line of code:
 ```JavaScript
-sir(c, rn, s, i, time, u, p)
+sir(rn, s, i, time, u, p, stochastic)
 ```
 Where:
  - `c` is the canvas element,
@@ -122,12 +122,18 @@ Where:
  - `s` is the susceptible population,
  - `i` is the infected population,
  - `time` is the time to model for,
- - `u` is the recovery rate, and
- - `p` is the total population
+ - `u` is the recovery rate,
+ - `p` is the total population,
+ - and `stochastic` is whether or not our model is stochastic
 
 So let's create our model:
 ```JavaScript
-sir("SIR-Model", 1.5, 10000, 100, 100, 0.2, 10100)
+let sirdata = sir(1.5, 10000, 100, 100, 0.2, 10100, false)
+```
+
+Now, we can plot it with the plots module:
+```JavaScript
+plot(sirdata, "SIR-Model", 100)
 ```
 
 ## Approach No. 3 - Pre-Compiled Models with Community Modelling
@@ -158,7 +164,7 @@ Next, for the community, we pass in three:
 
 We now use an SIR model:
 ```JavaScript
-let data = NewYorkCity.sir(covid, 100)
+let data = NewYorkCity.sir(covid, 100, false)
 console.log(data)
 ```
 You'll get a console output of data from these compartments.
@@ -171,8 +177,8 @@ let covid_variant = new Virus(5, 4/100)
 
 let chart = document.getElementById('our-model')
 
-covid_outbreak = NewYorkCity.sir(covid, 100)
-variant_outbreak = NewYorkCity.sir(covid_variant, 100)
+covid_outbreak = NewYorkCity.sir(covid, 100, false)
+variant_outbreak = NewYorkCity.sir(covid_variant, 100, false)
 
 compare(chart, covid_outbreak, variant_outbreak, "COVID-19", "COVID-19 Variant", 100)
 ```

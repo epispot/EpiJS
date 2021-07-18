@@ -17,3 +17,4 @@ exports.com = com;
 exports.comp = comp;
 exports.model = model;
 exports.utils = utils;
+exports.plots = require('./plots');

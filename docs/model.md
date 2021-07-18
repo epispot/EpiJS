@@ -16,7 +16,7 @@ EpiJS module for creating custom models, which are made of compartments.
 
 Import it with:
 ```javascript
-       const comp = require('@quantalabs/epijs').model
+       const model = require('@quantalabs/epijs').model
 ```
 ## Model
 
@@ -37,11 +37,11 @@ let recovered = new Idiom("R+(u*I)");
 let key = {
  "S": 10000,
  "B": 0.3,
-[1]: #model-2
+ "I": 100,
  "R": 0,
  "p": 10100,
  "u": 0.2
-[3]: #get-data
+};
 
 let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
 ```
@@ -75,11 +75,11 @@ let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], ke
 model.get_data(100) // Get data for 100 days.
 ```
 
-[1]: #model
+[1]: #model-2
 
 [2]: #parameters
 
-[3]: #get_data
+[3]: #get-data
 
 [4]: #parameters-1
 

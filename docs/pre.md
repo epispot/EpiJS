@@ -24,7 +24,7 @@ title: EpiJS Module - Pre
 
 # Pre
 
-Pre-made graphs for modelling outbreaks.
+Pre-made models for disease outbreaks.
 
 Import it with:
 ```javascript
@@ -36,20 +36,21 @@ The SIR Model. Returns a chart.js graph with the total Susceptible, Infected, an
 
 ### Parameters
 
-*   `c` **[HTMLElement][17]** The HTML5 Canvas Element.
-*   `rn` **[Number][18]** R Naught, or the amount of people one infected infects whlie infected.
-*   `s` **[Number][18]** The Susceptible population at the beggining of the outbreak
-*   `i` **[Number][18]** The Infected population at the beggining of th outbreak
-*   `time` **[Number][18]** The time the total simulation lasts.
-*   `u` **[Number][18]** The recovery rate
-*   `p` **[Number][18]** The total population.
-*   `stochastic` **[Boolean][19]** Defaults to false, whether to make the model stochastic or not. (optional, default `false`)
+*   `rn` **[Number][17]** R Naught, or the amount of people one infected infects whlie infected.
+*   `s` **[Number][17]** The Susceptible population at the beggining of the outbreak
+*   `i` **[Number][17]** The Infected population at the beggining of th outbreak
+*   `time` **[Number][17]** The time the total simulation lasts.
+*   `u` **[Number][17]** The recovery rate
+*   `p` **[Number][17]** The total population.
+*   `stochastic` **[Boolean][18]** Whether to make the model stochastic or not.
 
 ### Examples
 
 ```javascript
-sir(sirchart, 4, 9999, 1, 100, 1/21, 10000)
+sir(4, 9999, 1, 100, 1/21, 10000, true)
 ```
+
+Returns **any** The data for the model as a list.
 
 ## seir
 
@@ -57,21 +58,22 @@ The SEIR Model. Returns a chart.js graph with the total Susceptible, Exposed, In
 
 ### Parameters
 
-*   `c` **[HTMLElement][17]** The HTML5 Canvas Element.
-*   `rn` **[Number][18]** R Naught, or the amount of people one infected infects whlie infected.
-*   `s` **[Number][18]** The Susceptible population at the beggining of the outbreak
-*   `i` **[Number][18]** The Infected population at the beggining of th outbreak
-*   `t` **[Number][18]** The time the total simulation lasts.
-*   `u` **[Number][18]** The recovery rate
-*   `a` **[Number][18]** The incubation period
-*   `p` **[Number][18]** The total population.
-*   `stochastic` **[Boolean][19]** Defaults to false, whether to make the model stochastic or not. (optional, default `false`)
+*   `rn` **[Number][17]** R Naught, or the amount of people one infected infects whlie infected.
+*   `s` **[Number][17]** The Susceptible population at the beggining of the outbreak
+*   `i` **[Number][17]** The Infected population at the beggining of th outbreak
+*   `t` **[Number][17]** The time the total simulation lasts.
+*   `u` **[Number][17]** The recovery rate
+*   `a` **[Number][17]** The incubation period
+*   `p` **[Number][17]** The total population.
+*   `stochastic` **[Boolean][18]** Whether to make the model stochastic or not.
 
 ### Examples
 
 ```javascript
-seir(seirchart, 4, 9999, 1, 100, 1/7, 1/7, 10000)
+seir(4, 9999, 1, 100, 1/7, 1/7, 10000, true)
 ```
+
+Returns **any** The data for the model as a list.
 
 ## seird
 
@@ -79,22 +81,23 @@ The SEIRD Model. Returns a chart.js graph with the total Susceptible, Exposed, I
 
 ### Parameters
 
-*   `c` **[HTMLElement][17]** The HTML5 Canvas Element.
-*   `rn` **[Number][18]** R Naught, or the amount of people one infected infects whlie infected.
-*   `s` **[Number][18]** The Susceptible population at the beggining of the outbreak
-*   `i` **[Number][18]** The Infected population at the beggining of the outbreak
-*   `t` **[Number][18]** The time the total simulation lasts.
-*   `u` **[Number][18]** The recovery rate
-*   `a` **[Number][18]** The incubation period
-*   `d` **[Number][18]** The death rate
-*   `p` **[Number][18]** The total population.
-*   `stochastic` **[Boolean][19]** Defaults to false, whether to make the model stochastic or not. (optional, default `false`)
+*   `rn` **[Number][17]** R Naught, or the amount of people one infected infects whlie infected.
+*   `s` **[Number][17]** The Susceptible population at the beggining of the outbreak
+*   `i` **[Number][17]** The Infected population at the beggining of the outbreak
+*   `t` **[Number][17]** The time the total simulation lasts.
+*   `u` **[Number][17]** The recovery rate
+*   `a` **[Number][17]** The incubation period
+*   `d` **[Number][17]** The death rate
+*   `p` **[Number][17]** The total population.
+*   `stochastic` **[Boolean][18]** Whether to make the model stochastic or not.
 
 ### Examples
 
 ```javascript
-seird(seirdchart, 4, 99999, 1, 100, 1/21, 1/14, 1/100, 10000)
+seird(4, 99999, 1, 100, 1/21, 1/14, 1/100, 10000, true)
 ```
+
+Returns **any** The data for the model as a list.
 
 ## seihrd
 
@@ -102,25 +105,26 @@ The SEIHRD Model. Returns a chart.js graph with the total Susceptible, Exposed, 
 
 ### Parameters
 
-*   `c` **[HTMLElement][17]** The HTML5 Canvas Element.
-*   `rn` **[Number][18]** R Naught, or the amount of people one infected infects whlie infected.
-*   `s` **[Number][18]** The Susceptible population at the beggining of the outbreak
-*   `i` **[Number][18]** The Infected population at the beggining of the outbreak
-*   `t` **[Number][18]** The time the total simulation lasts.
-*   `u` **[Number][18]** The recovery rate for the infected population
-*   `uh` **[Number][18]** The recovery rate for the hospitalized population
-*   `a` **[Number][18]** The incubation period
-*   `di` **[Number][18]** The death rate for the infected population
-*   `dh` **[Number][18]** The death rate for the hospitalized population
-*   `h` **[Number][18]** The hospitalization rate
-*   `p` **[Number][18]** The total population.
-*   `stochastic` **[Boolean][19]** Defaults to false, whether to make the model stochastic or not. (optional, default `false`)
+*   `rn` **[Number][17]** R Naught, or the amount of people one infected infects whlie infected.
+*   `s` **[Number][17]** The Susceptible population at the beggining of the outbreak
+*   `i` **[Number][17]** The Infected population at the beggining of the outbreak
+*   `t` **[Number][17]** The time the total simulation lasts.
+*   `u` **[Number][17]** The recovery rate for the infected population
+*   `uh` **[Number][17]** The recovery rate for the hospitalized population
+*   `a` **[Number][17]** The incubation period
+*   `di` **[Number][17]** The death rate for the infected population
+*   `dh` **[Number][17]** The death rate for the hospitalized population
+*   `h` **[Number][17]** The hospitalization rate
+*   `p` **[Number][17]** The total population.
+*   `stochastic` **[Boolean][18]** Whether to make the model stochastic or not.
 
 ### Examples
 
 ```javascript
-seihrd(seihrdmodelchart, 4, 9999, 1, 265, 1/21, 1/40, 1/14, 1/100, 1/20, 1/30, 10000)
+seihrd(4, 9999, 1, 265, 1/21, 1/40, 1/14, 1/100, 1/20, 1/30, 10000, true)
 ```
+
+Returns **any** The data for the model as a list.
 
 ## seihcrd
 
@@ -128,33 +132,34 @@ The SEIHCRD Model. Returns a chart.js graph with the total Susceptible, Exposed,
 
 ### Parameters
 
-*   `c` **[HTMLElement][17]** The HTML5 Canvas Element.
-*   `rn` **[Number][18]** R Naught, or the amount of people one infected infects whlie infected.
-*   `s` **[Number][18]** The Susceptible population at the beggining of the outbreak
-*   `i` **[Number][18]** The Infected population at the beggining of the outbreak
-*   `t` **[Number][18]** The time the total simulation lasts.
-*   `u` **[Number][18]** The recovery rate for the infected population
-*   `uh` **[Number][18]** The recovery rate for the hospitalized population
-*   `a` **[Number][18]** The incubation period
-*   `di` **[Number][18]** The death rate for the infected population
-*   `dh` **[Number][18]** The death rate for the hospitalized population
-*   `ch` **[Number][18]** The rate at which patients go to the critical stage from the hospitalized compartment.
-*   `ci` **[Number][18]** The rate at which patients go to the critical stage from the infected compartemnt.
-*   `dc` **[Number][18]** The death rate for critical patients
-*   `uc` **[Number][18]** The recovery rate for critical patients
-*   `hc` **[Number][18]** The rate at which a critical patient goes to the hospitalized compartment, and are no longer critical.
-*   `ic` **[Number][18]** The rate at which a critical patient goes to the infected compartment, and are no longer critical.
-*   `h` **[Number][18]** The hospitalization rate
-*   `p` **[Number][18]** The total population.
-*   `stochastic` **[Boolean][19]** Defaults to false, whether to make the model stochastic or not. (optional, default `false`)
+*   `rn` **[Number][17]** R Naught, or the amount of people one infected infects whlie infected.
+*   `s` **[Number][17]** The Susceptible population at the beggining of the outbreak
+*   `i` **[Number][17]** The Infected population at the beggining of the outbreak
+*   `t` **[Number][17]** The time the total simulation lasts.
+*   `u` **[Number][17]** The recovery rate for the infected population
+*   `uh` **[Number][17]** The recovery rate for the hospitalized population
+*   `a` **[Number][17]** The incubation period
+*   `di` **[Number][17]** The death rate for the infected population
+*   `dh` **[Number][17]** The death rate for the hospitalized population
+*   `ch` **[Number][17]** The rate at which patients go to the critical stage from the hospitalized compartment.
+*   `ci` **[Number][17]** The rate at which patients go to the critical stage from the infected compartemnt.
+*   `dc` **[Number][17]** The death rate for critical patients
+*   `uc` **[Number][17]** The recovery rate for critical patients
+*   `hc` **[Number][17]** The rate at which a critical patient goes to the hospitalized compartment, and are no longer critical.
+*   `ic` **[Number][17]** The rate at which a critical patient goes to the infected compartment, and are no longer critical.
+*   `h` **[Number][17]** The hospitalization rate
+*   `p` **[Number][17]** The total population.
+*   `stochastic` **[Boolean][18]** Whether to make the model stochastic or not.
 
 ### Examples
 
 ```javascript
-seihcrd(seihcrdchart, 4, 9999, 1, 265, 1/21, 1/40, 1/14, 1/100, 1/20, 1/10, 1/40, 2/5, 1/5, 1/5, 1/5, 1/30, 10000)
+seihcrd(4, 9999, 1, 265, 1/21, 1/40, 1/14, 1/100, 1/20, 1/10, 1/40, 2/5, 1/5, 1/5, 1/5, 1/30, 10000, true)
 ```
 
-[1]: #chart
+Returns **any** The data for the model as a list.
+
+[1]: #gaussian
 
 [2]: #sir
 
@@ -186,8 +191,6 @@ seihcrd(seihcrdchart, 4, 9999, 1, 265, 1/21, 1/40, 1/14, 1/100, 1/20, 1/10, 1/40
 
 [16]: #examples-4
 
-[17]: https://developer.mozilla.org/docs/Web/HTML/Element
+[17]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
 
-[18]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
-
-[19]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
+[18]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean

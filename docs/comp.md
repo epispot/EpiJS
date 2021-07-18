@@ -48,16 +48,16 @@ Class for a custom compartments.
 ### Parameters
 
 *   `equation` **[String][29]** The equation for the compartment. This defines what to run to get a new value for the next day in the model. Use any variable in the equation (1 char max), but when making this a model, you need to define this in the key.
-    If using other compartment classes, they each have their own corresponding variable:
-    \- 'S' - Susceptible
-    \- 'E' - Exposed
-    \- 'I' - Infectious
-    \- 'R' - Recovered
-    \- 'D' - Dead
-    \- 'C' - Critical
-    \- 'H' - Hospitalized
-    \- 'V' - Vaccinated
-    \- 'w' - Reserved for stochastic models. If put, it will be replaced with a random number generated from the gaussian distribution.
+    If using other compartment classes, they each have their own corresponding variable: 
+     *  'S' - Susceptible
+    *   'E' - Exposed
+    *   'I' - Infectious
+    *   'R' - Recovered
+    *   'D' - Dead
+    *   'C' - Critical
+    *   'H' - Hospitalized
+    *   'V' - Vaccinated
+    *   'w' - Reserved for stochastic models. If put, it will be replaced with a random number generated from the gaussian distribution.
 
 ### Examples
 
@@ -77,7 +77,7 @@ Class for Suscepible compartment.
     If reffering to this compartment's population, use "S" as the id. This parameter is useful
     if you want to model a disease with re-susceptibility.
 *   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic. You can still pass in your normal equation, and epijs will
-    auto generate the equations from what you pass in. Defaults to false, optional. (optional, default `false`)
+    auto generate the equations from what you pass in.
 
 ### Examples
 
@@ -98,7 +98,7 @@ Class for Infected compartment.
 *   `prev` **[Array][30]** List of rates of the previous compartments, which include sub-arrays
     with the compartment id (one letter only), as a string, and the rate for the compartment.
     If reffering to this compartment's population, use "I" as the id.
-*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic. Defaults to false, optional. (optional, default `false`)
+*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic.
 
 ### Examples
 
@@ -106,7 +106,7 @@ Class for Infected compartment.
 // Note that you can pass in a string as a rate too, 
      // but we use a number in this case because we don't need to multiply 
      // by other compartment populations. We do actually do this for the prev parameter, though.
-     let I = new Infected([0.3], [["S", "I*0.4/N"]])
+     let I = new Infected([0.3], [["S", "I*0.4/N"]], false)
 ```
 
 ## Exposed
@@ -119,7 +119,7 @@ Class for Exposed compartment.
 *   `prev` **[Array][30]** List of rates of the previous compartments, which include sub-arrays
     with the compartment id (one letter only), as a string, and the rate for the compartment.
     If reffering to this compartment's population, use "E" as the id.
-*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic. Defaults to false, optional. (optional, default `false`)
+*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic.
 
 ### Examples
 
@@ -127,7 +127,7 @@ Class for Exposed compartment.
 // Note that you can pass in a string as a rate too, 
      // but we use a number in this case because we don't need to multiply 
      // by other compartment populations. We do actually do this for the prev parameter, though.
-     let E = new Exposed([1/14], ["S*0.4/N"])
+     let E = new Exposed([1/14], ["S*0.4/N"], false)
 ```
 
 ## Critical
@@ -140,7 +140,7 @@ Class for Critical compartment.
 *   `prev` **[Array][30]** List of rates of the previous compartments, which include sub-arrays
     with the compartment id (one letter only), as a string, and the rate for the compartment.
     If reffering to this compartment's population, use "C" as the id.
-*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic. Defaults to false, optional. (optional, default `false`)
+*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic.
 
 ### Examples
 
@@ -148,7 +148,7 @@ Class for Critical compartment.
 // Note that you can pass in a string as a rate too, 
      // but we use a number in this case because we don't need to multiply 
      // by other compartment populations.
-     let C = new Critical([0.14, 0.1], [["H", 0.3]])
+     let C = new Critical([0.14, 0.1], [["H", 0.3]], false)
 ```
 
 ## Hospitalized
@@ -161,7 +161,7 @@ Class for Hospitalized compartment.
 *   `prev` **[Array][30]** List of rates of the previous compartments, which include sub-arrays
     with the compartment id (one letter only), as a string, and the rate for the compartment.
     If reffering to this compartment's population, use "H" as the id.
-*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic. Defaults to false, optional. (optional, default `false`)
+*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic.
 
 ### Examples
 
@@ -169,7 +169,7 @@ Class for Hospitalized compartment.
 // Note that you can pass in a string as a rate too, 
      // but we use a number in this case because we don't need to multiply 
      // by other compartment populations.
-     let H = new Hospitalized([0.3], [["I", 0.1], ["E", 0.2]])
+     let H = new Hospitalized([0.3], [["I", 0.1], ["E", 0.2]], false)
 ```
 
 ## Dead
@@ -183,7 +183,7 @@ Class for the Dead compartment.
 *   `prev` **[Array][30]** List of rates of the previous compartments, which include sub-arrays
     with the compartment id (one letter only), as a string, and the rate for the compartment.
     If reffering to this compartment's population, use "D" as the id.
-*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic. Defaults to false, optional. (optional, default `false`)
+*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic.
 
 ### Examples
 
@@ -191,7 +191,7 @@ Class for the Dead compartment.
 // Note that you can pass in a string as a rate too, 
      // but we use a number in this case because we don't need to multiply 
      // by other compartment populations. We do actually do this for the prev parameter, though.
-     let D = new Dead([0.3], [["I", 0.3]]) // This disease also gives you a 3/10 chance to come alive after death.
+     let D = new Dead([0.3], [["I", 0.3]], false) // This disease also gives you a 3/10 chance to come alive after death.
 ```
 
 ## Vaccinated
@@ -204,7 +204,7 @@ Class for Vaccinated compartment.
 *   `prev` **[Array][30]** List of rates of the previous compartments, which include sub-arrays
     with the compartment id (one letter only), as a string, and the rate for the compartment.
     If reffering to this compartment's population, use "V" as the id.
-*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic. Defaults to false, optional. (optional, default `false`)
+*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic.
 
 ### Examples
 
@@ -212,7 +212,7 @@ Class for Vaccinated compartment.
 // Note that you can pass in a string as a rate too, 
      // but we use a number in this case because we don't need to multiply 
      // by other compartment populations. We do actually do this for the prev parameter, though.
-     let I = new Infected([0.001], ["S*0.4"])
+     let I = new Infected([0.001], ["S*0.4"], false)
 ```
 
 ## Recovered
@@ -225,7 +225,7 @@ Class for Recovered compartment.
 *   `prev` **[Array][30]** List of rates of the previous compartments, which include sub-arrays
     with the compartment id (one letter only), as a string, and the rate for the compartment.
     If reffering to this compartment's population, use "V" as the id.
-*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic. Defaults to false, optional. (optional, default `false`)
+*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic.
 
 ### Examples
 
@@ -233,7 +233,7 @@ Class for Recovered compartment.
 // Note that you can pass in a string as a rate too, 
      // but we use a number in this case because we don't need to multiply 
      // by other compartment populations. We do actually do this for the prev parameter, though.
-     let R = new Recovered([ ], [["I", 0.1]])
+     let R = new Recovered([ ], [["I", 0.1]], false)
 ```
 
 [1]: #math
