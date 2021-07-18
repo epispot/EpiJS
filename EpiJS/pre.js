@@ -11,7 +11,6 @@ const gaussian = require('gaussian')
 
 /**
  * The SIR Model. Returns a chart.js graph with the total Susceptible, Infected, and Recovered after the given amount of time.
- * @param {HTMLElement} c - The HTML5 Canvas Element.
  * @param {Number} rn - R Naught, or the amount of people one infected infects whlie infected.
  * @param {Number} s - The Susceptible population at the beggining of the outbreak
  * @param {Number} i - The Infected population at the beggining of th outbreak
@@ -76,7 +75,6 @@ function sir(rn, s, i, time, u, p, stochastic) {
 
 /**
  * The SEIR Model. Returns a chart.js graph with the total Susceptible, Exposed, Infected, and Recovered after the given amount of time.
- * @param {HTMLElement} c - The HTML5 Canvas Element.
  * @param {Number} rn - R Naught, or the amount of people one infected infects whlie infected.
  * @param {Number} s - The Susceptible population at the beggining of the outbreak
  * @param {Number} i - The Infected population at the beggining of th outbreak
@@ -147,7 +145,6 @@ function seir(rn, s, i, t, u, a, p, stochastic) {
 
 /**
  * The SEIRD Model. Returns a chart.js graph with the total Susceptible, Exposed, Infected, Recovered, and Dead populations after the given amount of time.
- * @param {HTMLElement} c - The HTML5 Canvas Element.
  * @param {Number} rn - R Naught, or the amount of people one infected infects whlie infected.
  * @param {Number} s - The Susceptible population at the beggining of the outbreak
  * @param {Number} i - The Infected population at the beggining of the outbreak
@@ -228,7 +225,6 @@ function seird(rn, s, i, t, u, a, d, p, stochastic) {
 
 /**
  * The SEIHRD Model. Returns a chart.js graph with the total Susceptible, Exposed, Infected, Hospitalized, Recovered, and Dead populations after the given amount of time.
- * @param {HTMLElement} c - The HTML5 Canvas Element.
  * @param {Number} rn - R Naught, or the amount of people one infected infects whlie infected.
  * @param {Number} s - The Susceptible population at the beggining of the outbreak
  * @param {Number} i - The Infected population at the beggining of the outbreak
@@ -330,7 +326,6 @@ function seihrd(rn, s, i, t, u, uh, a, di, dh, h, p, stochastic) {
 
 /**
  * The SEIHCRD Model. Returns a chart.js graph with the total Susceptible, Exposed, Infected, Hospitalized, Critical, Recovered, and Dead populations after the given amount of time.
- * @param {HTMLElement} c - The HTML5 Canvas Element.
  * @param {Number} rn - R Naught, or the amount of people one infected infects whlie infected.
  * @param {Number} s - The Susceptible population at the beggining of the outbreak
  * @param {Number} i - The Infected population at the beggining of the outbreak
