@@ -77,15 +77,15 @@ SIR model for the community
 
 *   `disease` **[Number][23]** A virus class. The virus to infect the community with and model for.
 *   `time` **[Number][23]** Time to predict for.
-*   `stochastic` **[Boolean][24]** Defaults to false, whether to make the model stochastic or not. (optional, default `false`)
+*   `stochastic` **[Boolean][24]** Whether to make the model stochastic or not.
 
 #### Examples
 
 ```javascript
 let NewYorkCity = new Community(8419000, 300, 8418700)
-let covid = new Virus(5.7, 2.1/100)
+let covid = new Virus(5.7, 2.1/100, 1/8, 1/100)
 
-outbreak = NewYorkCity.sir(covid, 100)
+outbreak = NewYorkCity.sir(covid, 100, false)
 ```
 
 ### seir
@@ -96,15 +96,15 @@ SEIR model for the community
 
 *   `disease` **[Number][23]** A virus class. The virus to infect the community with and model for.
 *   `time` **[Number][23]** Time to predict for.
-*   `stochastic` **[Boolean][24]** Defaults to false, whether to make the model stochastic or not. (optional, default `false`)
+*   `stochastic` **[Boolean][24]** Whether to make the model stochastic or not.
 
 #### Examples
 
 ```javascript
 let NewYorkCity = new Community(8419000, 300, 8418700)
-let covid = new Virus(5.7, 2.1/100, a=1/8)
+let covid = new Virus(5.7, 2.1/100, 1/8, 1/100)
 
-outbreak = NewYorkCity.seir(covid, 100)
+outbreak = NewYorkCity.seir(covid, 100, false)
 ```
 
 ### seird
@@ -115,15 +115,15 @@ SEIRD model for the community
 
 *   `disease` **[Number][23]** A virus class. The virus to infect the community with and model for.
 *   `time` **[Number][23]** Time to predict for.
-*   `stochastic` **[Boolean][24]** Defaults to false, whether to make the model stochastic or not. (optional, default `false`)
+*   `stochastic` **[Boolean][24]** Whether to make the model stochastic or not.
 
 #### Examples
 
 ```javascript
 let NewYorkCity = new Community(8419000, 300, 8418700)
-let covid = new Virus(5.7, 2.1/100, a=1/8, d=1/100)
+let covid = new Virus(5.7, 2.1/100, 1/8, 1/100)
 
-outbreak = NewYorkCity.seird(covid, 100)
+outbreak = NewYorkCity.seird(covid, 100, false)
 ```
 
 ### custom
@@ -133,23 +133,27 @@ Custom model for the community
 #### Parameters
 
 *   `compartments` **[Array][25]** The compartments for the model. Pass in as an array with sub arrays of the form \[compartment, name in key].
-    Note that the 'name in key' is a string with the same value that is stored in your extra key, otherwise it should be the same name that we store it as. You can find these names below.        - Susceptible - stored as 'S'
-            - Infected - stored as 'I'
-            - Recovered - stored as 'R'
+    Note that the 'name in key' is a string with the same value that is stored in your extra key, otherwise it should be the same name that we store it as.
+You can find these names below.
 
-         Make sure that you use the same names that are stored in the key in the equations for the compartments. These values are found from parameters passed into the virus class and the community class.
+    *   Susceptible - stored as 'S'
+    *   Infected - stored as 'I'
+    *   Recovered - stored as 'R'
+
+Make sure that you use the same names that are stored in the key in the equations for the compartments. These values are found from parameters passed into the virus class and the community class.
+
 *   `time` **[Number][23]** The time to predict for.
 *   `virus`  The virus class to infect the community with.
-*   `extrakey` **[Object][26]** Any extra parameters for the compartments equations.
-    We already have the following parameters:       - Population - stored as 'p' in our key.
-           - Susceptible Population - stored as 'S' in our key.
-           - R-naught - stored as 'rn' in our key.
-           - Recovery rate - stored as 'u' in our key.
-           - Recovered - stored as 'R' in our key.
-           - Infected - stored as 'I' in our key.
-           - Death Rate - stored as 'd' in our key.
-           - Incubation Period - stored as 'a' in our key. (optional, default `{}`)
-
+*   `extrakey` **[Object][26]** Optional, any extra parameters for the compartments equations.
+We already have the following parameters:
+    *   Population - stored as 'p' in our key.
+    *   Susceptible Population - stored as 'S' in our key.
+    *   R-naught - stored as 'rn' in our key.
+    *   Recovery rate - stored as 'u' in our key.
+    *   Recovered - stored as 'R' in our key.
+    *   Infected - stored as 'I' in our key.
+    *   Death Rate - stored as 'd' in our key.
+    *   Incubation Period - stored as 'a' in our key.
 #### Examples
 
 ```javascript
@@ -158,9 +162,9 @@ let infected = new Idiom("I+(B*S*I/p)-(u*I)");
 let recovered = new Idiom("R+(u*I)");
 
 let NewYorkCity = new Community(8419000, 300, 8418700)
-let covid = new Virus(5.7, 2.1/100, a=1/8, d=1/100)
+let covid = new Virus(5.7, 2.1/100, 1/8, 1/100)
 
-outbreak = NewYorkCity.custom([[susceptible, 'S'], [infected, 'I'], [recovered, 'R']], {B: covid.rnaught*covid.u})
+outbreak = NewYorkCity.custom([[susceptible, 'S'], [infected, 'I'], [recovered, 'R']], 100, covid, {B: covid.rnaught*covid.u})
 ```
 
 ## compare

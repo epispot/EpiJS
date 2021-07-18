@@ -17,6 +17,7 @@
  * @param {Number} days - The amount of days to plot
  * @param {Array} colors - Custom colors for the graph, in the same order the compartments are.
  * @param {Object} options - Optional. Custom configuration to pass into the options parameter for chart.js, defaults to:
+ * 
  * ```JSON
  * {
  *  title: {
@@ -32,6 +33,7 @@
  *  }
  * }
  * ```
+ * 
  * @returns Returns the chart.js chart, if needed for modification.
  * 
  * @example

@@ -14,15 +14,17 @@ const gaussian = require('gaussian')
  * Class for a custom compartments.
  * @param {String} equation The equation for the compartment. This defines what to run to get a new value for the next day in the model. Use any variable in the equation (1 char max), but when making this a model, you need to define this in the key.
  *      If using other compartment classes, they each have their own corresponding variable:
- *         - 'S' - Susceptible
- *         - 'E' - Exposed
- *         - 'I' - Infectious
- *         - 'R' - Recovered
- *         - 'D' - Dead
- *         - 'C' - Critical
- *         - 'H' - Hospitalized
- *         - 'V' - Vaccinated
- *         - 'w' - Reserved for stochastic models. If put, it will be replaced with a random number generated from the gaussian distribution.
+ *
+ *- 'S' - Susceptible
+ *- 'E' - Exposed
+ *- 'I' - Infectious
+ *- 'R' - Recovered
+ *- 'D' - Dead
+ *- 'C' - Critical
+ *- 'H' - Hospitalized
+ *- 'V' - Vaccinated
+ *- 'w' - Reserved for stochastic models. If put, it will be replaced with a random number generated from the gaussian distribution.
+ * 
  * @example
  *
  *      let susceptible = new Idiom("S-(B*S*I)")
@@ -147,7 +149,7 @@ class Susceptible {
  *      // Note that you can pass in a string as a rate too, 
  *      // but we use a number in this case because we don't need to multiply 
  *      // by other compartment populations. We do actually do this for the prev parameter, though.
- *      let I = new Infected([0.3], [["S", "I*0.4/N"]]) 
+ *      let I = new Infected([0.3], [["S", "I*0.4/N"]], false) 
 */
 class Infected {
   constructor (next, prev, stochastic) {
@@ -215,7 +217,7 @@ class Infected {
  *      // Note that you can pass in a string as a rate too, 
  *      // but we use a number in this case because we don't need to multiply 
  *      // by other compartment populations. We do actually do this for the prev parameter, though.
- *      let E = new Exposed([1/14], ["S*0.4/N"]) 
+ *      let E = new Exposed([1/14], ["S*0.4/N"], false) 
 */
 class Exposed {
   constructor (next, prev, stochastic) {
@@ -282,7 +284,7 @@ class Exposed {
  *      // Note that you can pass in a string as a rate too, 
  *      // but we use a number in this case because we don't need to multiply 
  *      // by other compartment populations.
- *      let C = new Critical([0.14, 0.1], [["H", 0.3]]) 
+ *      let C = new Critical([0.14, 0.1], [["H", 0.3]], false) 
 */
 class Critical {
   constructor (next, prev, stochastic) {
@@ -349,7 +351,7 @@ class Critical {
  *      // Note that you can pass in a string as a rate too, 
  *      // but we use a number in this case because we don't need to multiply 
  *      // by other compartment populations.
- *      let H = new Hospitalized([0.3], [["I", 0.1], ["E", 0.2]])
+ *      let H = new Hospitalized([0.3], [["I", 0.1], ["E", 0.2]], false)
 */
 class Hospitalized {
   constructor (next, prev, stochastic) {
@@ -417,7 +419,7 @@ class Hospitalized {
  *      // Note that you can pass in a string as a rate too, 
  *      // but we use a number in this case because we don't need to multiply 
  *      // by other compartment populations. We do actually do this for the prev parameter, though.
- *      let D = new Dead([0.3], [["I", 0.3]]) // This disease also gives you a 3/10 chance to come alive after death.
+ *      let D = new Dead([0.3], [["I", 0.3]], false) // This disease also gives you a 3/10 chance to come alive after death.
 */
 class Dead {
   constructor (next, prev, stochastic) {
@@ -484,7 +486,7 @@ class Dead {
  *      // Note that you can pass in a string as a rate too, 
  *      // but we use a number in this case because we don't need to multiply 
  *      // by other compartment populations. We do actually do this for the prev parameter, though.
- *      let I = new Infected([0.001], ["S*0.4"])
+ *      let I = new Infected([0.001], ["S*0.4"], false)
 */
 class Vaccinated {
   constructor (next, prev, stochastic) {
@@ -551,7 +553,7 @@ class Vaccinated {
  *      // Note that you can pass in a string as a rate too, 
  *      // but we use a number in this case because we don't need to multiply 
  *      // by other compartment populations. We do actually do this for the prev parameter, though.
- *      let R = new Recovered([ ], [["I", 0.1]])
+ *      let R = new Recovered([ ], [["I", 0.1]], false)
 */
 class Recovered {
   constructor (next, prev, stochastic) {

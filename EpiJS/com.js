@@ -57,9 +57,9 @@ class Community {
      * @example
      *
      *      let NewYorkCity = new Community(8419000, 300, 8418700)
-     *let covid = new Virus(5.7, 2.1/100)
+     *let covid = new Virus(5.7, 2.1/100, 1/8, 1/100)
      *
-     *outbreak = NewYorkCity.sir(covid, 100)
+     *outbreak = NewYorkCity.sir(covid, 100, false)
      */
     sir (disease, time, stochastic) {
         let data = {
@@ -118,9 +118,9 @@ class Community {
      * @example
      *
      *      let NewYorkCity = new Community(8419000, 300, 8418700)
-     *let covid = new Virus(5.7, 2.1/100, a=1/8)
+     *let covid = new Virus(5.7, 2.1/100, 1/8, 1/100)
      *
-     *outbreak = NewYorkCity.seir(covid, 100)
+     *outbreak = NewYorkCity.seir(covid, 100, false)
      */
      seir (disease, time, stochastic) {
         let data = {
@@ -188,9 +188,9 @@ class Community {
      * @example
      *
      *      let NewYorkCity = new Community(8419000, 300, 8418700)
-     *let covid = new Virus(5.7, 2.1/100, a=1/8, d=1/100)
+     *let covid = new Virus(5.7, 2.1/100, 1/8, 1/100)
      *
-     *outbreak = NewYorkCity.seird(covid, 100)
+     *outbreak = NewYorkCity.seird(covid, 100, false)
      */
     seird (disease, time, stochastic) {
         let data = {
@@ -263,26 +263,28 @@ class Community {
     /** 
      * Custom model for the community
      * @param {Array} compartments The compartments for the model. Pass in as an array with sub arrays of the form [compartment, name in key].
-     *      Note that the 'name in key' is a string with the same value that is stored in your extra key, otherwise it should be the same name that we store it as. You can find these names below.
+     *Note that the 'name in key' is a string with the same value that is stored in your extra key, otherwise it should be the same name that we store it as. 
+     You can find these names below.
      *         
-     *         - Susceptible - stored as 'S'
-     *         - Infected - stored as 'I'
-     *         - Recovered - stored as 'R'
+     *- Susceptible - stored as 'S'
+     *- Infected - stored as 'I'
+     *- Recovered - stored as 'R'
      *
-     *      Make sure that you use the same names that are stored in the key in the equations for the compartments. These values are found from parameters passed into the virus class and the community class.
+     * 
+     * Make sure that you use the same names that are stored in the key in the equations for the compartments. These values are found from parameters passed into the virus class and the community class.
+     * 
      * @param {Number} time The time to predict for.
      * @param virus The virus class to infect the community with.
-     * @param {Object} extrakey Any extra parameters for the compartments equations.
-     *      We already have the following parameters:
-     * 
-     *        - Population - stored as 'p' in our key.
-     *        - Susceptible Population - stored as 'S' in our key.
-     *        - R-naught - stored as 'rn' in our key.
-     *        - Recovery rate - stored as 'u' in our key.
-     *        - Recovered - stored as 'R' in our key.
-     *        - Infected - stored as 'I' in our key.
-     *        - Death Rate - stored as 'd' in our key.
-     *        - Incubation Period - stored as 'a' in our key.
+     * @param {Object} extrakey Optional, any extra parameters for the compartments equations. 
+     *We already have the following parameters:
+     *- Population - stored as 'p' in our key.
+     *- Susceptible Population - stored as 'S' in our key.
+     *- R-naught - stored as 'rn' in our key.
+     *- Recovery rate - stored as 'u' in our key.
+     *- Recovered - stored as 'R' in our key.
+     *- Infected - stored as 'I' in our key.
+     *- Death Rate - stored as 'd' in our key.
+     *- Incubation Period - stored as 'a' in our key.
      * 
      * @example
      * 
@@ -291,9 +293,9 @@ class Community {
      *let recovered = new Idiom("R+(u*I)");
      * 
      *let NewYorkCity = new Community(8419000, 300, 8418700)
-     *let covid = new Virus(5.7, 2.1/100, a=1/8, d=1/100)
+     *let covid = new Virus(5.7, 2.1/100, 1/8, 1/100)
      * 
-     *outbreak = NewYorkCity.custom([[susceptible, 'S'], [infected, 'I'], [recovered, 'R']], {B: covid.rnaught*covid.u})
+     *outbreak = NewYorkCity.custom([[susceptible, 'S'], [infected, 'I'], [recovered, 'R']], 100, covid, {B: covid.rnaught*covid.u})
      */
     custom(compartments, time, virus, extrakey={}) {
         let key = Object.assign({

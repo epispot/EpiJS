@@ -21,7 +21,7 @@ const gaussian = require('gaussian')
  * @returns The data for the model as a list.
  * @example
  * 
- *      sir(sirchart, 4, 9999, 1, 100, 1/21, 10000)
+ *      sir(4, 9999, 1, 100, 1/21, 10000, true)
  */
 
 function sir(rn, s, i, time, u, p, stochastic) {
@@ -86,7 +86,7 @@ function sir(rn, s, i, time, u, p, stochastic) {
  * @returns The data for the model as a list.
  * @example
  * 
- *      seir(seirchart, 4, 9999, 1, 100, 1/7, 1/7, 10000)
+ *      seir(4, 9999, 1, 100, 1/7, 1/7, 10000, true)
  */
 function seir(rn, s, i, t, u, a, p, stochastic) {
 	let data = [{ 
@@ -157,7 +157,7 @@ function seir(rn, s, i, t, u, a, p, stochastic) {
  * @returns The data for the model as a list.
  * @example
  * 
- *      seird(seirdchart, 4, 99999, 1, 100, 1/21, 1/14, 1/100, 10000)
+ *      seird(4, 99999, 1, 100, 1/21, 1/14, 1/100, 10000, true)
  */
 function seird(rn, s, i, t, u, a, d, p, stochastic) {
 	let data = [{ 
@@ -240,7 +240,7 @@ function seird(rn, s, i, t, u, a, d, p, stochastic) {
  * @returns The data for the model as a list.
  * @example
  * 
- *      seihrd(seihrdmodelchart, 4, 9999, 1, 265, 1/21, 1/40, 1/14, 1/100, 1/20, 1/30, 10000)
+ *      seihrd(4, 9999, 1, 265, 1/21, 1/40, 1/14, 1/100, 1/20, 1/30, 10000, true)
  */
 function seihrd(rn, s, i, t, u, uh, a, di, dh, h, p, stochastic) {
 	let data = [{ 
@@ -347,7 +347,7 @@ function seihrd(rn, s, i, t, u, uh, a, di, dh, h, p, stochastic) {
  * @returns The data for the model as a list.
  * @example
  * 
- *      seihcrd(seihcrdchart, 4, 9999, 1, 265, 1/21, 1/40, 1/14, 1/100, 1/20, 1/10, 1/40, 2/5, 1/5, 1/5, 1/5, 1/30, 10000)
+ *      seihcrd(4, 9999, 1, 265, 1/21, 1/40, 1/14, 1/100, 1/20, 1/10, 1/40, 2/5, 1/5, 1/5, 1/5, 1/30, 10000, true)
  */
  function seihcrd(rn, s, i, t, u, uh, a, di, dh, ch, ci, dc, uc, hc, ic, h, p, stochastic) {
   let data = [

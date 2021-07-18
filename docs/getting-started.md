@@ -28,9 +28,9 @@ See [installation](/installation) for more.
 ## Metadata
 
 You can fetch metadata about the package with the following commands:
-```js
-epijs.about // General metadata
-epijs.version // Your current package version
+```JavaScript
+EpiJS.about // General metadata
+EpiJS.version // Your current package version
 ```
 
 ## Modules

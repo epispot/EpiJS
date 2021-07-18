@@ -13,7 +13,6 @@ module.exports = {
       sidebar: [
         {
           title: "Introduction",
-          collapsable: false,
           children: [
             ['getting-started', 'Getting Started'],
             ['installation', 'Installation']
@@ -21,20 +20,20 @@ module.exports = {
         },
         {
           title: 'Module Docs',
-          collapsable: false,
           children: [
             ['pre', 'Pre Module'],
             ['com', 'Com Module'],
             ['comp', 'Comp Module'],
             ['model', 'Model Module'],
-            ['utils', 'Utils Module']
+            ['utils', 'Utils Module'],
+            ['plots', 'Plots Module'],
           ]
         },
         {
           title: 'The EpiJS Manual',
-          collapsable: false,
           children: [
             ['manual/SIR', 'SIR Models'],
+            ['manual/migration', 'Migration'],
           ]
         }
       ]
