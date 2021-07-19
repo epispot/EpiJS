@@ -19,7 +19,7 @@ jobs:
           scope: "@quantalabs"
       - name: Git config
         run:
-          git checkout -b ${{ github.event.inputs.branch }} ## Switch to branch.
+          git checkout ${{ github.event.inputs.branch }}
       - run: echo "registry=https://npm.pkg.github.com/@quantalabs" >> .npmrc
       - run: npm publish --access=public
         env:
