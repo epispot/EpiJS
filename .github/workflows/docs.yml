@@ -36,7 +36,6 @@ jobs:
           git pull origin gh-pages
           rm -rf ./latest/*
           git checkout main -- docs/.vuepress/dist/
-          rm -rf assets/
           mkdir ${{ github.event.release.tag_name }}
           mkdir latest
           mv docs/.vuepress/dist/* ${{ github.event.release.tag_name }}
@@ -48,6 +47,9 @@ jobs:
           git checkout main -- tests/
           echo "epi.js.org" > CNAME
           echo "" > .nojekyll
+          git checkout main -- docs/.vuepress/dist/assets/
+          mv docs/.vuepress/dist/assets/ assets/
+          rm -rf docs/
       - name: Push changes
         continue-on-error: true
         run: |
