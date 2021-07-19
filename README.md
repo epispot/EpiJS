@@ -36,10 +36,8 @@ On the web:
     - Create Communities
     - Compare two outbreaks 
 - Custom models
-## Roadmap
-
-- Stochastic Modelling ([#37](https://github.com/Quantalabs/EpiJS/issues/37))
-- Pre-built customizable compartments ([#28](https://github.com/Quantalabs/EpiJS/issues/28))
+- Stochastic Modelling
+- Pre-built customizable compartments
 ## Contributing
 
 <a href="https://open.vscode.dev/Quantalabs/EpiJS"><img src="https://open.vscode.dev/badges/open-in-vscode.svg" alt="Open in Visual Studio Code"></a>

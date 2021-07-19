@@ -1,15 +1,27 @@
 # v2.0.0 - LTS
-- Add stochastic modelling ([#37](https://github.com/Quantalabs/EpiJS/issues/37))
-- Drop 10.x support, unfortunatley ([`03e2ebc`](https://github.com/Quantalabs/EpiJS/commit/03e2ebc067f671a5ec52b945ca14f7380c530fa1) and [#54](https://github.com/Quantalabs/EpiJS/pulls/54))
-- Add extra pre-built compartments to the `comp` module. ([#49](https://github.com/Quantalabs/EpiJS/pulls/49))
-- Compartmental infections in `com` module ([#40](https://github.com/Quantalabs/EpiJS/issues/40))
-
+- Stochastic modelling,
+- Custom models in `com` module,
+- New pre-built compartments for you to use in `comp`, including:
+    - Susceptible,
+    - Exposed,
+    - Infected,
+    - Hospitalized,
+    - Critical,
+    - Recovered,
+    - Dead,
+    - and Vaccinated compartments,
+- A new utils compartment, which has epidemiological related utilities,
+- Bug fixes,
+- Customizable plotting, with the `plots` module,
+- Allows for more interaction with data from `pre` module,
+- And metadata on the web, through `EpiJS.about`, `EpiJS.version`, etc.
 ## What makes this a major release?
 This release is a major release for 2 reasons:
 - Drops 10.x support
 - Syntax for functions/classes was changed with stochastic models
+- `pre` module no longer outputs graphs, and is instead replaced with the `plots` module for graphs.
 
-This release is also an LTS release, so bug fixes and security fixes will continue until the EOL date, which is until August 14, 2022.
+This release is also an LTS release, so bug fixes and security fixes for a while now.
 
 ---
 # v1.3.1
