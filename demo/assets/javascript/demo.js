@@ -14,8 +14,8 @@ if (isMobile) {
   document.body.innerHTML = "<p>Sorry, this website is best used on desktop, not on mobile.</p>"
 }
 
+let times = 0
 function generate() {
-  var message = document.getElementById("message")
   var spop = document.getElementById("S").value
   var ipop = document.getElementById("I").value 
   var rn = document.getElementById("rn").value 
@@ -23,8 +23,10 @@ function generate() {
   var u = document.getElementById("u").value
   var pop = Number(spop)+Number(ipop)
   var a = document.getElementById("a").value
-  
-  message.innerHTML = "Reload to generate again."
+  if (times > 0) {
+    const chart = Chart.getChart("model")
+    chart.destroy()
+  }
   seir("model", rn, spop, ipop, t, u, 1/a, pop)
-
+  times++
 }

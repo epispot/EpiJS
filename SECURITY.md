@@ -4,15 +4,17 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
+| v2.0.x | ✅ (LTS Release) |
 | v1.3.x | ✅ |
 | v1.2.x | ✅ |
-| v1.1.x | ✅ |
-| v1.0.x | ❌ |
-
+| <1.2.x | ❌ |
 ## Reporting a Vulnerability
 
-All vulnerabilities can be submitted on the [npm page](https://npmjs.org/package/@quantalabs/epijs).
+All vulnerabilities can be submitted on the [npm page](https://npmjs.org/package/@quantalabs/epijs), or contact `npm.quantalabs@gmail.com`.
 
 ## Fixes
 
-If fixing a vulnerability, fork the repo and commit the fix to the main branch and submit a PR, and a new version will be sent out to all versions, meaning v1.1.x releases, v1.0.x, v1.3.x, or any other release. If the fix is only for a certain version, then commit it to the `maintenance/vX.X.X` branch, with `vX.X.X` being your version.
+First report the security vulnerabiilty with the steps detailed above, and work on a fork with your changes, and submit the PR. Start work on the 
+branch which corresponds to the oldest release that has the vulnerability. 
+
+<b><u><i>DO NOT</i></u></b> submit an issue, this should be confidential to help prevent attacks exploiting the vulnerability.
