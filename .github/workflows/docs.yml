@@ -14,14 +14,9 @@ jobs:
         with:
             node-version: 16
       - name: Install Dependencies
-        run: | # We install documentation.js globally so that we can use `documentation` instead of `node_modules/.../documentation`. We also then install it to save as a dependency.
+        run: | # We install documentation.js globally so that we can use `documentation` instead of `node_modules/.../documentation`.
           npm install
           npm install -g documentation
-          npm install --save-dev documentation
-          npm i vuepress --save-dev
-          npm i vue-tabs-component --save-dev
-          npm i vuepress-plugin-tabs --save-dev
-          npm ci
       - name: Generate Docs
         run: |
           npm run docs:build
@@ -39,13 +34,14 @@ jobs:
           git fetch
           git checkout gh-pages
           git pull origin gh-pages
-          rm -rf ./*.*
+          rm -rf ./latest/*
           git checkout main -- docs/.vuepress/dist/
           rm -rf assets/
           mkdir ${{ github.event.release.tag_name }}
+          mkdir latest
           mv docs/.vuepress/dist/* ${{ github.event.release.tag_name }}
           git checkout main -- docs/.vuepress/dist/
-          mv docs/.vuepress/dist/* ./
+          mv docs/.vuepress/dist/* ./latest/
           rm -rf docs/
           git checkout main -- demo/
           git checkout main -- web/
