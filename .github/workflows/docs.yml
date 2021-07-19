@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-            node-version: 12
+            node-version: 16
       - name: Install Dependencies
         run: | # We install documentation.js globally so that we can use `documentation` instead of `node_modules/.../documentation`. We also then install it to save as a dependency.
           npm install
@@ -39,9 +39,12 @@ jobs:
           git fetch
           git checkout gh-pages
           git pull origin gh-pages
-          rm -rf ./*
+          rm -rf ./*.*
           git checkout main -- docs/.vuepress/dist/
           rm -rf assets/
+          mkdir ${{ github.event.release.tag_name }}
+          mv docs/.vuepress/dist/* ${{ github.event.release.tag_name }}
+          git checkout main -- docs/.vuepress/dist/
           mv docs/.vuepress/dist/* ./
           rm -rf docs/
           git checkout main -- demo/
