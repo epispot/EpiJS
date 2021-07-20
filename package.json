@@ -26,16 +26,16 @@
     },
     "homepage": "epi.js.org",
     "devDependencies": {
-        "browserify": "^17.0.0",
-        "documentation": "^13.2.5",
-        "mocha": "^9.0.0",
-        "puppeteer": "^10.1.0",
-        "terser": "^5.7.1",
-        "vuepress-plugin-tabs": "^0.3.0"
+        "browserify": "~17.0.0",
+        "documentation": "~13.2.5",
+        "mocha": "~9.0.0",
+        "puppeteer": "~10.1.0",
+        "terser": "~5.7.1",
+        "vuepress-plugin-tabs": "~0.3.0"
     },
     "dependencies": {
-        "chart.js": "^3.0.2",
-        "gaussian": "^1.2.0",
-        "mathjs": "^9.4.2"
+        "chart.js": "~3.0.2",
+        "gaussian": "~1.2.0",
+        "mathjs": "~9.4.2"
     }
 }
