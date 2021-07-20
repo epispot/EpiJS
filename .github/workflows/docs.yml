@@ -34,7 +34,7 @@ jobs:
           git fetch
           git checkout gh-pages
           git pull origin gh-pages
-          rm -rf ./latest/*
+          rm -rf latest/
           git checkout main -- docs/.vuepress/dist/
           mkdir ${{ github.event.release.tag_name }}
           mkdir latest
@@ -47,7 +47,7 @@ jobs:
           git checkout main -- demo/
           git checkout main -- web/
           git checkout main -- tests/
-          echo "epi.js.org" > CNAME
+          echo "https://epi.js.org" > CNAME
           echo "" > .nojekyll
       - name: Push changes
         continue-on-error: true
