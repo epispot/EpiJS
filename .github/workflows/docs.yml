@@ -34,22 +34,21 @@ jobs:
           git fetch
           git checkout gh-pages
           git pull origin gh-pages
-          rm -rf ./latest/*
+          rm -rf latest/
           git checkout main -- docs/.vuepress/dist/
           mkdir ${{ github.event.release.tag_name }}
           mkdir latest
           mv docs/.vuepress/dist/* ${{ github.event.release.tag_name }}
+          grep -rl '/latest' ./${{ github.event.release.tag_name }} | xargs sed -i 's-/latest-/${{ github.event.release.tag_name }}-g'
+          rm -rf docs/
           git checkout main -- docs/.vuepress/dist/
           mv docs/.vuepress/dist/* ./latest/
           rm -rf docs/
           git checkout main -- demo/
           git checkout main -- web/
           git checkout main -- tests/
-          echo "epi.js.org" > CNAME
+          echo "https://epi.js.org" > CNAME
           echo "" > .nojekyll
-          git checkout main -- docs/.vuepress/dist/assets/
-          mv docs/.vuepress/dist/assets/ assets/
-          rm -rf docs/
       - name: Push changes
         continue-on-error: true
         run: |

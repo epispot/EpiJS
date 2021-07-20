@@ -4,6 +4,7 @@ module.exports = {
     plugins: [ 
       'tabs'
     ],
+    base: '/latest/',
     themeConfig: {
       nav: [
         { text: 'Documentation', link: '/getting-started' },
