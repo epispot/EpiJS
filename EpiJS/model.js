@@ -9,7 +9,7 @@
 
 
 const fs = require('fs');
-const { typeOf } = require('mathjs');
+const { typeOf, string } = require('mathjs');
 const comps = require('./comp')
 
 /**
@@ -87,7 +87,8 @@ class Model {
 /** 
  * NodeJS only! Exports models to a file which can then be imported later on.
  * @param model The EpiJS model to export
- * @param {String} output The output file path, doesn't have to exist.
+ * @param {String} output The output file path, doesn't have to exist
+ * @param {String} file_type The file type to output. Supported inputs are ".json" and ".js".
  * @example
  *
  *      let susceptible = new Idiom("S-(B*S*I/p)");
@@ -105,10 +106,10 @@ class Model {
  *
  *let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
  *
- *mexport(sirm, "output.json")
+ *mexport(sirm, "output.js", file_type=".js")
  */
-function mexport(model, output) {
-	jsonout = {
+function mexport(model, output, file_type=".json") {
+	var jsonout = {
 		"compartments": {
 
 		},
@@ -117,18 +118,29 @@ function mexport(model, output) {
 	for (var x in model.compartments) {
 		jsonout.compartments[model.compartments[x][1]] = model.compartments[x][0]
 	}
-	fs.writeFileSync(output, JSON.stringify(jsonout, null, 2))
+	if (file_type === ".json") {
+		fs.writeFileSync(output, JSON.stringify(jsonout, null, 2))
+	} else if (file_type === ".js") {
+		fs.writeFileSync(output, "module.exports = " + JSON.stringify(jsonout, null, 2))
+	}
+
 }
 
 /**
  * NodeJS only! Imports a model from a file.
- * @param {String} input The input file path.
+ * @param {String} input The input file path, as a relative path.
+ * @param {String} file_type The file type of the input. Supported inputs are ".json" and ".js".
  * @example
  * // Use mexport to export a model into a file
- *let sirm = mimport("output.json") 
+ *let sirm = mimport("./output.json") 
  */
-function mimport(input) {
-	var json = JSON.parse(fs.readFileSync(input))
+function mimport(input, file_type=".json") {
+	if (file_type === ".json") {
+		var json = JSON.parse(fs.readFileSync(input))
+	} else if (file_type === ".js") {
+		var json = require(output)
+	}
+	
 	var comp = []
 
 	for (var x in json.compartments) {
