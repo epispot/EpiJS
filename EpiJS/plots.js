@@ -8,7 +8,7 @@
  */
 
 
- const chart = require('chart.js')
+ const chart = require('chart.js') // skipcq: JS-0502
 
 /**
  * Plots a output of a model from the pre module.
@@ -43,15 +43,15 @@
  * plot(sirout1, "canvas-pre1", 100) // Plots data for 100 days onto the canvas-pre1 chart, with the data from the SIR model.
  */
 function plot(model, canvas, days, colors=null, options={title: {display: true, text: 'Total Cases'}, scales: {yAxes: [{ticks: {beginAtZero: true}}]}}) {
-    let data = {
+    let data = {// skipcq: JS-0502
         labels: [],
         datasets: []
     }
-    for (let i = 0; i < days; i++) {
+    for (let i = 0; i < days; i++) {// skipcq: JS-0502
         data.labels.push('Day '+i)
     }
     if (colors !== null) {
-        for (let i = 0; i < model.length; i++) {
+        for (let i = 0; i < model.length; i++) {// skipcq: JS-0502
             data.datasets.push({
                 label: model[i].name,
                 data: model[i].data,
@@ -60,7 +60,7 @@ function plot(model, canvas, days, colors=null, options={title: {display: true, 
         } 
     }
     else {
-        for (let i = 0; i < model.length; i++) {
+        for (let i = 0; i < model.length; i++) {// skipcq: JS-0502
             data.datasets.push({
                 label: model[i].label,
                 data: model[i].data,
@@ -69,7 +69,7 @@ function plot(model, canvas, days, colors=null, options={title: {display: true, 
         } 
     }
 
-    let sirChart = new Chart(canvas, {
+    let sirChart = new Chart(canvas, {// skipcq: JS-0502
         type: 'line',
         data: data,
         options: options 
@@ -77,4 +77,32 @@ function plot(model, canvas, days, colors=null, options={title: {display: true, 
     return sirChart;
 }
 
+/**
+ * Manipulate the chart.js graph
+ * 
+ * @param id The chart.js graph
+ * @param {String} mvalue The value to manipulate in `chart.data.datasets[x]`. This can be any valid chart.js parameter. See https://www.chartjs.org/docs/latest/charts/line.html#line-styling
+ * @param value The value to insert into the graph
+ * @returns The chart.js graph
+ * 
+ * @example
+ * 
+ * let sirout1 = sir(4, 9999, 1000, 100, 1/21, 10999, true)
+ *
+ * let sirplot = plot(sirout1, "canvas-pre1", 100)
+ * 
+ * sirplot.manipulate(sirplot, "fill", true) // Set fill to true
+ */
+function manipulate(id, mvalue, value) {
+    var manip = Chart.getChart(id)// skipcq: JS-0502
+
+    for (var x in manip.data.datasets) {
+        manip.data.datasets[x][mvalue] = value
+    }
+
+    manip.update()
+    return manip
+}
+
 exports.plot = plot;
+exports.manipulate = manipulate;
