@@ -8,7 +8,7 @@
  */
 
 
- const chart = require('chart.js')
+ const chart = require('chart.js') // skipcq: JS-0502
 
 /**
  * Plots a output of a model from the pre module.
@@ -51,7 +51,7 @@ function plot(model, canvas, days, colors=null, options={title: {display: true, 
         data.labels.push('Day '+i)
     }
     if (colors !== null) {
-        for (let i = 0; i < model.length; i++) {
+        for (let i = 0; i < model.length; i++) {// skipcq: JS-0502
             data.datasets.push({
                 label: model[i].name,
                 data: model[i].data,
