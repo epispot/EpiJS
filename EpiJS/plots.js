@@ -43,11 +43,11 @@
  * plot(sirout1, "canvas-pre1", 100) // Plots data for 100 days onto the canvas-pre1 chart, with the data from the SIR model.
  */
 function plot(model, canvas, days, colors=null, options={title: {display: true, text: 'Total Cases'}, scales: {yAxes: [{ticks: {beginAtZero: true}}]}}) {
-    let data = {
+    let data = {// skipcq: JS-0502
         labels: [],
         datasets: []
     }
-    for (let i = 0; i < days; i++) {
+    for (let i = 0; i < days; i++) {// skipcq: JS-0502
         data.labels.push('Day '+i)
     }
     if (colors !== null) {
@@ -60,7 +60,7 @@ function plot(model, canvas, days, colors=null, options={title: {display: true, 
         } 
     }
     else {
-        for (let i = 0; i < model.length; i++) {
+        for (let i = 0; i < model.length; i++) {// skipcq: JS-0502
             data.datasets.push({
                 label: model[i].label,
                 data: model[i].data,
@@ -69,7 +69,7 @@ function plot(model, canvas, days, colors=null, options={title: {display: true, 
         } 
     }
 
-    let sirChart = new Chart(canvas, {
+    let sirChart = new Chart(canvas, {// skipcq: JS-0502
         type: 'line',
         data: data,
         options: options 
@@ -94,14 +94,14 @@ function plot(model, canvas, days, colors=null, options={title: {display: true, 
  * sirplot.manipulate(sirplot, "fill", true) // Set fill to true
  */
 function manipulate(id, mvalue, value) {
-    var manipulate = Chart.getChart(id)
+    var manip = Chart.getChart(id)// skipcq: JS-0502
 
-    for (var x in manipulate.data.datasets) {
-        manipulate.data.datasets[x][mvalue] = value
+    for (var x in manip.data.datasets) {
+        manip.data.datasets[x][mvalue] = value
     }
 
-    manipulate.update()
-    return manipulate
+    manip.update()
+    return manip
 }
 
 exports.plot = plot;
