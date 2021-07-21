@@ -77,4 +77,32 @@ function plot(model, canvas, days, colors=null, options={title: {display: true, 
     return sirChart;
 }
 
+/**
+ * Manipulate the chart.js graph
+ * 
+ * @param id The chart.js graph
+ * @param {String} mvalue The value to manipulate in `chart.data.datasets[x]`. This can be any valid chart.js parameter. See https://www.chartjs.org/docs/latest/charts/line.html#line-styling
+ * @param value The value to insert into the graph
+ * @returns The chart.js graph
+ * 
+ * @example
+ * 
+ * let sirout1 = sir(4, 9999, 1000, 100, 1/21, 10999, true)
+ *
+ * let sirplot = plot(sirout1, "canvas-pre1", 100)
+ * 
+ * sirplot.manipulate(sirplot, "fill", true) // Set fill to true
+ */
+function manipulate(id, mvalue, value) {
+    var manipulate = Chart.getChart(id)
+
+    for (var x in manipulate.data.datasets) {
+        manipulate.data.datasets[x][mvalue] = value
+    }
+
+    manipulate.update()
+    return manipulate
+}
+
 exports.plot = plot;
+exports.manipulate = manipulate;
