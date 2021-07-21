@@ -7,7 +7,7 @@
  * ```
  */
 
-const gaussian = require('gaussian')
+const gaussian : any = require('gaussian')
 
 /**
  * The SIR Model. Returns a chart.js graph with the total Susceptible, Infected, and Recovered after the given amount of time.
@@ -25,7 +25,7 @@ const gaussian = require('gaussian')
  */
 
 function sir(rn, s, i, time, u, p, stochastic) {
-	let data = [
+	let data : any = [
 		{
 			data: [s],
 			label: "Suseptible"
@@ -39,21 +39,21 @@ function sir(rn, s, i, time, u, p, stochastic) {
 			label: "Recovered"
 		}
 	]
-	var f1 = 0;
-	var f2 = 0;
+	var f1 : number = 0;
+	var f2 : number = 0;
 
-	for(let x = 0; x<time; x++){
+	for(let x : number = 0; x<time; x++){
 		f1 = Math.sqrt((rn*u)*data[0].data[x]*data[1].data[x]/p)
 		f2 = Math.sqrt(u*data[1].data[x])
 
 		if (stochastic === true) {
-			var distribution = gaussian(0, 1)
-			var omega1 = distribution.random(1)[0]
-			var omega2 = distribution.random(1)[0]
+			var distribution : any = gaussian(0, 1)
+			var omega1 : any = distribution.random(1)[0]
+			var omega2 : any = distribution.random(1)[0]
 		}
 		else {
-			var omega1 = 0
-			var omega2 = 0
+			var omega1 : number = 0
+			var omega2 : number = 0
 			f1 = 0
 			f2 = 0
 		}
@@ -63,7 +63,7 @@ function sir(rn, s, i, time, u, p, stochastic) {
 		data[2].data.push(data[2].data[x]+(u*data[1].data[x]+f2*omega2))
 
 		// Check if any of the new values are below 0, if so, set them to 0
-		for(let i = 0; i<data.length; i++){ // skipcq: JS-0123
+		for(let i : number = 0; i<data.length; i++){ // skipcq: JS-0123
 			if(data[i].data[x+1] < 0){
 				data[i].data[x+1] = 0
 			}
@@ -89,7 +89,7 @@ function sir(rn, s, i, time, u, p, stochastic) {
  *      seir(4, 9999, 1, 100, 1/7, 1/7, 10000, true)
  */
 function seir(rn, s, i, t, u, a, p, stochastic) {
-	let data = [{ 
+	let data : any = [{ 
 			data: [s],
 			label: "Suseptible"
 		},
@@ -107,21 +107,21 @@ function seir(rn, s, i, t, u, a, p, stochastic) {
 		}
 	]
 
-	for(let x = 0; x<t; x++){
-		var f1 = Math.sqrt((rn*u)*data[0].data[x]*data[1].data[x]/p)
-		var f2 = Math.sqrt(u*data[1].data[x])
-		var f3 = Math.sqrt(a*data[1].data[x])
+	for(let x : number = 0; x<t; x++){
+		var f1 : any = Math.sqrt((rn*u)*data[0].data[x]*data[1].data[x]/p)
+		var f2 : any = Math.sqrt(u*data[1].data[x])
+		var f3 : any = Math.sqrt(a*data[1].data[x])
 
 		if (stochastic === true) {
-			var distribution = gaussian(0, 1)
-			var omega1 = distribution.random(1)[0]
-			var omega2 = distribution.random(1)[0]
-			var omega3 = distribution.random(1)[0]
+			var distribution : any = gaussian(0, 1)
+			var omega1 : any = distribution.random(1)[0]
+			var omega2 : any = distribution.random(1)[0]
+			var omega3 : any = distribution.random(1)[0]
 		}
 		else {
-			var omega1 = 0
-			var omega2 = 0
-			var omega3 = 0
+			var omega1 : number = 0
+			var omega2 : number = 0
+			var omega3 : number = 0
 			f1 = 0
 			f2 = 0
 			f3 = 0
@@ -133,7 +133,7 @@ function seir(rn, s, i, t, u, a, p, stochastic) {
 		data[3].data.push(data[3].data[x]+((u*data[2].data[x])+f2*omega2))
 
 		// Check if any of the new values are below 0, if so, set them to 0
-		for(let i = 0; i<data.length; i++){ // skipcq: JS-0123
+		for(let i : number = 0; i<data.length; i++){ // skipcq: JS-0123
 			if(data[i].data[x+1] < 0){
 				data[i].data[x+1] = 0
 			}
@@ -160,7 +160,7 @@ function seir(rn, s, i, t, u, a, p, stochastic) {
  *      seird(4, 99999, 1, 100, 1/21, 1/14, 1/100, 10000, true)
  */
 function seird(rn, s, i, t, u, a, d, p, stochastic) {
-	let data = [{ 
+	let data : any = [{ 
 			data: [s],
 			label: "Suseptible"
 		},
@@ -182,24 +182,24 @@ function seird(rn, s, i, t, u, a, d, p, stochastic) {
 		}
 	]
 
-	for(let x = 0; x<t; x++){
-		var f1 = Math.sqrt((rn*u)*data[0].data[x]*data[1].data[x]/p)
-		var f2 = Math.sqrt(u*data[1].data[x])
-		var f3 = Math.sqrt(a*data[1].data[x])
-		var f4 = Math.sqrt(d*data[2].data[x])
+	for(let x : number = 0; x<t; x++){
+		var f1 : any = Math.sqrt((rn*u)*data[0].data[x]*data[1].data[x]/p)
+		var f2 : any = Math.sqrt(u*data[1].data[x])
+		var f3 : any = Math.sqrt(a*data[1].data[x])
+		var f4 : any = Math.sqrt(d*data[2].data[x])
 
 		if (stochastic === true) {
-			var distribution = gaussian(0, 1)
-			var omega1 = distribution.random(1)[0]
-			var omega2 = distribution.random(1)[0]
-			var omega3 = distribution.random(1)[0]
-			var omega4 = distribution.random(1)[0]
+			var distribution : any = gaussian(0, 1)
+			var omega1 : any = distribution.random(1)[0]
+			var omega2 : any = distribution.random(1)[0]
+			var omega3 : any = distribution.random(1)[0]
+			var omega4 : any = distribution.random(1)[0]
 		}
 		else {
-			var omega1 = 0
-			var omega2 = 0
-			var omega3 = 0
-			var omega4 = 0
+			var omega1 : number = 0
+			var omega2 : number = 0
+			var omega3 : number = 0
+			var omega4 : number = 0
 			f1 = 0
 			f2 = 0
 			f3 = 0
@@ -212,7 +212,7 @@ function seird(rn, s, i, t, u, a, d, p, stochastic) {
 		data[4].data.push(data[4].data[x]+((d*data[2].data[x])+f4*omega4))
 
 		// Check if any of the new values are below 0, if so, set them to 0
-		for(let i = 0; i<data.length; i++){ // skipcq: JS-0123
+		for(let i : number = 0; i<data.length; i++){ // skipcq: JS-0123
 			if(data[i].data[x+1] < 0){
 				data[i].data[x+1] = 0
 			}
@@ -243,7 +243,7 @@ function seird(rn, s, i, t, u, a, d, p, stochastic) {
  *      seihrd(4, 9999, 1, 265, 1/21, 1/40, 1/14, 1/100, 1/20, 1/30, 10000, true)
  */
 function seihrd(rn, s, i, t, u, uh, a, di, dh, h, p, stochastic) {
-	let data = [{ 
+	let data : any = [{ 
 			data: [s],
 			label: "Suseptible"
 		},
@@ -269,35 +269,35 @@ function seihrd(rn, s, i, t, u, uh, a, di, dh, h, p, stochastic) {
 		}
 	]
 
-	for(let x = 0; x<t; x++){
-		var f1 = Math.sqrt((rn*u)*data[0].data[x]*data[1].data[x]/p)
-		var f2 = Math.sqrt(u*data[1].data[x])
-		var f3 = Math.sqrt(a*data[1].data[x])
-		var f4 = Math.sqrt(di*data[2].data[x])
-		var f5 = Math.sqrt(uh*data[3].data[x])
-		var f6 = Math.sqrt(h*data[2].data[x])
-		var f7 = Math.sqrt(dh*data[3].data[x])
+	for(let x : number = 0; x<t; x++){
+		var f1 : any = Math.sqrt((rn*u)*data[0].data[x]*data[1].data[x]/p)
+		var f2 : any = Math.sqrt(u*data[1].data[x])
+		var f3 : any = Math.sqrt(a*data[1].data[x])
+		var f4 : any = Math.sqrt(di*data[2].data[x])
+		var f5 : any = Math.sqrt(uh*data[3].data[x])
+		var f6 : any = Math.sqrt(h*data[2].data[x])
+		var f7 : any = Math.sqrt(dh*data[3].data[x])
 
 
 		if (stochastic === true) {
-			var distribution = gaussian(0, 1)
-			var omega1 = distribution.random(1)[0]
-			var omega2 = distribution.random(1)[0]
-			var omega3 = distribution.random(1)[0]
-			var omega4 = distribution.random(1)[0]
-			var omega5 = distribution.random(1)[0]
-			var omega6 = distribution.random(1)[0]
-			var omega7 = distribution.random(1)[0]
+			var distribution : any = gaussian(0, 1)
+			var omega1 : any = distribution.random(1)[0]
+			var omega2 : any = distribution.random(1)[0]
+			var omega3 : any = distribution.random(1)[0]
+			var omega4 : any = distribution.random(1)[0]
+			var omega5 : any = distribution.random(1)[0]
+			var omega6 : any = distribution.random(1)[0]
+			var omega7 : any = distribution.random(1)[0]
 		}
 		else {
-			var omega1 = 0
-			var omega2 = 0
-			var omega3 = 0
-			var omega4 = 0
-			var omega5 = 0
-			var omega6 = 0
-			var omega7 = 0
-			var omega8 = 0
+			var omega1 : number = 0
+			var omega2 : number = 0
+			var omega3 : number = 0
+			var omega4 : number = 0
+			var omega5 : number = 0
+			var omega6 : number = 0
+			var omega7 : number = 0
+			var omega8 : number = 0
 			f1 = 0
 			f2 = 0
 			f3 = 0
@@ -314,7 +314,7 @@ function seihrd(rn, s, i, t, u, uh, a, di, dh, h, p, stochastic) {
 		data[5].data.push(data[5].data[x]+(di*data[2].data[x]+f4*omega4)+(dh*data[3].data[x]+f7*omega7)) // Dead
 
 		// Check if any of the new values are below 0, if so, set them to 0
-		for(let i = 0; i<data.length; i++){ // skipcq: JS-0123
+		for(let i : number = 0; i<data.length; i++){ // skipcq: JS-0123
 			if(data[i].data[x+1] < 0){
 				data[i].data[x+1] = 0
 			}
@@ -350,7 +350,7 @@ function seihrd(rn, s, i, t, u, uh, a, di, dh, h, p, stochastic) {
  *      seihcrd(4, 9999, 1, 265, 1/21, 1/40, 1/14, 1/100, 1/20, 1/10, 1/40, 2/5, 1/5, 1/5, 1/5, 1/30, 10000, true)
  */
  function seihcrd(rn, s, i, t, u, uh, a, di, dh, ch, ci, dc, uc, hc, ic, h, p, stochastic) {
-  let data = [
+  let data : any = [
 		{ 
 			data: [s],
 			label: "Suseptible"
@@ -381,52 +381,52 @@ function seihrd(rn, s, i, t, u, uh, a, di, dh, h, p, stochastic) {
 		}
 	]
 
-  for(let x = 0; x<t; x++){
-	var f1 = Math.sqrt((rn*u)*data[0].data[x]*data[1].data[x]/p)
-	var f2 = Math.sqrt(u*data[1].data[x])
-	var f3 = Math.sqrt(a*data[1].data[x])
-	var f4 = Math.sqrt(di*data[2].data[x])
-	var f5 = Math.sqrt(uh*data[3].data[x])
-	var f6 = Math.sqrt(h*data[2].data[x])
-	var f7 = Math.sqrt(dh*data[3].data[x])
-	var f8 = Math.sqrt(ch*data[3].data[x])
-	var f9 = Math.sqrt(ci*data[2].data[x])
-	var f10 = Math.sqrt(dc*data[4].data[x])
-	var f11 = Math.sqrt(uc*data[4].data[x])
-	var f12 = Math.sqrt(hc*data[4].data[x])
-	var f13 = Math.sqrt(ic*data[4].data[x])
+  for(let x : number = 0; x<t; x++){
+	var f1 : any = Math.sqrt((rn*u)*data[0].data[x]*data[1].data[x]/p)
+	var f2 : any = Math.sqrt(u*data[1].data[x])
+	var f3 : any = Math.sqrt(a*data[1].data[x])
+	var f4 : any = Math.sqrt(di*data[2].data[x])
+	var f5 : any = Math.sqrt(uh*data[3].data[x])
+	var f6 : any = Math.sqrt(h*data[2].data[x])
+	var f7 : any = Math.sqrt(dh*data[3].data[x])
+	var f8 : any = Math.sqrt(ch*data[3].data[x])
+	var f9 : any = Math.sqrt(ci*data[2].data[x])
+	var f10 : any = Math.sqrt(dc*data[4].data[x])
+	var f11 : any = Math.sqrt(uc*data[4].data[x])
+	var f12 : any = Math.sqrt(hc*data[4].data[x])
+	var f13 : any = Math.sqrt(ic*data[4].data[x])
 
 
 	if (stochastic === true) {
-		var distribution = gaussian(0, 1)
-		var omega1 = distribution.random(1)[0]
-		var omega2 = distribution.random(1)[0]
-		var omega3 = distribution.random(1)[0]
-		var omega4 = distribution.random(1)[0]
-		var omega5 = distribution.random(1)[0]
-		var omega6 = distribution.random(1)[0]
-		var omega7 = distribution.random(1)[0]
-		var omega8 = distribution.random(1)[0]
-		var omega9 = distribution.random(1)[0]
-		var omega10 = distribution.random(1)[0]
-		var omega11 = distribution.random(1)[0]
-		var omega12 = distribution.random(1)[0]
-		var omega13 = distribution.random(1)[0]
+		var distribution : any = gaussian(0, 1)
+		var omega1 : any = distribution.random(1)[0]
+		var omega2 : any = distribution.random(1)[0]
+		var omega3 : any = distribution.random(1)[0]
+		var omega4 : any = distribution.random(1)[0]
+		var omega5 : any = distribution.random(1)[0]
+		var omega6 : any = distribution.random(1)[0]
+		var omega7 : any = distribution.random(1)[0]
+		var omega8 : any = distribution.random(1)[0]
+		var omega9 : any = distribution.random(1)[0]
+		var omega10 : any = distribution.random(1)[0]
+		var omega11 : any = distribution.random(1)[0]
+		var omega12 : any = distribution.random(1)[0]
+		var omega13 : any = distribution.random(1)[0]
 	}
 	else {
-		var omega1 = 0
-		var omega2 = 0
-		var omega3 = 0
-		var omega4 = 0
-		var omega5 = 0
-		var omega6 = 0
-		var omega7 = 0
-		var omega8 = 0
-		var omega9 = 0
-		var omega10 = 0
-		var omega11 = 0
-		var omega12 = 0
-		var omega13 = 0
+		var omega1 : number = 0
+		var omega2 : number = 0
+		var omega3 : number = 0
+		var omega4 : number = 0
+		var omega5 : number = 0
+		var omega6 : number = 0
+		var omega7 : number = 0
+		var omega8 : number = 0
+		var omega9 : number = 0
+		var omega10 : number = 0
+		var omega11 : number = 0
+		var omega12 : number = 0
+		var omega13 : number = 0
 		f1 = 0
 		f2 = 0
 		f3 = 0
@@ -450,7 +450,7 @@ function seihrd(rn, s, i, t, u, uh, a, di, dh, h, p, stochastic) {
 	data[6].data.push(data[6].data[x]+(di*data[2].data[x]+f4*omega4)+(dh*data[3].data[x]+f7*omega7)+(dc*data[4].data[x]+f10*omega10)) // Dead
 
 	// Check if any of the new values are below 0, if so, set them to 0
-	for(let i = 0; i<data.length; i++){ // skipcq: JS-0123
+	for(let i : number = 0; i<data.length; i++){ // skipcq: JS-0123
 		if(data[i].data[x+1] < 0){
 			data[i].data[x+1] = 0
 		}

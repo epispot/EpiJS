@@ -7,8 +7,8 @@
  * ```
  */
 
-const math = require('mathjs')
-const gaussian = require('gaussian')
+const math : any = require('mathjs')
+const gaussian : any = require('gaussian')
 
 /**
  * Class for a custom compartments.
@@ -36,9 +36,9 @@ class Idiom {
   }
 
   get_data (key) {
-    var parsed = this.equation.split('')
+    var parsed : any = this.equation.split('')
 
-    var x = 0;
+    var x : number = 0;
     while (x<parsed.length) {
       if (parsed[x] === " ") {
         parsed.splice(x, 1)
@@ -52,11 +52,11 @@ class Idiom {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        var distribution = new gaussian(0, 1)
+        var distribution : any = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
-    let out = math.evaluate(parsed.join(''))
+    let out : any = math.evaluate(parsed.join(''))
 
     // Round up to 0 if below 0 for out
     if (out < 0) {
@@ -105,9 +105,9 @@ class Susceptible {
   }
 
   get_data (key) {
-    var parsed = this.equation.split('')
+    var parsed : any = this.equation.split('')
 
-    var x = 0;
+    var x : number = 0;
     while (x<parsed.length) {
       if (parsed[x] === " ") {
         parsed.splice(x, 1)
@@ -121,12 +121,12 @@ class Susceptible {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        var distribution = new gaussian(0, 1)
+        var distribution : any = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
 
-    let out = math.evaluate(parsed.join(''))
+    let out : any = math.evaluate(parsed.join(''))
 
     // Round up to 0 if below 0 for out
     if (out < 0) {
@@ -173,9 +173,9 @@ class Infected {
   }
 
   get_data (key) {
-    var parsed = this.equation.split('')
+    var parsed : any = this.equation.split('')
 
-    var x = 0;
+    var x : number = 0;
     while (x<parsed.length) {
       if (parsed[x] === " ") {
         parsed.splice(x, 1)
@@ -189,12 +189,12 @@ class Infected {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        var distribution = new gaussian(0, 1)
+        var distribution : any = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
 
-    let out = math.evaluate(parsed.join(''))
+    let out : any = math.evaluate(parsed.join(''))
 
     // Round up to 0 if below 0 for out
     if (out < 0) {
@@ -241,9 +241,9 @@ class Exposed {
   }
 
   get_data (key) {
-    var parsed = this.equation.split('')
+    var parsed : any = this.equation.split('')
 
-    var x = 0;
+    var x : number = 0;
     while (x<parsed.length) {
       if (parsed[x] === " ") {
         parsed.splice(x, 1)
@@ -257,11 +257,11 @@ class Exposed {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        var distribution = new gaussian(0, 1)
+        var distribution : any = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
-    let out = math.evaluate(parsed.join(''))
+    let out : any = math.evaluate(parsed.join(''))
 
     // Round up to 0 if below 0 for out
     if (out < 0) {
@@ -308,9 +308,9 @@ class Critical {
   }
 
   get_data (key) {
-    var parsed = this.equation.split('')
+    var parsed : any = this.equation.split('')
 
-    var x = 0;
+    var x : number = 0;
     while (x<parsed.length) {
       if (parsed[x] === " ") {
         parsed.splice(x, 1)
@@ -324,11 +324,11 @@ class Critical {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        var distribution = new gaussian(0, 1)
+        var distribution : any = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
-    let out = math.evaluate(parsed.join(''))
+    let out : any = math.evaluate(parsed.join(''))
 
     // Round up to 0 if below 0 for out
     if (out < 0) {
@@ -375,9 +375,9 @@ class Hospitalized {
   }
 
   get_data (key) {
-    var parsed = this.equation.split('')
+    var parsed : any = this.equation.split('')
 
-    var x = 0;
+    var x : number = 0;
     while (x<parsed.length) {
       if (parsed[x] === " ") {
         parsed.splice(x, 1)
@@ -391,11 +391,11 @@ class Hospitalized {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        var distribution = new gaussian(0, 1)
+        var distribution : any = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
-    let out = math.evaluate(parsed.join(''))
+    let out : any = math.evaluate(parsed.join(''))
 
     // Round up to 0 if below 0 for out
     if (out < 0) {
@@ -443,9 +443,9 @@ class Dead {
   }
 
   get_data (key) {
-    var parsed = this.equation.split('')
+    var parsed : any = this.equation.split('')
 
-    var x = 0;
+    var x : number = 0;
     while (x<parsed.length) {
       if (parsed[x] === " ") {
         parsed.splice(x, 1)
@@ -459,11 +459,11 @@ class Dead {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        var distribution = new gaussian(0, 1)
+        var distribution : any = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
-    let out = math.evaluate(parsed.join(''))
+    let out : any = math.evaluate(parsed.join(''))
 
     // Round up to 0 if below 0 for out
     if (out < 0) {
@@ -510,9 +510,9 @@ class Vaccinated {
   }
 
   get_data (key) {
-    var parsed = this.equation.split('')
+    var parsed : any = this.equation.split('')
 
-    var x = 0;
+    var x : number = 0;
     while (x<parsed.length) {
       if (parsed[x] === " ") {
         parsed.splice(x, 1)
@@ -526,11 +526,11 @@ class Vaccinated {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        var distribution = new gaussian(0, 1)
+        var distribution : any = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
-    let out = math.evaluate(parsed.join(''))
+    let out : any = math.evaluate(parsed.join(''))
 
     // Round up to 0 if below 0 for out
     if (out < 0) {
@@ -577,9 +577,9 @@ class Recovered {
   }
 
   get_data (key) {
-    var parsed = this.equation.split('')
+    var parsed : any = this.equation.split('')
 
-    var x = 0;
+    var x : number = 0;
     while (x<parsed.length) {
       if (parsed[x] === " ") {
         parsed.splice(x, 1)
@@ -593,11 +593,11 @@ class Recovered {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        var distribution = new gaussian(0, 1)
+        var distribution : any = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
-    let out = math.evaluate(parsed.join(''))
+    let out : any = math.evaluate(parsed.join(''))
 
     // Round up to 0 if below 0 for out
     if (out < 0) {

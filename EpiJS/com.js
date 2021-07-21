@@ -8,8 +8,8 @@
  */
 
 
-const chart = require('chart.js')
-const gaussian = require('gaussian')
+const chart : any = require('chart.js')
+const gaussian : any = require('gaussian')
 
 
 /**
@@ -62,7 +62,7 @@ class Community {
      *outbreak = NewYorkCity.sir(covid, 100, false)
      */
     sir (disease, time, stochastic) {
-        let data = {
+        let data : any = {
             datasets: [{
                 data: [this.s],
                 label: "Suseptible",
@@ -76,21 +76,21 @@ class Community {
                 label: "Recovered",
             }]
         }
-        var f1 = 0;
-        var f2 = 0;
+        var f1 : number = 0;
+        var f2 : number = 0;
     
-        for(let x = 0; x<time; x++){
+        for(let x : number = 0; x<time; x++){
             f1 = Math.sqrt((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)
             f2 = Math.sqrt(disease.u*data.datasets[1].data[x])
     
             if (stochastic === true) {
-                var distribution = gaussian(0, 1)
-                var omega1 = distribution.random(1)[0]
-                var omega2 = distribution.random(1)[0]
+                var distribution : any = gaussian(0, 1)
+                var omega1 : any = distribution.random(1)[0]
+                var omega2 : any = distribution.random(1)[0]
             }
             else {
-                var omega1 = 0
-                var omega2 = 0
+                var omega1 : number = 0
+                var omega2 : number = 0
                 f1 = 0
                 f2 = 0
             }
@@ -100,7 +100,7 @@ class Community {
             data.datasets[2].data.push(data.datasets[2].data[x]+(disease.u*data.datasets[1].data[x]+f2*omega2))
 
             // Check if any of the new values are below 0, if so, set them to 0
-            for(let i = 0; i<data.datasets.length; i++){
+            for(let i : number = 0; i<data.datasets.length; i++){
                 if(data.datasets[i].data[x+1] < 0){
                     data.datasets[i].data[x+1] = 0
                 }
@@ -123,7 +123,7 @@ class Community {
      *outbreak = NewYorkCity.seir(covid, 100, false)
      */
      seir (disease, time, stochastic) {
-        let data = {
+        let data : any = {
             datasets: [{
                 data: [this.s],
                 label: "Suseptible",
@@ -141,25 +141,25 @@ class Community {
                 label: "Recovered",
             }]
         }
-        var f1 = 0;
-        var f2 = 0;
-        var f3 = 0;
+        var f1 : number = 0;
+        var f2 : number = 0;
+        var f3 : number = 0;
 
-        for(let x = 0; x<time; x++){
+        for(let x : number = 0; x<time; x++){
             f1 = Math.sqrt((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)
             f2 = Math.sqrt(disease.u*data.datasets[2].data[x])
             f3 = Math.sqrt(disease.a*data.datasets[1].data[x])
 
             if (stochastic === true) {
-                var distribution = gaussian(0, 1)
-                var omega1 = distribution.random(1)[0]
-                var omega2 = distribution.random(1)[0]
-                var omega3 = distribution.random(1)[0]
+                var distribution : any = gaussian(0, 1)
+                var omega1 : any = distribution.random(1)[0]
+                var omega2 : any = distribution.random(1)[0]
+                var omega3 : any = distribution.random(1)[0]
             }
             else {
-                var omega1 = 0
-                var omega2 = 0
-                var omega3 = 0
+                var omega1 : number = 0
+                var omega2 : number = 0
+                var omega3 : number = 0
                 f1 = 0
                 f2 = 0
                 f3 = 0
@@ -170,7 +170,7 @@ class Community {
             data.datasets[3].data.push(data.datasets[3].data[x]+((disease.u*data.datasets[2].data[x])+f2*omega2))
 
             // Check if any of the new values are below 0, if so, set them to 0
-            for(let i = 0; i<data.datasets.length; i++){
+            for(let i : number = 0; i<data.datasets.length; i++){
                 if(data.datasets[i].data[x+1] < 0){
                     data.datasets[i].data[x+1] = 0
                 }
@@ -193,7 +193,7 @@ class Community {
      *outbreak = NewYorkCity.seird(covid, 100, false)
      */
     seird (disease, time, stochastic) {
-        let data = {
+        let data : any = {
             datasets: [{
                 data: [this.s],
                 label: "Suseptible",
@@ -215,29 +215,29 @@ class Community {
                 label: "Dead",
             }]
         }
-        var f1 = 0;
-        var f2 = 0;
-        var f3 = 0;
-        var f4 = 0;
+        var f1 : number = 0;
+        var f2 : number = 0;
+        var f3 : number = 0;
+        var f4 : number = 0;
 
-        for(let x = 0; x<time; x++){
+        for(let x : number = 0; x<time; x++){
             f1 = Math.sqrt((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop) // Rn * U * S * I / N
             f2 = Math.sqrt(disease.u*data.datasets[2].data[x]) // u*I
             f3 = Math.sqrt(disease.a*data.datasets[1].data[x]) // a*I
             f4 = Math.sqrt(disease.d*data.datasets[2].data[x]) // d*I
 
             if (stochastic === true) {
-                var distribution = gaussian(0, 1)
-                var omega1 = distribution.random(1)[0]
-                var omega2 = distribution.random(1)[0]
-                var omega3 = distribution.random(1)[0]
-                var omega4 = distribution.random(1)[0]
+                var distribution : any = gaussian(0, 1)
+                var omega1 : any = distribution.random(1)[0]
+                var omega2 : any = distribution.random(1)[0]
+                var omega3 : any = distribution.random(1)[0]
+                var omega4 : any = distribution.random(1)[0]
             }
             else {
-                var omega1 = 0
-                var omega2 = 0
-                var omega3 = 0
-                var omega4 = 0
+                var omega1 : number = 0
+                var omega2 : number = 0
+                var omega3 : number = 0
+                var omega4 : number = 0
                 f1 = 0
                 f2 = 0
                 f3 = 0
@@ -250,7 +250,7 @@ class Community {
             data.datasets[4].data.push(data.datasets[4].data[x]+((disease.d*data.datasets[2].data[x])+f4*omega4))
 
             // Check if any of the new values are below 0, if so, set them to 0
-            for(let i = 0; i<data.datasets.length; i++){
+            for(let i : number = 0; i<data.datasets.length; i++){
                 if(data.datasets[i].data[x+1] < 0){
                     data.datasets[i].data[x+1] = 0
                 }
@@ -298,7 +298,7 @@ class Community {
      *outbreak = NewYorkCity.custom([[susceptible, 'S'], [infected, 'I'], [recovered, 'R']], 100, covid, {B: covid.rnaught*covid.u})
      */
     custom(compartments, time, virus, extrakey={}) {
-        let key = Object.assign({
+        let key : any = Object.assign({
             S: this.s,
             I: this.i,
             R: this.r,
@@ -309,7 +309,7 @@ class Community {
             p: this.pop,
         }, extrakey)
         
-        let newkey = Object.assign({
+        let newkey : any = Object.assign({
             S: this.s,
             I: this.i,
             R: this.r,
@@ -320,12 +320,12 @@ class Community {
             p: this.pop,
         }, extrakey)
 
-        let data = {
+        let data : any = {
             datasets: []
         }
 
         // Add the compartments to data.datasets
-        for (let x = 0; x < compartments.length; x++) {
+        for (let x : number = 0; x < compartments.length; x++) {
             data.datasets.push({
                 data: [],
                 label: compartments[x][1]
@@ -333,8 +333,8 @@ class Community {
         }
 
         // Push compartments[x][0].get_data(y) for y in range(time)
-        for (let y = 0; y < time; y++) {
-            for (let x = 0; x < compartments.length; x++) {
+        for (let y : number = 0; y < time; y++) {
+            for (let x : number = 0; x < compartments.length; x++) {
                 data.datasets[x].data.push(compartments[x][0].get_data(key))
                 newkey[compartments[x][1]] = compartments[x][0].get_data(key)
             }
@@ -368,31 +368,31 @@ class Community {
  *
  */
  function compare(c, model1, model2, m1name, m2name, days) {
-    let data = {
+    let data : any = {
         labels: [],
         datasets: []
     }
 
-    let m1len = model1.datasets.length
-    let m2len = model2.datasets.length
+    let m1len : any = model1.datasets.length
+    let m2len : any = model2.datasets.length
 
-    for (var x = 0; x < days; x++) {
+    for (var x : number = 0; x < days; x++) {
         data.labels.push("Day "+(x+1).toString())
     }
-    for (var y = 0; y < m1len; y++) {
+    for (var y : number = 0; y < m1len; y++) {
         data.datasets[y] = {}
         data.datasets[y].data = model1.datasets[y].data
         data.datasets[y].label = model1.datasets[y].label+" ("+m1name+")"
         data.datasets[y].borderColor = "#"+Math.floor(Math.random()*16777215).toString(16)
     }
-    for (var z = m1len; z < m2len+m1len; z++) {
+    for (var z : any = m1len; z < m2len+m1len; z++) {
         data.datasets[z] = {}
         data.datasets[z].data = model2.datasets[z-m1len].data
         data.datasets[z].label = model2.datasets[z-m1len].label+" ("+m2name+")"
         data.datasets[z].borderColor = "#"+Math.floor(Math.random()*16777215).toString(16)
     }
 
-    let compareChart = new Chart(c, {
+    let compareChart : any = new Chart(c, {
         type: 'line',
         data: data,
         options: {

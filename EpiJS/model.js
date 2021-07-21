@@ -8,9 +8,9 @@
  */
 
 
-const fs = require('fs');
+const fs : any = require('fs');
 const { typeOf, string } = require('mathjs');
-const comps = require('./comp')
+const comps : any = require('./comp')
 
 /**
  * Create a model.
@@ -64,17 +64,17 @@ class Model {
 	 *model.get_data(100) // Get data for 100 days.
 	 */
 	get_data(time) { // skipcq: JS-0045
-		var key = this.key
-		var newkey = key
+		var key : any = this.key
+		var newkey : any = key
 
-		for (var x = 0; x < time; x++) {
+		for (var x : number = 0; x < time; x++) {
 			var y; // skipcq: JS-0119
 			for (y in this.compartments) {
 				newkey[this.compartments[y][1]] = this.compartments[y][0].get_data(key)
 			}
 			key = newkey
 			if (x === time - 1) {
-				var return_val = {}
+				var return_val : {  } = {}
 				for (y in this.compartments) {
 					return_val[this.compartments[y][1]] = key[this.compartments[y][1]]
 				}
@@ -109,7 +109,7 @@ class Model {
  *mexport(sirm, "output.js", file_type=".js")
  */
 function mexport(model, output, file_type=".json") {
-	var jsonout = {
+	var jsonout : any = {
 		"compartments": {
 
 		},
@@ -136,12 +136,12 @@ function mexport(model, output, file_type=".json") {
  */
 function mimport(input, file_type=".json") {
 	if (file_type === ".json") {
-		var json = JSON.parse(fs.readFileSync(input))
+		var json : any = JSON.parse(fs.readFileSync(input))
 	} else if (file_type === ".js") {
-		var json = require(output)
+		var json : any = require(output)
 	}
 	
-	var comp = []
+	var comp : null[] = []
 
 	for (var x in json.compartments) {
 		comp.push([new comps.Idiom(json.compartments[x].equation), x])
