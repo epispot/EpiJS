@@ -10,14 +10,14 @@ The prefered way of installation is through npm or in your html:
 
 ::: tab NodeJS
 ```SH
-npm install @quantalabs/epijs
-yarn add @quantalabs/epijs
+npm install @epispot/epijs
+yarn add @epispot/epijs
 ```
 :::
 ::: tab HTML
 
 ```HTML
-<script src="https://cdn.jsdelivr.net/gh/Quantalabs/EpiJS/web/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/epispot/EpiJS/web/index.min.js"></script>
 ```
 :::
 ::::
@@ -27,7 +27,7 @@ yarn add @quantalabs/epijs
 
 EpiJS can also be built from the source, however, this might introduce bugs.
 ```SH
-git clone https://github.com/Quantalabs/EpiJS.git --depth=1
+git clone https://github.com/epispot/EpiJS.git --depth=1
 cd EpiJS
 ```
 Once cloned you can use it in the prefered way:
@@ -40,7 +40,7 @@ npm install .
 ```
 Require:
 ```JAVASCRIPT
-const epijs = require('@quantalabs/epijs')
+const epijs = require('./epijs/')
 ```
 :::
 ::: tab HTML
@@ -62,12 +62,12 @@ EpiJS is avaliable on multiple CDNs:
 :::: tabs
 ::: tab JSDelivr
 ```HTML
-<script src="https://cdn.jsdelivr.net/gh/Quantalabs/EpiJS@2.0.0/web/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/epispot/EpiJS@2.0.0/web/index.min.js"></script>
 ```
 :::
 ::: tab Unpkg
 ```HTML
-<script src="https://unpkg.com/@quantalabs/epijs@2.0.0/web/index.min.js"></script>
+<script src="https://unpkg.com/@epispot/epijs@2.0.0/web/index.min.js"></script>
 ```
 :::
 ::: tab CDNJS
@@ -76,18 +76,18 @@ EpiJS is avaliable on multiple CDNs:
 ```
 :::
 ::: tab Download
-Alternatively, you can download the minified js attachment and use that yourself from [here](https://github.com/Quantalabs/EpiJS/releases/)
+Alternatively, you can download the minified js attachment and use that yourself from [here](https://github.com/epispot/EpiJS/releases/)
 ```HTML
 <script src="./epijs.min.js"></script>
 ```
 Download is also avaliable through npm/yarn:
 ```SH
-yarn add @quantalabs/epijs
-npm install @quantalabs/epijs
+yarn add @epispot/epijs
+npm install @epispot/epijs
 ```
 And in your html:
 ```HTML
-<script src="./node_modules/@quantalabs/epijs/web/index.min.js"></script>
+<script src="./node_modules/@epispot/epijs/web/index.min.js"></script>
 ```
 :::
 ::::

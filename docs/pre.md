@@ -28,7 +28,7 @@ Pre-made models for disease outbreaks.
 
 Import it with:
 ```javascript
-       const pre = require('@quantalabs/epijs').pre
+       const pre = require('@epispot/epijs').pre
 ```
 ## sir
 

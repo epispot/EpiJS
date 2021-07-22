@@ -17,7 +17,7 @@ Epidemiological Utilities, like calculating the R-Naught and the infection rate 
 
 Import it with:
 ```javascript
-       const utils = require('@quantalabs/epijs').utils
+       const utils = require('@epispot/epijs').utils
 ```
 ## calcrn
 

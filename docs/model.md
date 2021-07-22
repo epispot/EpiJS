@@ -5,27 +5,23 @@ title: EpiJS Module - Model
 
 ### Table of Contents
 
-*   [Model][1]
-    *   [Parameters][2]
-    *   [get_data][3]
-        *   [Examples][11]
-
+*   [fs][1]
+*   [Model][2]
+    *   [Parameters][3]
+*   [mimport][11]
+    *   [Parameters][12]
 # Model
-
-EpiJS module for creating custom models, which are made of compartments.
-
-Import it with:
+*   [math][14]
+*   [Idiom][15]
+    *   [Parameters][16]
+    *   [Examples][17]
 ```javascript
-       const model = require('@quantalabs/epijs').model
+    *   [Parameters][19]
 ```
-## Model
-
-Create a model.
-
 ### Parameters
 
-*   `compartments` **[Array][13]** Compartments in the model. Each should be a list, with the first value being the compartment, and the second being it's start value in the key.
-*   `key` **[Object][14]** The key of values for any variable used in the equation. If you use any variable which represents the population of a compartment, add the starting value into the key.
+*   `compartments` **[Array][42]** Compartments in the model. Each should be a list, with the first value being the compartment, and the second being it's start value in the key.
+*   `key` **[Object][43]** The key of values for any variable used in the equation. If you use any variable which represents the population of a compartment, add the starting value into the key.
 
 ### Examples
 
@@ -52,7 +48,7 @@ Get data for the outbreak.
 
 #### Parameters
 
-*   `time` **[Number][12]** The total time to model.
+*   `time` **[Number][44]** The total time to model.
 
 #### Examples
 
@@ -75,30 +71,343 @@ let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], ke
 model.get_data(100) // Get data for 100 days.
 ```
 
+## mexport
+
+NodeJS only! Exports models to a file which can then be imported later on.
+
 [1]: #model-2
 
-[2]: #parameters
-
+*   `model`  The EpiJS model to export
+*   `output` **[String][45]** The output file path, doesn't have to exist
 [3]: #get-data
 
-[4]: #parameters-1
+### Examples
 
-[5]: #examples
+```javascript
+let susceptible = new Idiom("S-(B*S*I/p)");
+let infected = new Idiom("I+(B*S*I/p)-(u*I)");
+let recovered = new Idiom("R+(u*I)");
 
-[6]: #model-1
+let key = {
+ "S": 10000,
+ "B": 0.3,
+ "I": 100,
+ "R": 0,
+ "p": 10100,
+ "u": 0.2
+};
 
-[7]: #parameters-2
+let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
 
-[8]: #examples-1
+mexport(sirm, "output.js", file_type=".js")
+```
 
-[9]: #get_data-1
+## mimport
 
-[10]: #parameters-3
+NodeJS only! Imports a model from a file.
 
-[11]: #examples-2
+### Parameters
 
-[12]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+*   `input` **[String][45]** The input file path, as a relative path.
+*   `file_type` **[String][45]** The file type of the input. Supported inputs are ".json" and ".js". (optional, default `".json"`)
 
-[13]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+### Examples
 
-[14]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+```javascript
+// Use mexport to export a model into a file
+let sirm = mimport("./output.json")
+```
+
+## math
+
+EpiJS module for creating compartments, which can be combined into models.
+
+Import it with:
+
+       const comp = require('@epispot/epijs').comp
+
+## Idiom
+
+Class for a custom compartments.
+
+### Parameters
+
+*   `equation` **[String][45]** The equation for the compartment. This defines what to run to get a new value for the next day in the model. Use any variable in the equation (1 char max), but when making this a model, you need to define this in the key.
+    If using other compartment classes, they each have their own corresponding variable:*   'S' - Susceptible
+    *   'E' - Exposed
+    *   'I' - Infectious
+    *   'R' - Recovered
+    *   'D' - Dead
+    *   'C' - Critical
+    *   'H' - Hospitalized
+    *   'V' - Vaccinated
+    *   'w' - Reserved for stochastic models. If put, it will be replaced with a random number generated from the gaussian distribution.
+
+### Examples
+
+```javascript
+let susceptible = new Idiom("S-(B*S*I)")
+```
+
+## Susceptible
+
+Class for Suscepible compartment.
+
+### Parameters
+
+*   `next` **[Array][42]** List of rates of the next compartments This is multiplied by the current susceptible population.
+*   `prev` **[Array][42]** List of rates of the previous compartments, which include sub-arrays
+    with the compartment id (one letter only), as a string, and the rate for the compartment.
+    If reffering to this compartment's population, use "S" as the id. This parameter is useful
+    if you want to model a disease with re-susceptibility.
+*   `stochastic` **[Boolean][46]** If true, the compartment will be stochastic. You can still pass in your normal equation, and epijs will
+    auto generate the equations from what you pass in.
+
+### Examples
+
+```javascript
+// Note that you can pass in a number as a rate too, 
+     // but we use a string because we want to multiply 
+     // by other compartment populations. This applies to the prev parameter too. 
+     let S = new Susceptible(["I*0.4/N"], [], true)
+```
+
+## Infected
+
+Class for Infected compartment.
+
+### Parameters
+
+*   `next` **[Array][42]** List of rates of the next compartments This is multiplied by the current infected population.
+*   `prev` **[Array][42]** List of rates of the previous compartments, which include sub-arrays
+    with the compartment id (one letter only), as a string, and the rate for the compartment.
+    If reffering to this compartment's population, use "I" as the id.
+*   `stochastic` **[Boolean][46]** If true, the compartment will be stochastic.
+
+### Examples
+
+```javascript
+// Note that you can pass in a string as a rate too, 
+     // but we use a number in this case because we don't need to multiply 
+     // by other compartment populations. We do actually do this for the prev parameter, though.
+     let I = new Infected([0.3], [["S", "I*0.4/N"]], false)
+```
+
+## Exposed
+
+Class for Exposed compartment.
+
+### Parameters
+
+*   `next` **[Array][42]** List of rates of the next compartments This is multiplied by the current exposed population.
+*   `prev` **[Array][42]** List of rates of the previous compartments, which include sub-arrays
+    with the compartment id (one letter only), as a string, and the rate for the compartment.
+    If reffering to this compartment's population, use "E" as the id.
+*   `stochastic` **[Boolean][46]** If true, the compartment will be stochastic.
+
+### Examples
+
+```javascript
+// Note that you can pass in a string as a rate too, 
+     // but we use a number in this case because we don't need to multiply 
+     // by other compartment populations. We do actually do this for the prev parameter, though.
+     let E = new Exposed([1/14], ["S*0.4/N"], false)
+```
+
+## Critical
+
+Class for Critical compartment.
+
+### Parameters
+
+*   `next` **[Array][42]** List of rates of the next compartments This is multiplied by the current critical population.
+*   `prev` **[Array][42]** List of rates of the previous compartments, which include sub-arrays
+    with the compartment id (one letter only), as a string, and the rate for the compartment.
+    If reffering to this compartment's population, use "C" as the id.
+*   `stochastic` **[Boolean][46]** If true, the compartment will be stochastic.
+
+### Examples
+
+```javascript
+// Note that you can pass in a string as a rate too, 
+     // but we use a number in this case because we don't need to multiply 
+     // by other compartment populations.
+     let C = new Critical([0.14, 0.1], [["H", 0.3]], false)
+```
+
+## Hospitalized
+
+Class for Hospitalized compartment.
+
+### Parameters
+
+*   `next` **[Array][42]** List of rates of the next compartments This is multiplied by the current hospitalized population.
+*   `prev` **[Array][42]** List of rates of the previous compartments, which include sub-arrays
+    with the compartment id (one letter only), as a string, and the rate for the compartment.
+    If reffering to this compartment's population, use "H" as the id.
+*   `stochastic` **[Boolean][46]** If true, the compartment will be stochastic.
+
+### Examples
+
+```javascript
+// Note that you can pass in a string as a rate too, 
+     // but we use a number in this case because we don't need to multiply 
+     // by other compartment populations.
+     let H = new Hospitalized([0.3], [["I", 0.1], ["E", 0.2]], false)
+```
+
+## Dead
+
+Class for the Dead compartment.
+
+### Parameters
+
+*   `next` **[Array][42]** List of rates of the next compartments. This is multiplied by the current dead population.
+    Useful if you want to have a dead population that can also be the walking dead.
+*   `prev` **[Array][42]** List of rates of the previous compartments, which include sub-arrays
+    with the compartment id (one letter only), as a string, and the rate for the compartment.
+    If reffering to this compartment's population, use "D" as the id.
+*   `stochastic` **[Boolean][46]** If true, the compartment will be stochastic.
+
+### Examples
+
+```javascript
+// Note that you can pass in a string as a rate too, 
+     // but we use a number in this case because we don't need to multiply 
+     // by other compartment populations. We do actually do this for the prev parameter, though.
+     let D = new Dead([0.3], [["I", 0.3]], false) // This disease also gives you a 3/10 chance to come alive after death.
+```
+
+## Vaccinated
+
+Class for Vaccinated compartment.
+
+### Parameters
+
+*   `next` **[Array][42]** List of rates of the next compartments, good if the vaccine isn't 100% effective. This is multiplied by the current vaccinated population.
+*   `prev` **[Array][42]** List of rates of the previous compartments, which include sub-arrays
+    with the compartment id (one letter only), as a string, and the rate for the compartment.
+    If reffering to this compartment's population, use "V" as the id.
+*   `stochastic` **[Boolean][46]** If true, the compartment will be stochastic.
+
+### Examples
+
+```javascript
+// Note that you can pass in a string as a rate too, 
+     // but we use a number in this case because we don't need to multiply 
+     // by other compartment populations. We do actually do this for the prev parameter, though.
+     let I = new Infected([0.001], ["S*0.4"], false)
+```
+
+## Recovered
+
+Class for Recovered compartment.
+
+### Parameters
+
+*   `next` **[Array][42]** List of rates of the next compartments, good if the vaccine isn't 100% effective. This is multiplied by the current vaccinated population.
+*   `prev` **[Array][42]** List of rates of the previous compartments, which include sub-arrays
+    with the compartment id (one letter only), as a string, and the rate for the compartment.
+    If reffering to this compartment's population, use "V" as the id.
+*   `stochastic` **[Boolean][46]** If true, the compartment will be stochastic.
+
+### Examples
+
+```javascript
+// Note that you can pass in a string as a rate too, 
+     // but we use a number in this case because we don't need to multiply 
+     // by other compartment populations. We do actually do this for the prev parameter, though.
+     let R = new Recovered([ ], [["I", 0.1]], false)
+```
+
+[1]: #fs
+
+[2]: #model
+
+[3]: #parameters
+
+[4]: #examples
+
+[5]: #get_data
+
+[6]: #parameters-1
+
+[7]: #examples-1
+
+[8]: #mexport
+
+[9]: #parameters-2
+
+[10]: #examples-2
+
+[11]: #mimport
+
+[12]: #parameters-3
+
+[13]: #examples-3
+
+[14]: #math
+
+[15]: #idiom
+
+[16]: #parameters-4
+
+[17]: #examples-4
+
+[18]: #susceptible
+
+[19]: #parameters-5
+
+[20]: #examples-5
+
+[21]: #infected
+
+[22]: #parameters-6
+
+[23]: #examples-6
+
+[24]: #exposed
+
+[25]: #parameters-7
+
+[26]: #examples-7
+
+[27]: #critical
+
+[28]: #parameters-8
+
+[29]: #examples-8
+
+[30]: #hospitalized
+
+[31]: #parameters-9
+
+[32]: #examples-9
+
+[33]: #dead
+
+[34]: #parameters-10
+
+[35]: #examples-10
+
+[36]: #vaccinated
+
+[37]: #parameters-11
+
+[38]: #examples-11
+
+[39]: #recovered
+
+[40]: #parameters-12
+
+[41]: #examples-12
+
+[42]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+
+[43]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+
+[44]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+
+[45]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+
+[46]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean

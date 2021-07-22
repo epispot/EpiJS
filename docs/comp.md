@@ -39,7 +39,7 @@ EpiJS module for creating compartments, which can be combined into models.
 
 Import it with:
 ```javascript
-       const comp = require('@quantalabs/epijs').comp
+       const comp = require('@epispot/epijs').comp
 ```
 ## Idiom
 

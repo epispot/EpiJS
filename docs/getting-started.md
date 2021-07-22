@@ -16,19 +16,21 @@ along with many other features.
 ## Install
 EpiJS is avaliable through npm, yarn, or on the web.
 ```sh
-npm install @quantalabs/epijs
-yarn add @quantalabs/epijs
+npm install @epispot/epijs
+yarn add @epispot/epijs
 ```
 Or use it in your webpage:
 ```HTML
-<script src="https://cdn.jsdelivr.net/gh/Quantalabs/EpiJS/web/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/epispot/EpiJS/web/index.min.js"></script>
 ```
-See [installation](/installation) for more.
+See [installation](./installation) for more.
 
 ## Metadata
 
 You can fetch metadata about the package with the following commands:
 ```JavaScript
+const EpiJS = require('@epispot/epijs')
+
 EpiJS.about // General metadata
 EpiJS.version // Your current package version
 ```
@@ -37,13 +39,13 @@ EpiJS.version // Your current package version
 
 EpiJS has several modules for specfic use cases:
 
-- [`Pre`](/pre) - pre-compiled compartmental models
-- [`Comp`](/comp) - creating compartments which can be used in the model module
-- [`Model`](/model) - for creating models with custom and pre-built compartments
-- [`Utils`](/utils) - for epidemiological-related utilities
-- [`Com`](/com) - for better modelling of community spread 
+- [`Pre`](./pre) - pre-compiled compartmental models
+- [`Comp`](./comp) - creating compartments which can be used in the model module
+- [`Model`](./model) - for creating models with custom and pre-built compartments
+- [`Utils`](./utils) - for epidemiological-related utilities
+- [`Com`](./com) - for better modelling of community spread 
 
 Each of these compartments have documentation avaliable.
 
 ## The EpiJS Manual
-To get you started, I suggest you check out the [EpiJS Manual](/manual/SIR), which is good if you are starting out in epidemiology, or if you are starting out in EpiJS.
+To get you started, I suggest you check out the [EpiJS Manual](./manual/SIR), which is good if you are starting out in epidemiology, or if you are starting out in EpiJS.

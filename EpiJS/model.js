@@ -9,7 +9,6 @@
 
 
 const fs = require('fs');
-const { typeOf, string } = require('mathjs');
 const comps = require('./comp')
 
 /**
