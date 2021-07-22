@@ -16,11 +16,11 @@ jobs:
         with:
           node-version: 14
           registry-url: "https://npm.pkg.github.com"
-          scope: "@quantalabs"
+          scope: "@epispot"
       - name: Git config
         run:
           git checkout ${{ github.event.inputs.branch }}
-      - run: echo "registry=https://npm.pkg.github.com/@quantalabs" >> .npmrc
+      - run: echo "registry=https://npm.pkg.github.com/@epispot" >> .npmrc
       - run: npm publish --access=public
         env:
             NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }} 

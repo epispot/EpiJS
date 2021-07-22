@@ -3,7 +3,7 @@
  *
  * Import it with:
  * ```
- *    const com = require('@quantalabs/epijs').com
+ *    const com = require('@epispot/epijs').com
  * ```
  */
 

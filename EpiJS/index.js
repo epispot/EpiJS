@@ -11,7 +11,7 @@ let description = package.description;
 
 
 exports.pre = pre;
-exports.about = 'EpiJS \n'+description+'\n----------------------------------\n By @Quantalabs \n GitHub - https://github.com/Quantalabs/EpiJS \n Version - '+ version;
+exports.about = 'EpiJS \n'+description+'\n----------------------------------\n By @epispot \n GitHub - https://github.com/epispot/EpiJS \n Version - '+ version;
 exports.version = version;
 exports.com = com;
 exports.comp = comp;

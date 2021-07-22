@@ -1,5 +1,5 @@
 {
-    "name": "@quantalabs/epijs",
+    "name": "@epispot/epijs",
     "version": "2.0.0",
     "description": "A disease modeling package.",
     "main": "EpiJS/index.js",
@@ -12,17 +12,17 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Quantalabs/EpiJS.git"
+        "url": "git+https://github.com/epispot/EpiJS.git"
     },
     "keywords": [
         "disease modeling",
         "epidemiology",
         "disease modelling"
     ],
-    "author": "QLabs (@Quantalabs)",
+    "author": "QLabs (@epispot)",
     "license": "GPL-3.0-or-later",
     "bugs": {
-        "url": "https://github.com/Quantalabs/epijs/issues"
+        "url": "https://github.com/epispot/epijs/issues"
     },
     "homepage": "epi.js.org",
     "devDependencies": {

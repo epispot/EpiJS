@@ -5,7 +5,7 @@ updates:
     schedule:
       interval: "daily"
     assignees:
-      - "Quantalabs"
+      - "epispot"
     commit-message:
       prefix: "[DEP]"
       prefix-development: "[DEV/DEP]"
