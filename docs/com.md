@@ -34,7 +34,7 @@ EpiJS module for representing communities
 
 Import it with:
 ```javascript
-       const com = require('@quantalabs/epijs').com
+       const com = require('@epispot/epijs').com
 ```
 ## Virus
 

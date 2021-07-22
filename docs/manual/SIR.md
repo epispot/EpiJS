@@ -41,17 +41,17 @@ Our first aproach is the most extensible. This allows us to easily add compartme
  
 ::: tab HTML id="first-tab"
 ```HTML
-<script src="https://cdn.jsdelivr.net/gh/Quantalabs/EpiJS/web/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/epispot/EpiJS/web/index.min.js"></script>
 ```
 :::
 ::: tab NodeJS id="second-tab"
 Install:
 ```SH
-npm install @quantalabs/epijs
+npm install @epispot/epijs
 ```
 Require:
 ```JavaScript
-const { model, comp } = require('@quantalabs/epijs')
+const { model, comp } = require('@epispot/epijs')
 
 // Import the required classes into the program
 const Model = model.Model
@@ -107,7 +107,7 @@ Let's start by setting up your program:
 
 ```HTML
 <canvas id="SIR-Model"></canvas>
-<script src="https://cdn.jsdelivr.net/gh/Quantalabs/EpiJS/web/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/epispot/EpiJS/web/index.min.js"></script>
 <script>
 /** All Code Snippets Go Here */
 </script>
@@ -141,7 +141,7 @@ plot(sirdata, "SIR-Model", 100)
 EpiJS also has a `com` module, which allows for community modelling with pre-built or custom models. We're going to use the pre-build models for today, however you can read the docs for the modue for detailed instructions on custom models, which are useful if you want to use compartments from the `comp` module in the `com` module. First, however, let's set up our program:
 ```HTML
 <canvas id='our-model'></canvas>
-<script src="https://cdn.jsdelivr.net/gh/Quantalabs/EpiJS/web/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/epispot/EpiJS/web/index.min.js"></script>
 <script>
 /** All Code Snippets Go Here */
 </script>

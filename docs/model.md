@@ -5,10 +5,13 @@ title: EpiJS Module - Model
 
 ### Table of Contents
 
-*   [Model][1]
-    *   [Parameters][2]
-    *   [get_data][3]
-        *   [Examples][11]
+
+*   [Model][2]
+    *   [Parameters][3]
+    *   [Examples][4]
+    *   [get_data][5]
+        *   [Parameters][6]
+        *   [Examples][7]
 
 # Model
 
@@ -16,7 +19,7 @@ EpiJS module for creating custom models, which are made of compartments.
 
 Import it with:
 ```javascript
-       const model = require('@quantalabs/epijs').model
+       const model = require('@epispot/epijs').model
 ```
 ## Model
 
@@ -24,8 +27,8 @@ Create a model.
 
 ### Parameters
 
-*   `compartments` **[Array][13]** Compartments in the model. Each should be a list, with the first value being the compartment, and the second being it's start value in the key.
-*   `key` **[Object][14]** The key of values for any variable used in the equation. If you use any variable which represents the population of a compartment, add the starting value into the key.
+*   `compartments` **[Array][8]** Compartments in the model. Each should be a list, with the first value being the compartment, and the second being it's start value in the key.
+*   `key` **[Object][9]** The key of values for any variable used in the equation. If you use any variable which represents the population of a compartment, add the starting value into the key.
 
 ### Examples
 
@@ -52,7 +55,7 @@ Get data for the outbreak.
 
 #### Parameters
 
-*   `time` **[Number][12]** The total time to model.
+*   `time` **[Number][10]** The total time to model.
 
 #### Examples
 
@@ -77,28 +80,20 @@ model.get_data(100) // Get data for 100 days.
 
 [1]: #model-2
 
-[2]: #parameters
+[2]: #model
 
 [3]: #get-data
 
-[4]: #parameters-1
+[4]: #examples
 
-[5]: #examples
+[5]: #get_data
 
-[6]: #model-1
+[6]: #parameters-1
 
-[7]: #parameters-2
+[7]: #examples-1
 
-[8]: #examples-1
+[8]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
 
-[9]: #get_data-1
+[9]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
 
-[10]: #parameters-3
-
-[11]: #examples-2
-
-[12]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
-
-[13]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
-
-[14]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+[10]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number

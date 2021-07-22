@@ -13,7 +13,7 @@ Graphs plots from the pre module.
 
 Import it with:
 ```javascript
-       const plots = require('@quantalabs/epijs').plots
+       const plots = require('@epispot/epijs').plots
 ```
 ## plot
 

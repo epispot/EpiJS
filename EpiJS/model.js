@@ -3,13 +3,12 @@
  *
  * Import it with:
  * ```
- *    const model = require('@quantalabs/epijs').model
+ *    const model = require('@epispot/epijs').model
  * ```
  */
 
 
 const fs = require('fs');
-const { typeOf, string } = require('mathjs');
 const comps = require('./comp')
 
 /**
