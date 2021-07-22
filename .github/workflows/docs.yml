@@ -1,0 +1,61 @@
+name: Docs
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+            node-version: 16
+      - name: Install Dependencies
+        run: | # We install documentation.js globally so that we can use `documentation` instead of `node_modules/.../documentation`.
+          npm install
+          npm install -g documentation
+      - name: Generate Docs
+        run: |
+          npm run docs:build
+      - name: Commit changes
+        continue-on-error: true
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add ./docs/
+          git commit -m "New docs"
+          git push --set-upstream origin main
+          git reset --hard  
+      - name: Deploy to gh pages
+        run: |
+          git fetch
+          git checkout gh-pages
+          git pull origin gh-pages
+          rm -rf latest/
+          git checkout main -- docs/.vuepress/dist/
+          mkdir ${{ github.event.release.tag_name }}
+          mkdir latest
+          mv docs/.vuepress/dist/* ${{ github.event.release.tag_name }}
+          grep -rl '/latest' ./${{ github.event.release.tag_name }} | xargs sed -i 's-/latest-/${{ github.event.release.tag_name }}-g'
+          rm -rf docs/
+          git checkout main -- docs/.vuepress/dist/
+          mv docs/.vuepress/dist/* ./latest/
+          rm -rf docs/
+          git checkout main -- demo/
+          git checkout main -- web/
+          git checkout main -- tests/
+          echo "https://epi.js.org" > CNAME
+          echo "" > .nojekyll
+      - name: Push changes
+        continue-on-error: true
+        run: |
+          git switch gh-pages
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "New docs"
+          git push --set-upstream origin gh-pages
+          
