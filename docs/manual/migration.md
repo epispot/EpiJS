@@ -3,7 +3,7 @@ title: EpiJS Migration Gide
 ---
 
 # Migration from v1 to v2
-A lot of things have changed from v1 to v2. First and foremost, we have officially dropped support for NodeJS 10, [along with MathJS dropping support](https://github.com/Quantalabs/EpiJS/pull/54). This shouldn't change much as NodeJS 10.x was [already end-of-lifed](https://endoflife.date/nodejs), so we highly suggest upgrading your NodeJS version to the latest version or a LTS release.
+A lot of things have changed from v1 to v2. First and foremost, we have officially dropped support for NodeJS 10, [along with MathJS dropping support](https://github.com/epispot/EpiJS/pull/54). This shouldn't change much as NodeJS 10.x was [already end-of-lifed](https://endoflife.date/nodejs), so we highly suggest upgrading your NodeJS version to the latest version or a LTS release.
 
 Next, the big deprecation. This release now removes built-in plotting from the `pre` module, and moved it to the brand-new `plots` module. Why? Currently, the only way to interact with the data is through the chart, but other things you might want to do with the data, whatever they might be, most likely can't be done. So, we've changed the output to this format:
 ```JSON
@@ -59,7 +59,7 @@ So, then why should you switch? You're doing fine right now! Well, not only is v
 - Allows for more interaction with data from `pre` module,
 - metadata on the web, through `EpiJS.about`, `EpiJS.version`, etc.
 
-and there's more coming in the new releases! You can just look at the [features project board](https://github.com/Quantalabs/EpiJS/projects/1) to get a preview at what's ahead!
+and there's more coming in the new releases! You can just look at the [features project board](https://github.com/epispot/EpiJS/projects/1) to get a preview at what's ahead!
 
 Additionally, you can access all the functions via:
 ```JavaScript
