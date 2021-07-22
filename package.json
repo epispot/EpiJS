@@ -19,7 +19,7 @@
         "epidemiology",
         "disease modelling"
     ],
-    "author": "QLabs (@epispot)",
+    "author": "epispot (@epispot)",
     "license": "GPL-3.0-or-later",
     "bugs": {
         "url": "https://github.com/epispot/epijs/issues"
