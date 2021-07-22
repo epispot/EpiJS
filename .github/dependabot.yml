@@ -5,7 +5,7 @@ updates:
     schedule:
       interval: "daily"
     assignees:
-      - "epispot"
+      - "epispot/maint"
     commit-message:
       prefix: "[DEP]"
       prefix-development: "[DEV/DEP]"
