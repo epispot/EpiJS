@@ -1,3 +1,8 @@
+# v2.1.0
+- Adds `manipulate` to manipulate outputs with `plots`
+- Adds `mexport` and `mimport` to `model`, which allow for exporting and importing models to `.js` and `.json` files.   
+- Adds version locking to the dependencies. This prevents users from installing incompatible releases when installing the package.
+
 # v2.0.0 - LTS
 - Stochastic modelling,
 - Custom models in `com` module,
