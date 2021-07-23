@@ -32,11 +32,11 @@ with open('../docs/model.md', 'r') as mdoc:
 
   doc = mdoc.readlines()
   doc[4] = '\n'
-  doc[12] = '# Model\n'
-  doc[17] = '```javascript\n'
-  doc[19] = '```\n'
-  doc[77] = "[1]: #model-2\n"
-  doc[81] = '[3]: #get-data\n'
+  doc[18] = '# Model\n'
+  doc[23] = '```javascript\n'
+  doc[25] = '```\n'
+  doc[130] = "[1]: #model-2\n"
+  doc[134] = '[3]: #get-data\n'
   doc1 = ['---\n', 'title: EpiJS Module - Model\n', '---\n']
   doc = doc1+doc
 
@@ -74,11 +74,11 @@ with open('../docs/utils.md', 'w') as utils:
 with open('../docs/plots.md', 'r') as plots:
   doc = plots.readlines()
   doc[4] = '\n'
-  doc[9] = '## Plot\n'
-  doc[14] = '```javascript\n'
-  doc[16] = '```\n'
-  doc[27] = '*   `options` **[Object][8]** Optional. Custom configuration to pass into the options parameter for chart.js, defaults to:\n```JSON\n'
-  doc[41] = '```'
+  doc[12] = '## Plot\n'
+  doc[17] = '```javascript\n'
+  doc[19] = '```\n'
+  doc[30] = '*   `options` **[Object][8]** Optional. Custom configuration to pass into the options parameter for chart.js, defaults to:\n```JSON\n'
+  doc[44] = '```'
 
 with open('../docs/plots.md', 'w') as plots:
   plots.writelines(doc)

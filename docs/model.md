@@ -12,6 +12,12 @@ title: EpiJS Module - Model
     *   [get_data][5]
         *   [Parameters][6]
         *   [Examples][7]
+*   [mexport][8]
+    *   [Parameters][9]
+    *   [Examples][10]
+*   [mimport][11]
+    *   [Parameters][12]
+    *   [Examples][13]
 
 # Model
 
@@ -27,8 +33,8 @@ Create a model.
 
 ### Parameters
 
-*   `compartments` **[Array][8]** Compartments in the model. Each should be a list, with the first value being the compartment, and the second being it's start value in the key.
-*   `key` **[Object][9]** The key of values for any variable used in the equation. If you use any variable which represents the population of a compartment, add the starting value into the key.
+*   `compartments` **[Array][14]** Compartments in the model. Each should be a list, with the first value being the compartment, and the second being it's start value in the key.
+*   `key` **[Object][15]** The key of values for any variable used in the equation. If you use any variable which represents the population of a compartment, add the starting value into the key.
 
 ### Examples
 
@@ -55,7 +61,7 @@ Get data for the outbreak.
 
 #### Parameters
 
-*   `time` **[Number][10]** The total time to model.
+*   `time` **[Number][16]** The total time to model.
 
 #### Examples
 
@@ -78,6 +84,53 @@ let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], ke
 model.get_data(100) // Get data for 100 days.
 ```
 
+## mexport
+
+NodeJS only! Exports models to a file which can then be imported later on.
+
+### Parameters
+
+*   `model`  The EpiJS model to export
+*   `output` **[String][17]** The output file path, doesn't have to exist
+*   `file_type` **[String][17]** The file type to output. Supported inputs are ".json" and ".js". (optional, default `".json"`)
+
+### Examples
+
+```javascript
+let susceptible = new Idiom("S-(B*S*I/p)");
+let infected = new Idiom("I+(B*S*I/p)-(u*I)");
+let recovered = new Idiom("R+(u*I)");
+
+let key = {
+ "S": 10000,
+ "B": 0.3,
+ "I": 100,
+ "R": 0,
+ "p": 10100,
+ "u": 0.2
+};
+
+let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
+
+mexport(sirm, "output.js", file_type=".js")
+```
+
+## mimport
+
+NodeJS only! Imports a model from a file.
+
+### Parameters
+
+*   `input` **[String][17]** The input file path, as a relative path.
+*   `file_type` **[String][17]** The file type of the input. Supported inputs are ".json" and ".js". (optional, default `".json"`)
+
+### Examples
+
+```javascript
+// Use mexport to export a model into a file
+let sirm = mimport("./output.json")
+```
+
 [1]: #model-2
 
 [2]: #model
@@ -92,8 +145,22 @@ model.get_data(100) // Get data for 100 days.
 
 [7]: #examples-1
 
-[8]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+[8]: #mexport
 
-[9]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+[9]: #parameters-2
 
-[10]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+[10]: #examples-2
+
+[11]: #mimport
+
+[12]: #parameters-3
+
+[13]: #examples-3
+
+[14]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+
+[15]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+
+[16]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+
+[17]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String

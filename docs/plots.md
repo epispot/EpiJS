@@ -6,6 +6,9 @@
 *   [plot][2]
     *   [Parameters][3]
     *   [Examples][4]
+*   [manipulate][5]
+    *   [Parameters][6]
+    *   [Examples][7]
 
 ## Plot
 
@@ -21,10 +24,10 @@ Plots a output of a model from the pre module.
 
 ### Parameters
 
-*   `model` **[Array][5]** The output from the pre module function.
-*   `canvas` **[HTMLCanvasElement][6]** The canvas to show the output.
-*   `days` **[Number][7]** The amount of days to plot
-*   `colors` **[Array][5]** Custom colors for the graph, in the same order the compartments are. (optional, default `null`)
+*   `model` **[Array][8]** The output from the pre module function.
+*   `canvas` **[HTMLCanvasElement][9]** The canvas to show the output.
+*   `days` **[Number][10]** The amount of days to plot
+*   `colors` **[Array][8]** Custom colors for the graph, in the same order the compartments are. (optional, default `null`)
 *   `options` **[Object][8]** Optional. Custom configuration to pass into the options parameter for chart.js, defaults to:
 ```JSON
     {
@@ -51,6 +54,28 @@ plot(sirout1, "canvas-pre1", 100) // Plots data for 100 days onto the canvas-pre
 
 Returns **any** Returns the chart.js chart, if needed for modification.
 
+## manipulate
+
+Manipulate the chart.js graph
+
+### Parameters
+
+*   `id`  The chart.js graph
+*   `mvalue` **[String][12]** The value to manipulate in `chart.data.datasets[x]`. This can be any valid chart.js parameter. See [https://www.chartjs.org/docs/latest/charts/line.html#line-styling][13]
+*   `value`  The value to insert into the graph
+
+### Examples
+
+```javascript
+let sirout1 = sir(4, 9999, 1000, 100, 1/21, 10999, true)
+
+let sirplot = plot(sirout1, "canvas-pre1", 100)
+
+sirplot.manipulate(sirplot, "fill", true) // Set fill to true
+```
+
+Returns **any** The chart.js graph
+
 [1]: #chart
 
 [2]: #plot
@@ -59,10 +84,20 @@ Returns **any** Returns the chart.js chart, if needed for modification.
 
 [4]: #examples
 
-[5]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+[5]: #manipulate
 
-[6]: https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement
+[6]: #parameters-1
 
-[7]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+[7]: #examples-1
 
-[8]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+[8]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+
+[9]: https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement
+
+[10]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+
+[11]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+
+[12]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+
+[13]: https://www.chartjs.org/docs/latest/charts/line.html#line-styling

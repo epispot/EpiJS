@@ -14,9 +14,11 @@ jobs:
         with:
             node-version: 16
       - name: Install Dependencies
+        continue_on_error: true
         run: | # We install documentation.js globally so that we can use `documentation` instead of `node_modules/.../documentation`.
           npm install
           npm install -g documentation
+          npm install -g vuepress
       - name: Generate Docs
         run: |
           npm run docs:build
