@@ -37,7 +37,6 @@ jobs:
               with:
                   node-version: 12
                   registry-url: "https://npm.pkg.github.com"
-                  scope: "@quantalabs"
             - run: echo "registry=https://npm.pkg.github.com/@quantalabs" >> .npmrc
             - run: npm publish --access=public --tag 1xlatest
               env:
