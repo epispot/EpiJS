@@ -60,8 +60,8 @@ class Model {
    *      model.get_data(100) // Get data for 100 days.
    */
    get_data (time) { // skipcq: JS-0045
-     key = this.key
-     newkey = key
+     var key = this.key
+     var newkey = key
      
      for (var x = 0; x<time; x++) {
        var y; // skipcq: JS-0119
