@@ -24,8 +24,7 @@ jobs:
               with:
                   node-version: 12
                   registry-url: "https://registry.npmjs.org"
-            - run: npm install
-            - run: npm publish --access=public --tag 1.3.x-latest
+            - run: npm publish --access=public --tag 1xlatest
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -39,8 +38,7 @@ jobs:
                   node-version: 12
                   registry-url: "https://npm.pkg.github.com"
                   scope: "@quantalabs"
-            - run: npm install
             - run: echo "registry=https://npm.pkg.github.com/@quantalabs" >> .npmrc
-            - run: npm publish --access=public --tag 1.3.x-latest
+            - run: npm publish --access=public --tag 1xlatest
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
