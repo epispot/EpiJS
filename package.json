@@ -1,5 +1,5 @@
 {
-    "name": "@quantalabs/epijs",
+    "name": "@epispot/epijs",
     "version": "2.0.1",
     "description": "A disease modeling package.",
     "main": "EpiJS/index.js",
