@@ -1,6 +1,7 @@
 module.exports = {
     title: 'EpiJS',
     description: 'A disease modeling package for JS.',
+    base: '/v1.3.0',
     themeConfig: {
       nav: [
         { text: 'Documentation', link: '/getting-started' },

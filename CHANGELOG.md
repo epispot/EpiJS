@@ -1,3 +1,13 @@
+# v1.3.3
+
+## Bug Fixes
+- Fix key error in `model`.
+
+# v1.3.2
+
+## Bug Fixes
+- #88 - Variable declaration error.
+
 # v1.3.1
 ## Bug Fixes
 - Fix formula parsing error in the `model` module.
