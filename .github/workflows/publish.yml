@@ -27,7 +27,7 @@ jobs:
                   node-version: 12
                   registry-url: "https://npm.pkg.github.com"
                   scope: "@epispot"
-            - run: echo "registry=https://npm.pkg.github.com/@quantalabs" >> .npmrc
+            - run: echo "registry=https://npm.pkg.github.com/@epispot" >> .npmrc
             - run: npm publish --access=public --tag v2xlatest
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
