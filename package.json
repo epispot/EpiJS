@@ -1,6 +1,6 @@
 {
     "name": "@epispot/epijs",
-    "version": "2.1.1",
+    "version": "2.1.2",
     "description": "A disease modeling package.",
     "main": "EpiJS/index.js",
     "scripts": {
