@@ -16,7 +16,7 @@ EpiJS module for creating custom models, which are made of compartments.
 
 Import it with:
 ```javascript
-       const model = require('@quantalabs/epijs').model
+       const model = require('@epispot/epijs').model
 ```
 ## Model
 

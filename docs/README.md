@@ -10,7 +10,7 @@ features:
     - details: Easy, customizable SIR based models, with SEIR, SEIRD, SIR, and more models for you to choose from.
     - details: Quick and readable graphs made with chart.js to get the info you need, when you need it.
     - details: Complex models like SEIHCRD models done simply, in only 1-line of code.
-footer: GPL-3.0 Licensed | Copyright © 2021-present Quantalabs
+footer: GPL-3.0 Licensed | Copyright © 2021-present epispot
 ---
 
 <div align='center'>

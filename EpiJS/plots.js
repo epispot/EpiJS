@@ -3,7 +3,7 @@
  * 
  * Import it with:
  * ```
- *    const plots = require('@quantalabs/epijs').plots
+ *    const plots = require('@epispot/epijs').plots
  * ```
  */
 

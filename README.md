@@ -1,12 +1,12 @@
 # EpiJS
 The epidemiology package for JavaScript
 
-[![License: GPL--3.0](https://img.shields.io/github/license/Quantalabs/EpiJS?style=flat-square)](https://github.com/Quantalabs/epijs/blob/main/LICENSE)
-[![npm version](https://img.shields.io/npm/v/@quantalabs/epijs?style=flat-square)
-![npm downloads](https://img.shields.io/npm/dt/@quantalabs/epijs?color=%232c5fde&label=npm%20downloads&style=flat-square) ](https://npmjs.org/package/@quantalabs/epijs) 
-[![GitHub issues](https://img.shields.io/github/issues/quantalabs/epijs?style=flat-square) ](https://github.com/Quantalabs/epijs/issues/) 
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/Quantalabs/epijs?style=flat-square) ](https://github.com/Quantalabs/EpiJS/pulls) 
-[![Build Status](https://img.shields.io/github/workflow/status/Quantalabs/EpiJS/Build?label=Build&logo=GitHub&logoColor=white&style=flat-square)](https://github.com/Quantalabs/EpiJS/actions/workflows/build.yml)
+[![License: GPL--3.0](https://img.shields.io/github/license/epispot/EpiJS?style=flat-square)](https://github.com/epispot/epijs/blob/main/LICENSE)
+[![npm version](https://img.shields.io/npm/v/@epispot/epijs?style=flat-square)
+![npm downloads](https://img.shields.io/npm/dt/@epispot/epijs?color=%232c5fde&label=npm%20downloads&style=flat-square) ](https://npmjs.org/package/@epispot/epijs) 
+[![GitHub issues](https://img.shields.io/github/issues/epispot/epijs?style=flat-square) ](https://github.com/epispot/epijs/issues/) 
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/epispot/epijs?style=flat-square) ](https://github.com/epispot/EpiJS/pulls) 
+[![Build Status](https://img.shields.io/github/workflow/status/epispot/EpiJS/Build?label=Build&logo=GitHub&logoColor=white&style=flat-square)](https://github.com/epispot/EpiJS/actions/workflows/build.yml)
 
 ## About
 EpiJS is a epidemiological modelling package for JavaScript with built-in support
@@ -16,17 +16,17 @@ you to create custom models, model community spread through SIR based models, an
 
 NodeJS:
 ```sh
-npm install @quantalabs/epijs
-yarn add @quantalabs/epijs
+npm install @epispot/epijs
+yarn add @epispot/epijs
 ```
 Require:
 ```javascript
-const epijs = require('@quantalabs/epijs')
+const epijs = require('@epispot/epijs')
 ```
 \
 On the web:
 ```html
-<script src="https://cdn.jsdelivr.net/gh/Quantalabs/EpiJS/web/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/epispot/EpiJS/web/index.min.js"></script>
 ```
 ## Features
 
@@ -40,16 +40,16 @@ On the web:
 - Pre-built customizable compartments
 ## Contributing
 
-<a href="https://open.vscode.dev/Quantalabs/EpiJS"><img src="https://open.vscode.dev/badges/open-in-vscode.svg" alt="Open in Visual Studio Code"></a>
+<a href="https://open.vscode.dev/epispot/EpiJS"><img src="https://open.vscode.dev/badges/open-in-vscode.svg" alt="Open in Visual Studio Code"></a>
 
 Clone the repo:
 ```sh
-git clone https://github.com/Quantalabs/epijs.git 
+git clone https://github.com/epispot/epijs.git 
 cd EpiJS
 npm install
 ```
 
-See [`CONTRIBUTING.md`](https://github.com/Quantalabs/EpiJS/blob/main/CONTRIBUTING.md) for details.
+See [`CONTRIBUTING.md`](https://github.com/epispot/EpiJS/blob/main/CONTRIBUTING.md) for details.
 
 ## Running Tests
 
@@ -72,5 +72,5 @@ npm run test
 
 ### Support
 
-For support, consult the [docs](https://epi.js.org) or submit a [discussion](https://github.com/Quantalabs/EpiJS/discussions/new) on the repo
+For support, consult the [docs](https://epi.js.org) or submit a [discussion](https://github.com/epispot/EpiJS/discussions/new) on the repo
 

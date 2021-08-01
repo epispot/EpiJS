@@ -9,7 +9,7 @@ module.exports = {
       nav: [
         { text: 'Documentation', link: '/getting-started' },
         { text: 'Demo', link: 'https://epi.js.org/demo/index.html'},
-        { text: 'GitHub', link: 'https://github.com/Quantalabs/EpiJS'}
+        { text: 'GitHub', link: 'https://github.com/epispot/EpiJS'}
       ],
       sidebar: [
         {
