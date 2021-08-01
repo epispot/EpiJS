@@ -63,6 +63,15 @@ class Model {
 	 *model.get_data(100) // Get data for 100 days.
 	 */
 	get_data(time) { // skipcq: JS-0045
+		var key = {}
+		var newkey = {}
+		
+		// For key in this.key, add it to newkey and key.
+		for (var key_key in this.key) {
+			key[key_key] = this.key[key_key]
+			newkey[key_key] = this.key[key_key]
+		}
+
 		var key = this.key
 		var newkey = key
 
