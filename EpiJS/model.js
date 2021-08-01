@@ -72,9 +72,6 @@ class Model {
 			newkey[key_key] = this.key[key_key]
 		}
 
-		var key = this.key
-		var newkey = key
-
 		for (var x = 0; x < time; x++) {
 			var y; // skipcq: JS-0119
 			for (y in this.compartments) {
