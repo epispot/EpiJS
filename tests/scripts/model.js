@@ -21,3 +21,7 @@ let key1 = {
 let sirm2 = new Model([[S, "S"], [I, "I"], [R, "R"]], key1)
 var data2 = sirm2.get_data(100)
 console.log(data2)
+
+sirm.remove(S)
+sirm.add([S, "S"])
+console.log(sirm.get_data(100))
