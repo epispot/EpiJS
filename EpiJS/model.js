@@ -113,7 +113,7 @@ class Model {
 	remove(compartment) {
 		for (var x = 0; x < this.compartments.length; x++) {
 			if (this.compartments[x][0] === compartment) {
-				this.compartments.splice(x, 1)
+				this.compartments = this.compartments.splice(x, 1)
 			}
 		}
 	}
@@ -121,6 +121,7 @@ class Model {
 	/**
 	 * Add a compartment to the model.
 	 * @param {Array} compartment - The compartment to add, should be a list, with the first value being the compartment, and the second being it's value in the key.
+	 * @param {Number} index - The index to add the compartment at.
 	 * @example
 	 * 
 	 * 	let susceptible = new Idiom("S-(B*S*I/p)");
@@ -139,10 +140,10 @@ class Model {
 	 * let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
 	 * 
 	 * sirm.remove(susceptible) // Removes the susceptible compartment.
-	 * sirm.add([susceptible, "S"]) // Adds the susceptible compartment back.
+	 * sirm.add([susceptible, "S"], 0) // Adds the susceptible compartment back to the beginning
 	 */
-	add(compartment) {
-		this.compartments.push(compartment)
+	add(compartment, index) {
+		this.compartments.splice(index, 0, compartment)
 	}
 }
 
