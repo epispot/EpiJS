@@ -113,7 +113,7 @@ class Model {
 	remove(compartment) {
 		for (var x = 0; x < this.compartments.length; x++) {
 			if (this.compartments[x][0] === compartment) {
-				this.compartments = this.compartments.splice(x, 1)
+				this.compartments.splice(x, 1)
 			}
 		}
 	}
