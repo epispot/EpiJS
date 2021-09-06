@@ -12,12 +12,18 @@ title: EpiJS Module - Model
     *   [get_data][5]
         *   [Parameters][6]
         *   [Examples][7]
-*   [mexport][8]
-    *   [Parameters][9]
-    *   [Examples][10]
-*   [mimport][11]
-    *   [Parameters][12]
-    *   [Examples][13]
+    *   [remove][8]
+        *   [Parameters][9]
+        *   [Examples][10]
+    *   [add][11]
+        *   [Parameters][12]
+        *   [Examples][13]
+*   [mexport][14]
+    *   [Parameters][15]
+    *   [Examples][16]
+*   [mimport][17]
+    *   [Parameters][18]
+    *   [Examples][19]
 
 # Model
 
@@ -33,8 +39,8 @@ Create a model.
 
 ### Parameters
 
-*   `compartments` **[Array][14]** Compartments in the model. Each should be a list, with the first value being the compartment, and the second being it's start value in the key.
-*   `key` **[Object][15]** The key of values for any variable used in the equation. If you use any variable which represents the population of a compartment, add the starting value into the key.
+*   `compartments` **[Array][20]** Compartments in the model. Each should be a list, with the first value being the compartment, and the second being it's start value in the key.
+*   `key` **[Object][21]** The key of values for any variable used in the equation. If you use any variable which represents the population of a compartment, add the starting value into the key.
 
 ### Examples
 
@@ -61,7 +67,7 @@ Get data for the outbreak.
 
 #### Parameters
 
-*   `time` **[Number][16]** The total time to model.
+*   `time` **[Number][22]** The total time to model.
 
 #### Examples
 
@@ -84,6 +90,65 @@ let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], ke
 model.get_data(100) // Get data for 100 days.
 ```
 
+### remove
+
+Remove a compartment from the model.
+
+#### Parameters
+
+*   `compartment` **[Object][21]** The compartment to remove.
+
+#### Examples
+
+```javascript
+let susceptible = new Idiom("S-(B*S*I/p)");
+let infected = new Idiom("I+(B*S*I/p)-(u*I)");
+let recovered = new Idiom("R+(u*I)");
+
+let key = {
+	"S": 10000,
+	"B": 0.3,
+	"I": 100,
+	"R": 0,
+	"p": 10100,
+	"u": 0.2
+};
+
+let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
+
+sirm.remove(recovered) // Removes the recovered compartment.
+```
+
+### add
+
+Add a compartment to the model.
+
+#### Parameters
+
+*   `compartment` **[Array][20]** The compartment to add, should be a list, with the first value being the compartment, and the second being it's value in the key.
+
+#### Examples
+
+```javascript
+let susceptible = new Idiom("S-(B*S*I/p)");
+let infected = new Idiom("I+(B*S*I/p)-(u*I)");
+let recovered = new Idiom("R+(u*I)");
+	
+let key = {
+	"S": 10000,
+	"B": 0.3,
+[1]: #model-2
+	"R": 0,
+	"p": 10100,
+	"u": 0.2
+[3]: #get-data
+
+let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
+
+sirm.remove(susceptible) // Removes the susceptible compartment.
+sirm.add([susceptible, "S"]) // Adds the susceptible compartment back.
+```
+
 ## mexport
 
 NodeJS only! Exports models to a file which can then be imported later on.
@@ -91,8 +156,8 @@ NodeJS only! Exports models to a file which can then be imported later on.
 ### Parameters
 
 *   `model`  The EpiJS model to export
-*   `output` **[String][17]** The output file path, doesn't have to exist
-*   `file_type` **[String][17]** The file type to output. Supported inputs are ".json" and ".js". (optional, default `".json"`)
+*   `output` **[String][23]** The output file path, doesn't have to exist
+*   `file_type` **[String][23]** The file type to output. Supported inputs are ".json" and ".js". (optional, default `".json"`)
 
 ### Examples
 
@@ -121,8 +186,8 @@ NodeJS only! Imports a model from a file.
 
 ### Parameters
 
-*   `input` **[String][17]** The input file path, as a relative path.
-*   `file_type` **[String][17]** The file type of the input. Supported inputs are ".json" and ".js". (optional, default `".json"`)
+*   `input` **[String][23]** The input file path, as a relative path.
+*   `file_type` **[String][23]** The file type of the input. Supported inputs are ".json" and ".js". (optional, default `".json"`)
 
 ### Examples
 
@@ -131,11 +196,11 @@ NodeJS only! Imports a model from a file.
 let sirm = mimport("./output.json")
 ```
 
-[1]: #model-2
+[1]: #fs
 
 [2]: #model
 
-[3]: #get-data
+[3]: #parameters
 
 [4]: #examples
 
@@ -145,22 +210,34 @@ let sirm = mimport("./output.json")
 
 [7]: #examples-1
 
-[8]: #mexport
+[8]: #remove
 
 [9]: #parameters-2
 
 [10]: #examples-2
 
-[11]: #mimport
+[11]: #add
 
 [12]: #parameters-3
 
 [13]: #examples-3
 
-[14]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+[14]: #mexport
 
-[15]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+[15]: #parameters-4
 
-[16]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+[16]: #examples-4
 
-[17]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+[17]: #mimport
+
+[18]: #parameters-5
+
+[19]: #examples-5
+
+[20]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+
+[21]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+
+[22]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+
+[23]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String

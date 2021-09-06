@@ -1,3 +1,15 @@
+# v2.2.0
+
+- Add `.remove` and `.add` functions to `Model` class in `model` module to add and remove compartments.
+
+# v2.1.2
+
+- Fix error from previous release
+
+# v2.1.1
+
+- Fix key error in `model`
+
 # v2.1.0
 - Adds `manipulate` to manipulate outputs with `plots`
 - Adds `mexport` and `mimport` to `model`, which allow for exporting and importing models to `.js` and `.json` files.   

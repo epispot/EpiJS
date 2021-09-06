@@ -32,11 +32,11 @@ with open('../docs/model.md', 'r') as mdoc:
 
   doc = mdoc.readlines()
   doc[4] = '\n'
-  doc[18] = '# Model\n'
-  doc[23] = '```javascript\n'
-  doc[25] = '```\n'
-  doc[130] = "[1]: #model-2\n"
-  doc[134] = '[3]: #get-data\n'
+  doc[24] = '# Model\n'
+  doc[29] = '```javascript\n'
+  doc[31] = '```\n'
+  doc[136] = "[1]: #model-2\n"
+  doc[140] = '[3]: #get-data\n'
   doc1 = ['---\n', 'title: EpiJS Module - Model\n', '---\n']
   doc = doc1+doc
 

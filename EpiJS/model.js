@@ -87,6 +87,64 @@ class Model {
 			}
 		}
 	}
+
+	/**
+	 * Remove a compartment from the model.
+	 * @param {Object} compartment - The compartment to remove.
+	 * @example
+	 * 
+	 * 	let susceptible = new Idiom("S-(B*S*I/p)");
+	 * let infected = new Idiom("I+(B*S*I/p)-(u*I)");
+	 * let recovered = new Idiom("R+(u*I)");
+	 * 
+	 * let key = {
+	 * 	"S": 10000,
+	 * 	"B": 0.3,
+	 * 	"I": 100,
+	 * 	"R": 0,
+	 * 	"p": 10100,
+	 * 	"u": 0.2
+	 * };
+	 * 
+	 * let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
+	 * 
+	 * sirm.remove(recovered) // Removes the recovered compartment.
+	 */
+	remove(compartment) {
+		for (var x = 0; x < this.compartments.length; x++) {
+			if (this.compartments[x][0] === compartment) {
+				this.compartments.splice(x, 1)
+			}
+		}
+	}
+
+	/**
+	 * Add a compartment to the model.
+	 * @param {Array} compartment - The compartment to add, should be a list, with the first value being the compartment, and the second being it's value in the key.
+	 * @param {Number} index - The index to add the compartment at.
+	 * @example
+	 * 
+	 * 	let susceptible = new Idiom("S-(B*S*I/p)");
+	 * let infected = new Idiom("I+(B*S*I/p)-(u*I)");
+	 * let recovered = new Idiom("R+(u*I)");
+	 * 	
+	 * let key = {
+	 * 	"S": 10000,
+	 * 	"B": 0.3,
+	 * 	"I": 100,
+	 * 	"R": 0,
+	 * 	"p": 10100,
+	 * 	"u": 0.2
+	 * };
+	 * 
+	 * let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
+	 * 
+	 * sirm.remove(susceptible) // Removes the susceptible compartment.
+	 * sirm.add([susceptible, "S"], 0) // Adds the susceptible compartment back to the beginning
+	 */
+	add(compartment, index) {
+		this.compartments.splice(index, 0, compartment)
+	}
 }
 
 /** 
