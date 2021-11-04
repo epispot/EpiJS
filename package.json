@@ -37,6 +37,6 @@
     "dependencies": {
         "chart.js": "~3.5.0",
         "gaussian": "~1.2.0",
-        "mathjs": "~9.5.0"
+        "mathjs": "~10.0.0"
     }
 }
