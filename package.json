@@ -35,7 +35,7 @@
         "vuepress-plugin-tabs": "~0.3.0"
     },
     "dependencies": {
-        "chart.js": "~3.6.0",
+        "chart.js": "~3.7.0",
         "gaussian": "~1.2.0",
         "mathjs": "~10.0.0"
     }
