@@ -79,10 +79,11 @@ class Model {
 			}
 			key = newkey
 			if (x === time - 1) {
-				var return_val = {}
+				let return_val = {}
 				for (y in this.compartments) {
+					return_val[this.compartments[y][1]] = key[this.compartments[y][1]]
 					// Check for sub-compartmnets
-					if(this.compartments[y][0].compartments && Object.keys(this.compartments[y][0].compartments).length === 0 && Object.getPrototypeOf(this.compartments[y][0].compartments) === Object.prototype) {
+					if(Object.keys(this.compartments[y][0].compartments).length !== 0) {
 						return_val[this.compartments[y][1]] = {
 							"population": key[this.compartments[y][1]],
 							"compartments": {}
@@ -90,9 +91,6 @@ class Model {
 						for (var z in this.compartments[y][0].compartments) {
 							return_val[this.compartments[y][1]]["compartments"][z] = this.compartments[y][0].getSubData(z, key)
 						}
-					}
-					else {
-						return_val[this.compartments[y][1]] = key[this.compartments[y][1]]
 					}
 				}
 				return return_val
