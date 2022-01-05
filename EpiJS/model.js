@@ -222,7 +222,7 @@ function mimport(input, file_type=".json") {
 
 	for (var x in json.compartments) {
 		// If compartments key does not exist in json.compartments[x], then add it
-		if (typeof json.compartments[x].compartments === undefined) {
+		if (!json.compartments[x].hasOwnProperty("compartments")) {
 			json.compartments[x].compartments = {}
 		}
 		comp.push([new comps.Idiom(json.compartments[x].equation), x])
