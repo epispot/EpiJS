@@ -89,7 +89,7 @@ class Model {
 							"compartments": {}
 						}
 						for (var z in this.compartments[y][0].compartments) {
-							return_val[this.compartments[y][1]]["compartments"][z] = this.compartments[y][0].getSubData(z, key)
+							return_val[this.compartments[y][1]].compartments[z] = this.compartments[y][0].getSubData(z, key)
 						}
 					}
 				}
@@ -189,7 +189,7 @@ function mexport(model, output, file_type=".json") {
 		"key": model.key
 	}
 	for (var x in model.compartments) {
-		if (model.compartments[x][0].compartments == {}) {
+		if (model.compartments[x][0].compartments === {}) {
 			delete model.compartments[x][0].compartments
 		}
 		jsonout.compartments[model.compartments[x][1]] = model.compartments[x][0]
@@ -222,7 +222,7 @@ function mimport(input, file_type=".json") {
 
 	for (var x in json.compartments) {
 		// If compartments key does not exist in json.compartments[x], then add it
-		if (json.compartments[x].compartments == undefined) {
+		if (typeof json.compartments[x].compartments === undefined) {
 			json.compartments[x].compartments = {}
 		}
 		comp.push([new comps.Idiom(json.compartments[x].equation), x])
