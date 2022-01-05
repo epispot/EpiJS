@@ -81,7 +81,19 @@ class Model {
 			if (x === time - 1) {
 				var return_val = {}
 				for (y in this.compartments) {
-					return_val[this.compartments[y][1]] = key[this.compartments[y][1]]
+					// Check for sub-compartmnets
+					if(this.compartments[y][0].compartments && Object.keys(this.compartments[y][0].compartments).length === 0 && Object.getPrototypeOf(this.compartments[y][0].compartments) === Object.prototype) {
+						return_val[this.compartments[y][1]] = {
+							"population": key[this.compartments[y][1]],
+							"compartments": {}
+						}
+						for (var z in this.compartments[y][0].compartments) {
+							return_val[this.compartments[y][1]]["compartments"][z] = this.compartments[y][0].getSubData(z, key)
+						}
+					}
+					else {
+						return_val[this.compartments[y][1]] = key[this.compartments[y][1]]
+					}
 				}
 				return return_val
 			}
@@ -179,7 +191,11 @@ function mexport(model, output, file_type=".json") {
 		"key": model.key
 	}
 	for (var x in model.compartments) {
+		if (model.compartments[x][0].compartments == {}) {
+			delete model.compartments[x][0].compartments
+		}
 		jsonout.compartments[model.compartments[x][1]] = model.compartments[x][0]
+		model.compartments[x][0].compartments = {} // Reset the subcompartments
 	}
 	if (file_type === ".json") {
 		fs.writeFileSync(output, JSON.stringify(jsonout, null, 2))
@@ -207,6 +223,10 @@ function mimport(input, file_type=".json") {
 	var comp = []
 
 	for (var x in json.compartments) {
+		// If compartments key does not exist in json.compartments[x], then add it
+		if (json.compartments[x].compartments == undefined) {
+			json.compartments[x].compartments = {}
+		}
 		comp.push([new comps.Idiom(json.compartments[x].equation), x])
 	}
 	return new Model(comp, json.key)
