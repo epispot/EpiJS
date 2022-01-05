@@ -32,7 +32,9 @@ const gaussian = require('gaussian')
  */
 class Idiom {
   constructor (equation) {
-    this.equation = equation
+    this.compartments = {}
+		this.equation = equation
+    this.compartments = {}
   }
 
   get_data (key) {
@@ -65,6 +67,26 @@ class Idiom {
     
     return out
   }
+
+  /**
+   * Add a subcompartment to this compartment.
+   * @param {String} name Name of sub-compartment.
+   * @param {Number} percentage Percentage of the total compartment population to be in the sub-compartmnet. This will not affect the population of the parent compartment or any other sub-compartment.
+   */
+  addSub (name, percentage) {
+    this.compartments[name] = {
+      "percent": percentage,
+    }
+  }
+
+  getSubData (name, key) {
+    let population = this.get_data(key)
+
+    let sub = this.compartments[name]
+    let sub_population = population * sub.percent/100
+
+    return sub_population
+  }
 }
 
 /** 
@@ -85,7 +107,8 @@ class Idiom {
 */
 class Susceptible {
   constructor (next, prev, stochastic) {
-    this.equation = "S"
+    this.compartments = {}
+		this.equation = "S"
     
     for (var x in next) {
       if (stochastic === true) {
@@ -135,6 +158,26 @@ class Susceptible {
     
     return out
   }
+
+  /**
+   * Add a subcompartment to this compartment.
+   * @param {String} name Name of sub-compartment.
+   * @param {Number} percentage Percentage of the total compartment population to be in the sub-compartmnet. This will not affect the population of the parent compartment or any other sub-compartment.
+   */
+  addSub (name, percentage) {
+    this.compartments[name] = {
+      "percent": percentage,
+    }
+  }
+
+  getSubData (name, key) {
+    let population = this.get_data(key)
+
+    let sub = this.compartments[name]
+    let sub_population = population * sub.percent/100
+
+    return sub_population
+  }
 }
 
 /** 
@@ -153,7 +196,8 @@ class Susceptible {
 */
 class Infected {
   constructor (next, prev, stochastic) {
-    this.equation = "I"
+    this.compartments = {}
+		this.equation = "I"
     
     for (var x in next) {
       if (stochastic === true) {
@@ -203,6 +247,26 @@ class Infected {
     
     return out
   }
+
+  /**
+   * Add a subcompartment to this compartment.
+   * @param {String} name Name of sub-compartment.
+   * @param {Number} percentage Percentage of the total compartment population to be in the sub-compartmnet. This will not affect the population of the parent compartment or any other sub-compartment.
+   */
+  addSub (name, percentage) {
+    this.compartments[name] = {
+      "percent": percentage,
+    }
+  }
+
+  getSubData (name, key) {
+    let population = this.get_data(key)
+
+    let sub = this.compartments[name]
+    let sub_population = population * sub.percent/100
+
+    return sub_population
+  }
 }
 
 /** 
@@ -221,7 +285,8 @@ class Infected {
 */
 class Exposed {
   constructor (next, prev, stochastic) {
-    this.equation = "E"
+    this.compartments = {}
+		this.equation = "E"
     
     for (var x in next) {
       if (stochastic === true) {
@@ -270,6 +335,26 @@ class Exposed {
     
     return out
   }
+
+  /**
+   * Add a subcompartment to this compartment.
+   * @param {String} name Name of sub-compartment.
+   * @param {Number} percentage Percentage of the total compartment population to be in the sub-compartmnet. This will not affect the population of the parent compartment or any other sub-compartment.
+   */
+  addSub (name, percentage) {
+    this.compartments[name] = {
+      "percent": percentage,
+    }
+  }
+
+  getSubData (name, key) {
+    let population = this.get_data(key)
+
+    let sub = this.compartments[name]
+    let sub_population = population * sub.percent/100
+
+    return sub_population
+  }
 }
 
 /** 
@@ -288,7 +373,8 @@ class Exposed {
 */
 class Critical {
   constructor (next, prev, stochastic) {
-    this.equation = "C"
+    this.compartments = {}
+		this.equation = "C"
     
     for (var x in next) {
       if (stochastic === true) {
@@ -337,6 +423,26 @@ class Critical {
     
     return out
   }
+
+  /**
+   * Add a subcompartment to this compartment.
+   * @param {String} name Name of sub-compartment.
+   * @param {Number} percentage Percentage of the total compartment population to be in the sub-compartmnet. This will not affect the population of the parent compartment or any other sub-compartment.
+   */
+  addSub (name, percentage) {
+    this.compartments[name] = {
+      "percent": percentage,
+    }
+  }
+
+  getSubData (name, key) {
+    let population = this.get_data(key)
+
+    let sub = this.compartments[name]
+    let sub_population = population * sub.percent/100
+
+    return sub_population
+  }
 }
 
 /** 
@@ -355,7 +461,8 @@ class Critical {
 */
 class Hospitalized {
   constructor (next, prev, stochastic) {
-    this.equation = "H"
+    this.compartments = {}
+		this.equation = "H"
     
     for (var x in next) {
       if (stochastic === true) {
@@ -404,6 +511,26 @@ class Hospitalized {
     
     return out
   }
+
+  /**
+   * Add a subcompartment to this compartment.
+   * @param {String} name Name of sub-compartment.
+   * @param {Number} percentage Percentage of the total compartment population to be in the sub-compartmnet. This will not affect the population of the parent compartment or any other sub-compartment.
+   */
+  addSub (name, percentage) {
+    this.compartments[name] = {
+      "percent": percentage,
+    }
+  }
+
+  getSubData (name, key) {
+    let population = this.get_data(key)
+
+    let sub = this.compartments[name]
+    let sub_population = population * sub.percent/100
+
+    return sub_population
+  }
 }
 
 /** 
@@ -423,7 +550,8 @@ class Hospitalized {
 */
 class Dead {
   constructor (next, prev, stochastic) {
-    this.equation = "D"
+    this.compartments = {}
+		this.equation = "D"
     
     for (var x in next) {
       if (stochastic === true) {
@@ -472,6 +600,26 @@ class Dead {
     
     return out
   }
+
+  /**
+   * Add a subcompartment to this compartment.
+   * @param {String} name Name of sub-compartment.
+   * @param {Number} percentage Percentage of the total compartment population to be in the sub-compartmnet. This will not affect the population of the parent compartment or any other sub-compartment.
+   */
+  addSub (name, percentage) {
+    this.compartments[name] = {
+      "percent": percentage,
+    }
+  }
+
+  getSubData (name, key) {
+    let population = this.get_data(key)
+
+    let sub = this.compartments[name]
+    let sub_population = population * sub.percent/100
+
+    return sub_population
+  }
 }
 
 /** 
@@ -490,7 +638,8 @@ class Dead {
 */
 class Vaccinated {
   constructor (next, prev, stochastic) {
-    this.equation = "V"
+    this.compartments = {}
+		this.equation = "V"
     
     for (var x in next) {
       if (stochastic === true) {
@@ -539,6 +688,26 @@ class Vaccinated {
     
     return out
   }
+
+  /**
+   * Add a subcompartment to this compartment.
+   * @param {String} name Name of sub-compartment.
+   * @param {Number} percentage Percentage of the total compartment population to be in the sub-compartmnet. This will not affect the population of the parent compartment or any other sub-compartment.
+   */
+  addSub (name, percentage) {
+    this.compartments[name] = {
+      "percent": percentage,
+    }
+  }
+
+  getSubData (name, key) {
+    let population = this.get_data(key)
+
+    let sub = this.compartments[name]
+    let sub_population = population * sub.percent/100
+
+    return sub_population
+  }
 }
 
 /** 
@@ -557,7 +726,8 @@ class Vaccinated {
 */
 class Recovered {
   constructor (next, prev, stochastic) {
-    this.equation = "R"
+    this.compartments = {}
+		this.equation = "R"
     
     for (var x in next) {
       if (stochastic === true) {
@@ -605,6 +775,26 @@ class Recovered {
     }
     
     return out
+  }
+
+  /**
+   * Add a subcompartment to this compartment.
+   * @param {String} name Name of sub-compartment.
+   * @param {Number} percentage Percentage of the total compartment population to be in the sub-compartmnet. This will not affect the population of the parent compartment or any other sub-compartment.
+   */
+  addSub (name, percentage) {
+    this.compartments[name] = {
+      "percent": percentage,
+    }
+  }
+
+  getSubData (name, key) {
+    let population = this.get_data(key)
+
+    let sub = this.compartments[name]
+    let sub_population = population * sub.percent/100
+
+    return sub_population
   }
 }
 

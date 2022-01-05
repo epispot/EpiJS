@@ -9,7 +9,7 @@ let key = {
 
 let sirm = new Model([[susceptible2, "S"], [infected2, "I"], [recovered2, "R"]], key)
 var data = sirm.get_data(100)
-document.getElementById('model').innerHTML = 'S: '+data.S+'<br>'+'I: '+data.I+'<br>'+'R: '+data.R // skipcq: JS-0096
+document.getElementById('model').innerHTML = 'S: '+JSON.stringify(data.S)+'<br>'+'I: '+JSON.stringify(data.I)+'<br>'+'R: '+JSON.stringify(data.R) // skipcq: JS-0096
 
 let key1 = {
     "S": 10000,
