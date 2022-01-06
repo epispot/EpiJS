@@ -76,21 +76,21 @@ class Community {
                 label: "Recovered",
             }]
         }
-        var f1 = 0;
-        var f2 = 0;
+        let f1 = 0;
+        let f2 = 0;
     
         for(let x = 0; x<time; x++){
             f1 = Math.sqrt((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)
             f2 = Math.sqrt(disease.u*data.datasets[1].data[x])
     
             if (stochastic === true) {
-                var distribution = gaussian(0, 1)
-                var omega1 = distribution.random(1)[0]
-                var omega2 = distribution.random(1)[0]
+                let distribution = gaussian(0, 1)
+                let omega1 = distribution.random(1)[0]
+                let omega2 = distribution.random(1)[0]
             }
             else {
-                var omega1 = 0
-                var omega2 = 0
+                let omega1 = 0
+                let omega2 = 0
                 f1 = 0
                 f2 = 0
             }
@@ -141,9 +141,9 @@ class Community {
                 label: "Recovered",
             }]
         }
-        var f1 = 0;
-        var f2 = 0;
-        var f3 = 0;
+        let f1 = 0;
+        let f2 = 0;
+        let f3 = 0;
 
         for(let x = 0; x<time; x++){
             f1 = Math.sqrt((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop)
@@ -151,15 +151,15 @@ class Community {
             f3 = Math.sqrt(disease.a*data.datasets[1].data[x])
 
             if (stochastic === true) {
-                var distribution = gaussian(0, 1)
-                var omega1 = distribution.random(1)[0]
-                var omega2 = distribution.random(1)[0]
-                var omega3 = distribution.random(1)[0]
+                let distribution = gaussian(0, 1)
+                let omega1 = distribution.random(1)[0]
+                let omega2 = distribution.random(1)[0]
+                let omega3 = distribution.random(1)[0]
             }
             else {
-                var omega1 = 0
-                var omega2 = 0
-                var omega3 = 0
+                let omega1 = 0
+                let omega2 = 0
+                let omega3 = 0
                 f1 = 0
                 f2 = 0
                 f3 = 0
@@ -215,10 +215,10 @@ class Community {
                 label: "Dead",
             }]
         }
-        var f1 = 0;
-        var f2 = 0;
-        var f3 = 0;
-        var f4 = 0;
+        let f1 = 0;
+        let f2 = 0;
+        let f3 = 0;
+        let f4 = 0;
 
         for(let x = 0; x<time; x++){
             f1 = Math.sqrt((disease.rnaught*disease.u)*data.datasets[0].data[x]*data.datasets[1].data[x]/this.pop) // Rn * U * S * I / N
@@ -227,17 +227,17 @@ class Community {
             f4 = Math.sqrt(disease.d*data.datasets[2].data[x]) // d*I
 
             if (stochastic === true) {
-                var distribution = gaussian(0, 1)
-                var omega1 = distribution.random(1)[0]
-                var omega2 = distribution.random(1)[0]
-                var omega3 = distribution.random(1)[0]
-                var omega4 = distribution.random(1)[0]
+                let distribution = gaussian(0, 1)
+                let omega1 = distribution.random(1)[0]
+                let omega2 = distribution.random(1)[0]
+                let omega3 = distribution.random(1)[0]
+                let omega4 = distribution.random(1)[0]
             }
             else {
-                var omega1 = 0
-                var omega2 = 0
-                var omega3 = 0
-                var omega4 = 0
+                let omega1 = 0
+                let omega2 = 0
+                let omega3 = 0
+                let omega4 = 0
                 f1 = 0
                 f2 = 0
                 f3 = 0
@@ -376,16 +376,16 @@ class Community {
     let m1len = model1.datasets.length
     let m2len = model2.datasets.length
 
-    for (var x = 0; x < days; x++) {
+    for (let x = 0; x < days; x++) {
         data.labels.push("Day "+(x+1).toString())
     }
-    for (var y = 0; y < m1len; y++) {
+    for (let y = 0; y < m1len; y++) {
         data.datasets[y] = {}
         data.datasets[y].data = model1.datasets[y].data
         data.datasets[y].label = model1.datasets[y].label+" ("+m1name+")"
         data.datasets[y].borderColor = "#"+Math.floor(Math.random()*16777215).toString(16)
     }
-    for (var z = m1len; z < m2len+m1len; z++) {
+    for (let z = m1len; z < m2len+m1len; z++) {
         data.datasets[z] = {}
         data.datasets[z].data = model2.datasets[z-m1len].data
         data.datasets[z].label = model2.datasets[z-m1len].label+" ("+m2name+")"

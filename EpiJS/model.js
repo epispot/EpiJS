@@ -63,17 +63,17 @@ class Model {
 	 *model.get_data(100) // Get data for 100 days.
 	 */
 	get_data(time) { // skipcq: JS-0045
-		var key = {}
-		var newkey = {}
+		let key = {}
+		let newkey = {}
 		
 		// For key in this.key, add it to newkey and key.
-		for (var key_key in this.key) {
+		for (let key_key in this.key) {
 			key[key_key] = this.key[key_key]
 			newkey[key_key] = this.key[key_key]
 		}
 
-		for (var x = 0; x < time; x++) {
-			var y; // skipcq: JS-0119
+		for (let x = 0; x < time; x++) {
+			let y; // skipcq: JS-0119
 			for (y in this.compartments) {
 				newkey[this.compartments[y][1]] = this.compartments[y][0].get_data(key)
 			}
@@ -88,7 +88,7 @@ class Model {
 							"population": key[this.compartments[y][1]],
 							"compartments": {}
 						}
-						for (var z in this.compartments[y][0].compartments) {
+						for (let z in this.compartments[y][0].compartments) {
 							return_val[this.compartments[y][1]].compartments[z] = this.compartments[y][0].getSubData(z, key)
 						}
 					}
@@ -121,7 +121,7 @@ class Model {
 	 * sirm.remove(recovered) // Removes the recovered compartment.
 	 */
 	remove(compartment) {
-		for (var x = 0; x < this.compartments.length; x++) {
+		for (let x = 0; x < this.compartments.length; x++) {
 			if (this.compartments[x][0] === compartment) {
 				this.compartments.splice(x, 1)
 			}
@@ -182,13 +182,13 @@ class Model {
  *mexport(sirm, "output.js", file_type=".js")
  */
 function mexport(model, output, file_type=".json") {
-	var jsonout = {
+	let jsonout = {
 		"compartments": {
 
 		},
 		"key": model.key
 	}
-	for (var x in model.compartments) {
+	for (let x in model.compartments) {
 		if (model.compartments[x][0].compartments === {}) {
 			delete model.compartments[x][0].compartments
 		}
@@ -213,14 +213,14 @@ function mexport(model, output, file_type=".json") {
  */
 function mimport(input, file_type=".json") {
 	if (file_type === ".json") {
-		var json = JSON.parse(fs.readFileSync(input))
+		let json = JSON.parse(fs.readFileSync(input))
 	} else if (file_type === ".js") {
-		var json = require(output)
+		let json = require(output)
 	}
 	
-	var comp = []
+	let comp = []
 
-	for (var x in json.compartments) {
+	for (let x in json.compartments) {
 		// If compartments key does not exist in json.compartments[x], then add it
 		if (!Object.prototype.hasOwnProperty.call(json.compartments[x],"compartments")) {
 			json.compartments[x].compartments = {}

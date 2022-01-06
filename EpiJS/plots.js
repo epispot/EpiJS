@@ -94,9 +94,9 @@ function plot(model, canvas, days, colors=null, options={title: {display: true, 
  * sirplot.manipulate(sirplot, "fill", true) // Set fill to true
  */
 function manipulate(id, mvalue, value) {
-    var manip = Chart.getChart(id)// skipcq: JS-0502
+    let manip = Chart.getChart(id)// skipcq: JS-0502
 
-    for (var x in manip.data.datasets) {
+    for (let x in manip.data.datasets) {
         manip.data.datasets[x][mvalue] = value
     }
 

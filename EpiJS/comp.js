@@ -38,9 +38,9 @@ class Idiom {
   }
 
   get_data (key) {
-    var parsed = this.equation.split('')
+    let parsed = this.equation.split('')
 
-    var x = 0;
+    let x = 0;
     while (x<parsed.length) {
       if (parsed[x] === " ") {
         parsed.splice(x, 1)
@@ -48,13 +48,13 @@ class Idiom {
       x++
     }
 
-    var y; // skipcq: JS-0119
+    let y; // skipcq: JS-0119
     for (y in parsed) {
       if (parsed[y] in key) {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        var distribution = new gaussian(0, 1)
+        let distribution = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
@@ -110,7 +110,7 @@ class Susceptible {
     this.compartments = {}
 		this.equation = "S"
     
-    for (var x in next) {
+    for (let x in next) {
       if (stochastic === true) {
         this.equation += "-((S*" + String(next[x]) + ")+sqrt(S*"+String(next[x])+"))*w"
       } else {
@@ -118,7 +118,7 @@ class Susceptible {
       }
     }
 
-    for (var y in prev) {
+    for (let y in prev) {
       if (stochastic === true) {
         this.equation += "+(("+String(prev[y][0])+"*" + String(prev[y][1])+")+sqrt("+String(prev[y][0])+"*" + String(prev[y][1])+"))*w"
       } else {
@@ -128,9 +128,9 @@ class Susceptible {
   }
 
   get_data (key) {
-    var parsed = this.equation.split('')
+    let parsed = this.equation.split('')
 
-    var x = 0;
+    let x = 0;
     while (x<parsed.length) {
       if (parsed[x] === " ") {
         parsed.splice(x, 1)
@@ -138,13 +138,13 @@ class Susceptible {
       x++
     }
 
-    var y; // skipcq: JS-0119
+    let y; // skipcq: JS-0119
     for (y in parsed) {
       if (parsed[y] in key) {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        var distribution = new gaussian(0, 1)
+        let distribution = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
@@ -199,7 +199,7 @@ class Infected {
     this.compartments = {}
 		this.equation = "I"
     
-    for (var x in next) {
+    for (let x in next) {
       if (stochastic === true) {
         this.equation += "-((I*" + String(next[x]) + ")+sqrt(I*"+String(next[x])+")*w)"
       } else {
@@ -207,7 +207,7 @@ class Infected {
       }
     }
 
-    for (var y in prev) {
+    for (let y in prev) {
       if (stochastic === true) {
         this.equation += "+(("+String(prev[y][0])+"*" + String(prev[y][1])+")+sqrt("+String(prev[y][0])+"*" + String(prev[y][1])+"))*w"
       } else {
@@ -217,9 +217,9 @@ class Infected {
   }
 
   get_data (key) {
-    var parsed = this.equation.split('')
+    let parsed = this.equation.split('')
 
-    var x = 0;
+    let x = 0;
     while (x<parsed.length) {
       if (parsed[x] === " ") {
         parsed.splice(x, 1)
@@ -227,13 +227,13 @@ class Infected {
       x++
     }
 
-    var y; // skipcq: JS-0119
+    let y; // skipcq: JS-0119
     for (y in parsed) {
       if (parsed[y] in key) {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        var distribution = new gaussian(0, 1)
+        let distribution = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
@@ -288,7 +288,7 @@ class Exposed {
     this.compartments = {}
 		this.equation = "E"
     
-    for (var x in next) {
+    for (let x in next) {
       if (stochastic === true) {
         this.equation += "-((E*" + String(next[x]) + ")+sqrt(E*"+String(next[x])+")*w)"
       } else {
@@ -296,7 +296,7 @@ class Exposed {
       }
     }
 
-    for (var y in prev) {
+    for (let y in prev) {
       if (stochastic === true) {
         this.equation += "+(("+String(prev[y][0])+"*" + String(prev[y][1])+")+sqrt("+String(prev[y][0])+"*" + String(prev[y][1])+"))*w"
       } else {
@@ -306,9 +306,9 @@ class Exposed {
   }
 
   get_data (key) {
-    var parsed = this.equation.split('')
+    let parsed = this.equation.split('')
 
-    var x = 0;
+    let x = 0;
     while (x<parsed.length) {
       if (parsed[x] === " ") {
         parsed.splice(x, 1)
@@ -316,13 +316,13 @@ class Exposed {
       x++
     }
 
-    var y; // skipcq: JS-0119
+    let y; // skipcq: JS-0119
     for (y in parsed) {
       if (parsed[y] in key) {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        var distribution = new gaussian(0, 1)
+        let distribution = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
@@ -376,7 +376,7 @@ class Critical {
     this.compartments = {}
 		this.equation = "C"
     
-    for (var x in next) {
+    for (let x in next) {
       if (stochastic === true) {
         this.equation += "-((C*" + String(next[x]) + ")+sqrt(C*"+String(next[x])+")*w)"
       } else {
@@ -384,7 +384,7 @@ class Critical {
       }
     }
 
-    for (var y in prev) {
+    for (let y in prev) {
       if (stochastic === true) {
         this.equation += "+(("+String(prev[y][0])+"*" + String(prev[y][1])+")+sqrt("+String(prev[y][0])+"*" + String(prev[y][1])+"))*w"
       } else {
@@ -394,9 +394,9 @@ class Critical {
   }
 
   get_data (key) {
-    var parsed = this.equation.split('')
+    let parsed = this.equation.split('')
 
-    var x = 0;
+    let x = 0;
     while (x<parsed.length) {
       if (parsed[x] === " ") {
         parsed.splice(x, 1)
@@ -404,13 +404,13 @@ class Critical {
       x++
     }
 
-    var y; // skipcq: JS-0119
+    let y; // skipcq: JS-0119
     for (y in parsed) {
       if (parsed[y] in key) {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        var distribution = new gaussian(0, 1)
+        let distribution = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
@@ -464,7 +464,7 @@ class Hospitalized {
     this.compartments = {}
 		this.equation = "H"
     
-    for (var x in next) {
+    for (let x in next) {
       if (stochastic === true) {
         this.equation += "-((H*" + String(next[x]) + ")+sqrt(H*"+String(next[x])+")*w)"
       } else {
@@ -472,7 +472,7 @@ class Hospitalized {
       }
     }
 
-    for (var y in prev) {
+    for (let y in prev) {
       if (stochastic === true) {
         this.equation += "+(("+String(prev[y][0])+"*" + String(prev[y][1])+")+sqrt("+String(prev[y][0])+"*" + String(prev[y][1])+"))*w"
       } else {
@@ -482,9 +482,9 @@ class Hospitalized {
   }
 
   get_data (key) {
-    var parsed = this.equation.split('')
+    let parsed = this.equation.split('')
 
-    var x = 0;
+    let x = 0;
     while (x<parsed.length) {
       if (parsed[x] === " ") {
         parsed.splice(x, 1)
@@ -492,13 +492,13 @@ class Hospitalized {
       x++
     }
 
-    var y; // skipcq: JS-0119
+    let y; // skipcq: JS-0119
     for (y in parsed) {
       if (parsed[y] in key) {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        var distribution = new gaussian(0, 1)
+        let distribution = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
@@ -553,7 +553,7 @@ class Dead {
     this.compartments = {}
 		this.equation = "D"
     
-    for (var x in next) {
+    for (let x in next) {
       if (stochastic === true) {
         this.equation += "-((D*" + String(next[x]) + ")+sqrt(D*"+String(next[x])+")*w)"
       } else {
@@ -561,7 +561,7 @@ class Dead {
       }
     }
 
-    for (var y in prev) {
+    for (let y in prev) {
       if (stochastic === true) {
         this.equation += "+(("+String(prev[y][0])+"*" + String(prev[y][1])+")+sqrt("+String(prev[y][0])+"*" + String(prev[y][1])+"))*w"
       } else {
@@ -571,9 +571,9 @@ class Dead {
   }
 
   get_data (key) {
-    var parsed = this.equation.split('')
+    let parsed = this.equation.split('')
 
-    var x = 0;
+    let x = 0;
     while (x<parsed.length) {
       if (parsed[x] === " ") {
         parsed.splice(x, 1)
@@ -581,13 +581,13 @@ class Dead {
       x++
     }
 
-    var y; // skipcq: JS-0119
+    let y; // skipcq: JS-0119
     for (y in parsed) {
       if (parsed[y] in key) {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        var distribution = new gaussian(0, 1)
+        let distribution = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
@@ -641,7 +641,7 @@ class Vaccinated {
     this.compartments = {}
 		this.equation = "V"
     
-    for (var x in next) {
+    for (let x in next) {
       if (stochastic === true) {
         this.equation += "-((V*" + String(next[x]) + ")+sqrt(V*"+String(next[x])+")*w)"
       } else {
@@ -649,7 +649,7 @@ class Vaccinated {
       }
     }
 
-    for (var y in prev) {
+    for (let y in prev) {
       if (stochastic === true) {
         this.equation += "+(("+String(prev[y][0])+"*" + String(prev[y][1])+")+sqrt("+String(prev[y][0])+"*" + String(prev[y][1])+"))*w"
       } else {
@@ -659,9 +659,9 @@ class Vaccinated {
   }
 
   get_data (key) {
-    var parsed = this.equation.split('')
+    let parsed = this.equation.split('')
 
-    var x = 0;
+    let x = 0;
     while (x<parsed.length) {
       if (parsed[x] === " ") {
         parsed.splice(x, 1)
@@ -669,13 +669,13 @@ class Vaccinated {
       x++
     }
 
-    var y; // skipcq: JS-0119
+    let y; // skipcq: JS-0119
     for (y in parsed) {
       if (parsed[y] in key) {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        var distribution = new gaussian(0, 1)
+        let distribution = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
@@ -729,7 +729,7 @@ class Recovered {
     this.compartments = {}
 		this.equation = "R"
     
-    for (var x in next) {
+    for (let x in next) {
       if (stochastic === true) {
         this.equation += "-((R*" + String(next[x]) + ")+sqrt(R*"+String(next[x])+")*w)"
       } else {
@@ -737,7 +737,7 @@ class Recovered {
       }
     }
 
-    for (var y in prev) {
+    for (let y in prev) {
       if (stochastic === true) {
         this.equation += "+(("+String(prev[y][0])+"*" + String(prev[y][1])+")+sqrt("+String(prev[y][0])+"*" + String(prev[y][1])+"))*w"
       } else {
@@ -747,9 +747,9 @@ class Recovered {
   }
 
   get_data (key) {
-    var parsed = this.equation.split('')
+    let parsed = this.equation.split('')
 
-    var x = 0;
+    let x = 0;
     while (x<parsed.length) {
       if (parsed[x] === " ") {
         parsed.splice(x, 1)
@@ -757,13 +757,13 @@ class Recovered {
       x++
     }
 
-    var y; // skipcq: JS-0119
+    let y; // skipcq: JS-0119
     for (y in parsed) {
       if (parsed[y] in key) {
         parsed.splice(y, 1, key[parsed[y]])
       }
       else if (parsed[y] === "w") {
-        var distribution = new gaussian(0, 1)
+        let distribution = new gaussian(0, 1)
         parsed.splice(y, 1, distribution.random(1)[0])
       }
     }
