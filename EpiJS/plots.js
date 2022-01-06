@@ -7,102 +7,81 @@
  * ```
  */
 
+const http = require('http')
+const modelmodule = require('./pre')
 
- const chart = require('chart.js') // skipcq: JS-0502
-
-/**
- * Plots a output of a model from the pre module.
- * @param {Array} model - The output from the pre module function.
- * @param {HTMLCanvasElement} canvas - The canvas to show the output.
- * @param {Number} days - The amount of days to plot
- * @param {Array} colors - Custom colors for the graph, in the same order the compartments are.
- * @param {Object} options - Optional. Custom configuration to pass into the options parameter for chart.js, defaults to:
- * 
- * ```JSON
- * {
- *  title: {
- *      display: true,
- *      text: "Total Cases"
- *  },
- *  scales: {
- *      yAxes: [{
- *          ticks: {
- *              beginAtZero: true
- *          }
- *      }]
- *  }
- * }
- * ```
- * 
- * @returns Returns the chart.js chart, if needed for modification.
- * 
- * @example
- * 
- * let sirout1 = sir(4, 9999, 1000, 100, 1/21, 10999, true)
- *
- * plot(sirout1, "canvas-pre1", 100) // Plots data for 100 days onto the canvas-pre1 chart, with the data from the SIR model.
- */
-function plot(model, canvas, days, colors=null, options={title: {display: true, text: 'Total Cases'}, scales: {yAxes: [{ticks: {beginAtZero: true}}]}}) {
-    let data = {// skipcq: JS-0502
-        labels: [],
-        datasets: []
-    }
-    for (let i = 0; i < days; i++) {// skipcq: JS-0502
-        data.labels.push('Day '+i)
-    }
-    if (colors !== null) {
-        for (let i = 0; i < model.length; i++) {// skipcq: JS-0502
-            data.datasets.push({
-                label: model[i].name,
-                data: model[i].data,
-                borderColor: colors[i]
-            })
-        } 
-    }
-    else {
-        for (let i = 0; i < model.length; i++) {// skipcq: JS-0502
-            data.datasets.push({
-                label: model[i].label,
-                data: model[i].data,
-                borderColor: '#'+Math.floor(Math.random()*16777215).toString(16)
-            })
-        } 
+function plot(model, time, title='Cases vs. Time') {
+    // Get model data for every day up to and including `time`
+    let data = {
+        xvals: [],
+        yvals: {}
     }
 
-    let sirChart = new Chart(canvas, {// skipcq: JS-0502
-        type: 'line',
-        data: data,
-        options: options 
-    });
-    return sirChart;
+    for (let x in model.compartments) {
+        data.yvals[model.compartments[x][1]] = []
+    }
+
+    // For every day until `time`, get the data
+    for (let x = 0; x < time; x++) {
+        let current = model.get_data(x+1)
+
+        // For every compartment, get the data
+        for (let y in model.compartments) {
+            // If the compartment data is an object, get .population
+            if (typeof current[model.compartments[y][1]] === 'object') {
+                data.yvals[model.compartments[y][1]].push(current[model.compartments[y][1]].population)
+            } else {
+                data.yvals[model.compartments[y][1]].push(current[model.compartments[y][1]])
+            }
+        }
+        data.xvals.push(x+1)
+    }
+
+    // Create the plot
+    let plotlyData = []
+    for (let x in data.yvals) {
+        plotlyData.push({
+            x: data.xvals,
+            y: data.yvals[x],
+            name: x,
+            mode: 'lines'
+        })
+    }
+
+    if (typeof process === 'object' && String(process) === '[object process]') { // Is running in NodeJS
+        // Create http server
+        let server = http.createServer((req, res) => {
+            // Send the plot as HTML
+            res.writeHead(200, {'Content-Type': 'text/html'})
+            res.write(`<!DOCTYPE html>
+            <html>
+            <head>
+            <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+            </head>
+            <body>
+            <div id="plot"></div>
+            <script>
+            var data = ${JSON.stringify(plotlyData)}
+            var layout = {
+                title: '${title}',
+                xaxis: {
+                    title: 'Days'
+                },
+                yaxis: {
+                    title: 'Cases'
+                }
+            }
+            Plotly.newPlot('plot', data, layout)
+            </script>
+            </body>
+            </html>`)
+            res.end()
+        })
+
+        // Start the server
+        server.listen(8080)
+        console.log('Plotly server running on http://localhost:8080')
+    }
 }
 
-/**
- * Manipulate the chart.js graph
- * 
- * @param id The chart.js graph
- * @param {String} mvalue The value to manipulate in `chart.data.datasets[x]`. This can be any valid chart.js parameter. See https://www.chartjs.org/docs/latest/charts/line.html#line-styling
- * @param value The value to insert into the graph
- * @returns The chart.js graph
- * 
- * @example
- * 
- * let sirout1 = sir(4, 9999, 1000, 100, 1/21, 10999, true)
- *
- * let sirplot = plot(sirout1, "canvas-pre1", 100)
- * 
- * sirplot.manipulate(sirplot, "fill", true) // Set fill to true
- */
-function manipulate(id, mvalue, value) {
-    let manip = Chart.getChart(id)// skipcq: JS-0502
-
-    for (let x in manip.data.datasets) {
-        manip.data.datasets[x][mvalue] = value
-    }
-
-    manip.update()
-    return manip
-}
-
-exports.plot = plot;
-exports.manipulate = manipulate;
+exports.plot = plot

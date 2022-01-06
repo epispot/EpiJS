@@ -8,7 +8,7 @@
  */
 
 const gaussian = require('gaussian')
-const model = require('./model')
+const modelm = require('./model')
 const comp = require('./comp')
 
 /**
@@ -26,18 +26,16 @@ const comp = require('./comp')
  */
 
 function sir(rn, s, i, u, p, stochastic) {
-	if (stochastic === true) {
-		let distribution = gaussian(0, 1)
-		let omega1 = distribution.random(1)[0]
-		let omega2 = distribution.random(1)[0]
-		let f1 = 'sqrt((B*S*I)/p)'
-		let f2 = 'sqrt(u*I)'
-	}
-	else {
-		let omega1 = 0
-		let omega2 = 0
-		let f1 = 0
-		let f2 = 0
+	let distribution = gaussian(0, 1)
+	let omega1 = distribution.random(1)[0]
+	let omega2 = distribution.random(1)[0]
+	let f1 = 'sqrt((B*S*I)/p)'
+	let f2 = 'sqrt(u*I)'
+	if (stochastic !== true) {
+		omega1 = 0
+		omega2 = 0
+		f1 = 0
+		f2 = 0
 	}
 
 	let key = {
@@ -55,7 +53,7 @@ function sir(rn, s, i, u, p, stochastic) {
 	let recovered = new comp.Idiom('R+((u*I)+'+f2+'*'+omega2+')')
 
 	// Create the model
-	let model = new model.Model([[susceptible, 'S'], [infected, 'I'], [recovered, 'R']], key)
+	let model = new modelm.Model([[susceptible, 'S'], [infected, 'I'], [recovered, 'R']], key)
 
 	return model
 }
@@ -75,19 +73,17 @@ function sir(rn, s, i, u, p, stochastic) {
  *      seir(4, 9999, 1, 1/7, 1/7, 10000, true)
  */
 function seir(rn, s, i, u, a, p, stochastic) {
-	if (stochastic === true) {
-		let distribution = gaussian(0, 1)
-		let omega1 = distribution.random(1)[0]
-		let omega2 = distribution.random(1)[0]
-		let omega3 = distribution.random(1)[0]
-		let f1 = 'sqrt((B*S*I)/p)'
-		let f2 = 'sqrt(u*I)'
-		let f3 = 'sqrt(a*E)'
-	}
-	else {
-		let omega1 = 0
-		let omega2 = 0
-		let omega3 = 0
+	let distribution = gaussian(0, 1)
+	let omega1 = distribution.random(1)[0]
+	let omega2 = distribution.random(1)[0]
+	let omega3 = distribution.random(1)[0]
+	let f1 = 'sqrt((B*S*I)/p)'
+	let f2 = 'sqrt(u*I)'
+	let f3 = 'sqrt(a*E)'
+	if (stochastic !== true) {
+		omega1 = 0
+		omega2 = 0
+		omega3 = 0
 		f1 = 0
 		f2 = 0
 		f3 = 0
@@ -97,7 +93,7 @@ function seir(rn, s, i, u, a, p, stochastic) {
 		S: s,
 		I: i,
 		E: 0,
-		R: p-(s+i+e),
+		R: p-(s+i),
 		u: u,
 		a: a,
 		B: u*rn,
@@ -111,7 +107,7 @@ function seir(rn, s, i, u, a, p, stochastic) {
 	let recovered = new comp.Idiom('R+((u*I)+'+f2+'*'+omega2+')')
 
 	// Create the model
-	let model = new model.Model([[susceptible, 'S'], [exposed, 'E'], [infected, 'I'], [recovered, 'R']], key)
+	let model = new modelm.Model([[susceptible, 'S'], [exposed, 'E'], [infected, 'I'], [recovered, 'R']], key)
 	return model
 }
 
@@ -131,26 +127,24 @@ function seir(rn, s, i, u, a, p, stochastic) {
  *      seird(4, 99999, 1, 1/21, 1/14, 1/100, 10000, true)
  */
 function seird(rn, s, i, u, a, d, p, stochastic) {
-	if (stochastic === true) {
-		let distribution = gaussian(0, 1)
-		let omega1 = distribution.random(1)[0]
-		let omega2 = distribution.random(1)[0]
-		let omega3 = distribution.random(1)[0]
-		let omega4 = distribution.random(1)[0]
-		let f1 = 'sqrt((B*S*I)/p)'
-		let f2 = 'sqrt(u*I)'
-		let f3 = 'sqrt(a*E)'
-		let f4 = 'sqrt(d*I)'
-	}
-	else {
-		let omega1 = 0
-		let omega2 = 0
-		let omega3 = 0
-		let omega4 = 0
-		let f1 = 0
-		let f2 = 0
-		let f3 = 0
-		let f4 = 0
+	let distribution = gaussian(0, 1)
+	let omega1 = distribution.random(1)[0]
+	let omega2 = distribution.random(1)[0]
+	let omega3 = distribution.random(1)[0]
+	let omega4 = distribution.random(1)[0]
+	let f1 = 'sqrt((B*S*I)/p)'
+	let f2 = 'sqrt(u*I)'
+	let f3 = 'sqrt(a*E)'
+	let f4 = 'sqrt(d*I)'
+	if (stochastic !== true) {
+		omega1 = 0
+		omega2 = 0
+		omega3 = 0
+		omega4 = 0
+		f1 = 0
+		f2 = 0
+		f3 = 0
+		f4 = 0
 	}
 		
 	let key = {
@@ -158,7 +152,7 @@ function seird(rn, s, i, u, a, d, p, stochastic) {
 		I: i,
 		E: 0,
 		D: 0,
-		R: p-(s+i+e+d),
+		R: p-(s+i),
 		u: u,
 		a: a,
 		d: d,
@@ -174,7 +168,7 @@ function seird(rn, s, i, u, a, d, p, stochastic) {
 	let dead = new comp.Idiom('D+((d*I)+'+f4+'*'+omega4+')')
 	
 	// Create the model
-	let model = new model.Model([[susceptible, 'S'], [exposed, 'E'], [infected, 'I'], [recovered, 'R'], [dead, 'D']], key)
+	let model = new modelm.Model([[susceptible, 'S'], [exposed, 'E'], [infected, 'I'], [recovered, 'R'], [dead, 'D']], key)
 
 	return model
 }
@@ -198,32 +192,30 @@ function seird(rn, s, i, u, a, d, p, stochastic) {
  *      seihrd(4, 9999, 1, 1/21, 1/40, 1/14, 1/100, 1/20, 1/30, 10000, true)
  */
 function seihrd(rn, s, i, u, uh, a, di, dh, h, p, stochastic) {
-	if (stochastic === true) {
-		let distribution = gaussian(0, 1)
-		let omega1 = distribution.random(1)[0]
-		let omega2 = distribution.random(1)[0]
-		let omega3 = distribution.random(1)[0]
-		let omega4 = distribution.random(1)[0]
-		let omega5 = distribution.random(1)[0]
-		let omega6 = distribution.random(1)[0]
-		let omega7 = distribution.random(1)[0]
-		let f1 = 'sqrt((B*S*I)/p)'
-		let f2 = 'sqrt(u*I)'
-		let f3 = 'sqrt(a*E)'
-		let f4 = 'sqrt(d*I)'
-		let f5 = 'sqrt(y*H)'
-		let f6 = 'sqrt(z*I)'
-		let f7 = 'sqrt(x*H)'
-	}
-	else {
-		let omega1 = 0
-		let omega2 = 0
-		let omega3 = 0
-		let omega4 = 0
-		let omega5 = 0
-		let omega6 = 0
-		let omega7 = 0
-		let omega8 = 0
+	let distribution = gaussian(0, 1)
+	let omega1 = distribution.random(1)[0]
+	let omega2 = distribution.random(1)[0]
+	let omega3 = distribution.random(1)[0]
+	let omega4 = distribution.random(1)[0]
+	let omega5 = distribution.random(1)[0]
+	let omega6 = distribution.random(1)[0]
+	let omega7 = distribution.random(1)[0]
+	let f1 = 'sqrt((B*S*I)/p)'
+	let f2 = 'sqrt(u*I)'
+	let f3 = 'sqrt(a*E)'
+	let f4 = 'sqrt(d*I)'
+	let f5 = 'sqrt(y*H)'
+	let f6 = 'sqrt(z*I)'
+	let f7 = 'sqrt(x*H)'
+	if (stochastic !== true) {
+		omega1 = 0
+		omega2 = 0
+		omega3 = 0
+		omega4 = 0
+		omega5 = 0
+		omega6 = 0
+		omega7 = 0
+		omega8 = 0
 		f1 = 0
 		f2 = 0
 		f3 = 0
@@ -239,7 +231,7 @@ function seihrd(rn, s, i, u, uh, a, di, dh, h, p, stochastic) {
 		E: 0,
 		D: 0,
 		H: 0,
-		R: p-(s+i+e+d+h),
+		R: p-(s+i),
 		u: u,
 		y: uh,
 		z: h,
@@ -259,7 +251,7 @@ function seihrd(rn, s, i, u, uh, a, di, dh, h, p, stochastic) {
 	let dead = new comp.Idiom('D+((d*I)+'+f4+'*'+omega4+')+((x*H)+'+f7+'*'+omega7+')')
 
 	// Create the model
-	let model = new model.Model([[susceptible, 'S'], [exposed, 'E'], [infected, 'I'], [hospitalized, 'H'], [recovered, 'R'], [dead, 'D']], key)
+	let model = new modelm.Model([[susceptible, 'S'], [exposed, 'E'], [infected, 'I'], [hospitalized, 'H'], [recovered, 'R'], [dead, 'D']], key)
 
 	return model
 }
