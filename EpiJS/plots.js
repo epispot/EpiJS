@@ -8,8 +8,9 @@
  */
 
 const http = require('http')
+const Plotly = require('plotly.js-dist-min')
 
-function plot(model, time, title='Cases vs. Time') {
+function plot(model, time, name, title='Cases vs. Time') {
     // Get model data for every day up to and including `time`
     let data = {
         xvals: [],
@@ -60,8 +61,8 @@ function plot(model, time, title='Cases vs. Time') {
             <body>
             <div id="plot"></div>
             <script>
-            var data = ${JSON.stringify(plotlyData)}
-            var layout = {
+            let data = ${JSON.stringify(plotlyData)}
+            let layout = {
                 title: '${title}',
                 xaxis: {
                     title: 'Days'
@@ -80,6 +81,19 @@ function plot(model, time, title='Cases vs. Time') {
         // Start the server
         server.listen(8080)
         console.log('Plotly server running on http://localhost:8080')
+    }
+    else { // Is running in the browser
+        // Create the plot
+        let layout = {
+            title: title,
+            xaxis: {
+                title: 'Days'
+            },
+            yaxis: {
+                title: 'Cases'
+            }
+        }
+        Plotly.newPlot(name, plotlyData, layout)
     }
 }
 
