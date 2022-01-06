@@ -72,6 +72,11 @@ class Idiom {
    * Add a subcompartment to this compartment.
    * @param {String} name Name of sub-compartment.
    * @param {Number} percentage Percentage of the total compartment population to be in the sub-compartmnet. This will not affect the population of the parent compartment or any other sub-compartment.
+   * @example
+   * 
+   * let infected = new Idiom("I+((B*S*I)/p)")
+   * 
+   * infected.addSub("Asymptomatic", 10) // 10% of the infected population are asymptomatic.
    */
   addSub (name, percentage) {
     this.compartments[name] = {
