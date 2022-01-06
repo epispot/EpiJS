@@ -8,7 +8,6 @@
  */
 
 const http = require('http')
-const modelmodule = require('./pre')
 
 function plot(model, time, title='Cases vs. Time') {
     // Get model data for every day up to and including `time`
