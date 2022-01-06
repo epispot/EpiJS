@@ -126,6 +126,7 @@ Add a compartment to the model.
 #### Parameters
 
 *   `compartment` **[Array][20]** The compartment to add, should be a list, with the first value being the compartment, and the second being it's value in the key.
+*   `index` **[Number][22]** The index to add the compartment at.
 
 #### Examples
 
@@ -137,16 +138,16 @@ let recovered = new Idiom("R+(u*I)");
 let key = {
 	"S": 10000,
 	"B": 0.3,
-[1]: #model-2
+	"I": 100,
 	"R": 0,
 	"p": 10100,
 	"u": 0.2
-[3]: #get-data
+};
 
 let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
 
 sirm.remove(susceptible) // Removes the susceptible compartment.
-sirm.add([susceptible, "S"]) // Adds the susceptible compartment back.
+sirm.add([susceptible, "S"], 0) // Adds the susceptible compartment back to the beginning
 ```
 
 ## mexport
@@ -196,7 +197,7 @@ NodeJS only! Imports a model from a file.
 let sirm = mimport("./output.json")
 ```
 
-[1]: #fs
+[1]: #model-2
 
 [2]: #model
 
@@ -204,7 +205,7 @@ let sirm = mimport("./output.json")
 
 [4]: #examples
 
-[5]: #get_data
+[5]: #get-data
 
 [6]: #parameters-1
 

@@ -13,9 +13,6 @@ features:
 footer: GPL-3.0 Licensed | Copyright © 2021-present epispot
 ---
 
-<div align='center'>
-<h2 >Don't take it from us, see for yourself!</h2>
-<a href="/getting-started.html">Get Started →</a>
 </div>
 <br>
 <br>

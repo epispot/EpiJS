@@ -1,32 +1,14 @@
 with open('../docs/pre.md', 'r') as predoc:
   doc = predoc.readlines()
-  doc[21] = '# Pre\n'
   doc[4] = '\n'
-  doc[26] = '```javascript\n'
-  doc[28] = '```\n'
+  doc[18] = '# Pre\n'
+  doc[23] = '```javascript\n'
+  doc[25] = '```\n'
   doc1 = ['---\n', 'title: EpiJS Module - Pre\n', '---\n']
   doc = doc1+doc
 
 with open('../docs/pre.md', 'w') as predoc:
   predoc.writelines(doc)
-
-
-with open('../docs/com.md', 'r') as comdoc:
-  doc = comdoc.readlines()
-  doc[27] = '# Com\n'
-  doc[4] = '\n'
-  doc[32] = '```javascript\n'
-  doc[34] = '```\n'
-  doc[133] = 'You can find these names below.\n\n    *   Susceptible - stored as \'S\'\n'
-  doc[139] = 'We already have the following parameters:\n    *   Population - stored as \'p\' in our key.\n'
-  doc[135] = '    *   Recovered - stored as \'R\'\n\nMake sure that you use the same names that are stored in the key in the equations for the compartments. These values are found from parameters passed into the virus class and the community class.\n\n'
-  doc[146] = '    *   Incubation Period - stored as \'a\' in our key.'
-  doc1 = ['---\n', 'title: EpiJS Module - Com\n', '---\n']
-  doc = doc1+doc
-
-with open('../docs/com.md', 'w') as comdoc:
-  comdoc.writelines(doc)
-
 
 with open('../docs/model.md', 'r') as mdoc:
 
@@ -35,8 +17,8 @@ with open('../docs/model.md', 'r') as mdoc:
   doc[24] = '# Model\n'
   doc[29] = '```javascript\n'
   doc[31] = '```\n'
-  doc[136] = "[1]: #model-2\n"
-  doc[140] = '[3]: #get-data\n'
+  doc[196] = "[1]: #model-2\n"
+  doc[204] = '[5]: #get-data\n'
   doc1 = ['---\n', 'title: EpiJS Module - Model\n', '---\n']
   doc = doc1+doc
 
@@ -47,10 +29,9 @@ with open('../docs/model.md', 'w') as mdoc:
 with open('../docs/comp.md', 'r') as compdoc:
   doc = compdoc.readlines()
   doc[4] = '\n'
-  doc[33] = '# Comp'
-  doc[38] = '```javascript\n'
-  doc[40] = '```\n'
-  doc[48] = '    If using other compartment classes, they each have their own corresponding variable: \n     *  \'S\' - Susceptible\n'
+  doc[52] = '# Comp'
+  doc[57] = '```javascript\n'
+  doc[59] = '```\n'
   
   doc1 = ['---\n', 'title: EpiJS Module - Comp\n', '---\n']
   doc = doc1+doc
@@ -74,11 +55,9 @@ with open('../docs/utils.md', 'w') as utils:
 with open('../docs/plots.md', 'r') as plots:
   doc = plots.readlines()
   doc[4] = '\n'
-  doc[12] = '## Plot\n'
-  doc[17] = '```javascript\n'
-  doc[19] = '```\n'
-  doc[30] = '*   `options` **[Object][8]** Optional. Custom configuration to pass into the options parameter for chart.js, defaults to:\n```JSON\n'
-  doc[44] = '```'
+  doc[9] = '# Plot\n'
+  doc[14] = '```javascript\n'
+  doc[16] = '```\n'
 
 with open('../docs/plots.md', 'w') as plots:
   plots.writelines(doc)

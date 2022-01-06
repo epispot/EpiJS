@@ -9,30 +9,49 @@ title: EpiJS Module - Comp
 *   [Idiom][2]
     *   [Parameters][3]
     *   [Examples][4]
-*   [Susceptible][5]
-    *   [Parameters][6]
-    *   [Examples][7]
-*   [Infected][8]
+    *   [addSub][5]
+        *   [Parameters][6]
+        *   [Examples][7]
+*   [Susceptible][8]
     *   [Parameters][9]
     *   [Examples][10]
-*   [Exposed][11]
-    *   [Parameters][12]
-    *   [Examples][13]
-*   [Critical][14]
-    *   [Parameters][15]
-    *   [Examples][16]
-*   [Hospitalized][17]
-    *   [Parameters][18]
-    *   [Examples][19]
-*   [Dead][20]
-    *   [Parameters][21]
-    *   [Examples][22]
-*   [Vaccinated][23]
+    *   [addSub][11]
+        *   [Parameters][12]
+*   [Infected][13]
+    *   [Parameters][14]
+    *   [Examples][15]
+    *   [addSub][16]
+        *   [Parameters][17]
+*   [Exposed][18]
+    *   [Parameters][19]
+    *   [Examples][20]
+    *   [addSub][21]
+        *   [Parameters][22]
+*   [Critical][23]
     *   [Parameters][24]
     *   [Examples][25]
-*   [Recovered][26]
-    *   [Parameters][27]
-    *   [Examples][28]
+    *   [addSub][26]
+        *   [Parameters][27]
+*   [Hospitalized][28]
+    *   [Parameters][29]
+    *   [Examples][30]
+    *   [addSub][31]
+        *   [Parameters][32]
+*   [Dead][33]
+    *   [Parameters][34]
+    *   [Examples][35]
+    *   [addSub][36]
+        *   [Parameters][37]
+*   [Vaccinated][38]
+    *   [Parameters][39]
+    *   [Examples][40]
+    *   [addSub][41]
+        *   [Parameters][42]
+*   [Recovered][43]
+    *   [Parameters][44]
+    *   [Examples][45]
+    *   [addSub][46]
+        *   [Parameters][47]
 
 # Comp
 EpiJS module for creating compartments, which can be combined into models.
@@ -47,9 +66,8 @@ Class for a custom compartments.
 
 ### Parameters
 
-*   `equation` **[String][29]** The equation for the compartment. This defines what to run to get a new value for the next day in the model. Use any variable in the equation (1 char max), but when making this a model, you need to define this in the key.
-    If using other compartment classes, they each have their own corresponding variable: 
-     *  'S' - Susceptible
+*   `equation` **[String][48]** The equation for the compartment. This defines what to run to get a new value for the next day in the model. Use any variable in the equation (1 char max), but when making this a model, you need to define this in the key.
+    If using other compartment classes, they each have their own corresponding variable:*   'S' - Susceptible
     *   'E' - Exposed
     *   'I' - Infectious
     *   'R' - Recovered
@@ -65,18 +83,35 @@ Class for a custom compartments.
 let susceptible = new Idiom("S-(B*S*I)")
 ```
 
+### addSub
+
+Add a subcompartment to this compartment.
+
+#### Parameters
+
+*   `name` **[String][48]** Name of sub-compartment.
+*   `percentage` **[Number][49]** Percentage of the total compartment population to be in the sub-compartmnet. This will not affect the population of the parent compartment or any other sub-compartment.
+
+#### Examples
+
+```javascript
+let infected = new Idiom("I+((B*S*I)/p)")
+
+infected.addSub("Asymptomatic", 10) // 10% of the infected population are asymptomatic.
+```
+
 ## Susceptible
 
 Class for Suscepible compartment.
 
 ### Parameters
 
-*   `next` **[Array][30]** List of rates of the next compartments This is multiplied by the current susceptible population.
-*   `prev` **[Array][30]** List of rates of the previous compartments, which include sub-arrays
+*   `next` **[Array][50]** List of rates of the next compartments This is multiplied by the current susceptible population.
+*   `prev` **[Array][50]** List of rates of the previous compartments, which include sub-arrays
     with the compartment id (one letter only), as a string, and the rate for the compartment.
     If reffering to this compartment's population, use "S" as the id. This parameter is useful
     if you want to model a disease with re-susceptibility.
-*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic. You can still pass in your normal equation, and epijs will
+*   `stochastic` **[Boolean][51]** If true, the compartment will be stochastic. You can still pass in your normal equation, and epijs will
     auto generate the equations from what you pass in.
 
 ### Examples
@@ -88,17 +123,26 @@ Class for Suscepible compartment.
      let S = new Susceptible(["I*0.4/N"], [], true)
 ```
 
+### addSub
+
+Add a subcompartment to this compartment.
+
+#### Parameters
+
+*   `name` **[String][48]** Name of sub-compartment.
+*   `percentage` **[Number][49]** Percentage of the total compartment population to be in the sub-compartmnet. This will not affect the population of the parent compartment or any other sub-compartment.
+
 ## Infected
 
 Class for Infected compartment.
 
 ### Parameters
 
-*   `next` **[Array][30]** List of rates of the next compartments This is multiplied by the current infected population.
-*   `prev` **[Array][30]** List of rates of the previous compartments, which include sub-arrays
+*   `next` **[Array][50]** List of rates of the next compartments This is multiplied by the current infected population.
+*   `prev` **[Array][50]** List of rates of the previous compartments, which include sub-arrays
     with the compartment id (one letter only), as a string, and the rate for the compartment.
     If reffering to this compartment's population, use "I" as the id.
-*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic.
+*   `stochastic` **[Boolean][51]** If true, the compartment will be stochastic.
 
 ### Examples
 
@@ -109,17 +153,26 @@ Class for Infected compartment.
      let I = new Infected([0.3], [["S", "I*0.4/N"]], false)
 ```
 
+### addSub
+
+Add a subcompartment to this compartment.
+
+#### Parameters
+
+*   `name` **[String][48]** Name of sub-compartment.
+*   `percentage` **[Number][49]** Percentage of the total compartment population to be in the sub-compartmnet. This will not affect the population of the parent compartment or any other sub-compartment.
+
 ## Exposed
 
 Class for Exposed compartment.
 
 ### Parameters
 
-*   `next` **[Array][30]** List of rates of the next compartments This is multiplied by the current exposed population.
-*   `prev` **[Array][30]** List of rates of the previous compartments, which include sub-arrays
+*   `next` **[Array][50]** List of rates of the next compartments This is multiplied by the current exposed population.
+*   `prev` **[Array][50]** List of rates of the previous compartments, which include sub-arrays
     with the compartment id (one letter only), as a string, and the rate for the compartment.
     If reffering to this compartment's population, use "E" as the id.
-*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic.
+*   `stochastic` **[Boolean][51]** If true, the compartment will be stochastic.
 
 ### Examples
 
@@ -130,17 +183,26 @@ Class for Exposed compartment.
      let E = new Exposed([1/14], ["S*0.4/N"], false)
 ```
 
+### addSub
+
+Add a subcompartment to this compartment.
+
+#### Parameters
+
+*   `name` **[String][48]** Name of sub-compartment.
+*   `percentage` **[Number][49]** Percentage of the total compartment population to be in the sub-compartmnet. This will not affect the population of the parent compartment or any other sub-compartment.
+
 ## Critical
 
 Class for Critical compartment.
 
 ### Parameters
 
-*   `next` **[Array][30]** List of rates of the next compartments This is multiplied by the current critical population.
-*   `prev` **[Array][30]** List of rates of the previous compartments, which include sub-arrays
+*   `next` **[Array][50]** List of rates of the next compartments This is multiplied by the current critical population.
+*   `prev` **[Array][50]** List of rates of the previous compartments, which include sub-arrays
     with the compartment id (one letter only), as a string, and the rate for the compartment.
     If reffering to this compartment's population, use "C" as the id.
-*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic.
+*   `stochastic` **[Boolean][51]** If true, the compartment will be stochastic.
 
 ### Examples
 
@@ -151,17 +213,26 @@ Class for Critical compartment.
      let C = new Critical([0.14, 0.1], [["H", 0.3]], false)
 ```
 
+### addSub
+
+Add a subcompartment to this compartment.
+
+#### Parameters
+
+*   `name` **[String][48]** Name of sub-compartment.
+*   `percentage` **[Number][49]** Percentage of the total compartment population to be in the sub-compartmnet. This will not affect the population of the parent compartment or any other sub-compartment.
+
 ## Hospitalized
 
 Class for Hospitalized compartment.
 
 ### Parameters
 
-*   `next` **[Array][30]** List of rates of the next compartments This is multiplied by the current hospitalized population.
-*   `prev` **[Array][30]** List of rates of the previous compartments, which include sub-arrays
+*   `next` **[Array][50]** List of rates of the next compartments This is multiplied by the current hospitalized population.
+*   `prev` **[Array][50]** List of rates of the previous compartments, which include sub-arrays
     with the compartment id (one letter only), as a string, and the rate for the compartment.
     If reffering to this compartment's population, use "H" as the id.
-*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic.
+*   `stochastic` **[Boolean][51]** If true, the compartment will be stochastic.
 
 ### Examples
 
@@ -172,18 +243,27 @@ Class for Hospitalized compartment.
      let H = new Hospitalized([0.3], [["I", 0.1], ["E", 0.2]], false)
 ```
 
+### addSub
+
+Add a subcompartment to this compartment.
+
+#### Parameters
+
+*   `name` **[String][48]** Name of sub-compartment.
+*   `percentage` **[Number][49]** Percentage of the total compartment population to be in the sub-compartmnet. This will not affect the population of the parent compartment or any other sub-compartment.
+
 ## Dead
 
 Class for the Dead compartment.
 
 ### Parameters
 
-*   `next` **[Array][30]** List of rates of the next compartments. This is multiplied by the current dead population.
+*   `next` **[Array][50]** List of rates of the next compartments. This is multiplied by the current dead population.
     Useful if you want to have a dead population that can also be the walking dead.
-*   `prev` **[Array][30]** List of rates of the previous compartments, which include sub-arrays
+*   `prev` **[Array][50]** List of rates of the previous compartments, which include sub-arrays
     with the compartment id (one letter only), as a string, and the rate for the compartment.
     If reffering to this compartment's population, use "D" as the id.
-*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic.
+*   `stochastic` **[Boolean][51]** If true, the compartment will be stochastic.
 
 ### Examples
 
@@ -194,17 +274,26 @@ Class for the Dead compartment.
      let D = new Dead([0.3], [["I", 0.3]], false) // This disease also gives you a 3/10 chance to come alive after death.
 ```
 
+### addSub
+
+Add a subcompartment to this compartment.
+
+#### Parameters
+
+*   `name` **[String][48]** Name of sub-compartment.
+*   `percentage` **[Number][49]** Percentage of the total compartment population to be in the sub-compartmnet. This will not affect the population of the parent compartment or any other sub-compartment.
+
 ## Vaccinated
 
 Class for Vaccinated compartment.
 
 ### Parameters
 
-*   `next` **[Array][30]** List of rates of the next compartments, good if the vaccine isn't 100% effective. This is multiplied by the current vaccinated population.
-*   `prev` **[Array][30]** List of rates of the previous compartments, which include sub-arrays
+*   `next` **[Array][50]** List of rates of the next compartments, good if the vaccine isn't 100% effective. This is multiplied by the current vaccinated population.
+*   `prev` **[Array][50]** List of rates of the previous compartments, which include sub-arrays
     with the compartment id (one letter only), as a string, and the rate for the compartment.
     If reffering to this compartment's population, use "V" as the id.
-*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic.
+*   `stochastic` **[Boolean][51]** If true, the compartment will be stochastic.
 
 ### Examples
 
@@ -215,17 +304,26 @@ Class for Vaccinated compartment.
      let I = new Infected([0.001], ["S*0.4"], false)
 ```
 
+### addSub
+
+Add a subcompartment to this compartment.
+
+#### Parameters
+
+*   `name` **[String][48]** Name of sub-compartment.
+*   `percentage` **[Number][49]** Percentage of the total compartment population to be in the sub-compartmnet. This will not affect the population of the parent compartment or any other sub-compartment.
+
 ## Recovered
 
 Class for Recovered compartment.
 
 ### Parameters
 
-*   `next` **[Array][30]** List of rates of the next compartments, good if the vaccine isn't 100% effective. This is multiplied by the current vaccinated population.
-*   `prev` **[Array][30]** List of rates of the previous compartments, which include sub-arrays
+*   `next` **[Array][50]** List of rates of the next compartments, good if the vaccine isn't 100% effective. This is multiplied by the current vaccinated population.
+*   `prev` **[Array][50]** List of rates of the previous compartments, which include sub-arrays
     with the compartment id (one letter only), as a string, and the rate for the compartment.
     If reffering to this compartment's population, use "V" as the id.
-*   `stochastic` **[Boolean][31]** If true, the compartment will be stochastic.
+*   `stochastic` **[Boolean][51]** If true, the compartment will be stochastic.
 
 ### Examples
 
@@ -236,6 +334,15 @@ Class for Recovered compartment.
      let R = new Recovered([ ], [["I", 0.1]], false)
 ```
 
+### addSub
+
+Add a subcompartment to this compartment.
+
+#### Parameters
+
+*   `name` **[String][48]** Name of sub-compartment.
+*   `percentage` **[Number][49]** Percentage of the total compartment population to be in the sub-compartmnet. This will not affect the population of the parent compartment or any other sub-compartment.
+
 [1]: #math
 
 [2]: #idiom
@@ -244,56 +351,96 @@ Class for Recovered compartment.
 
 [4]: #examples
 
-[5]: #susceptible
+[5]: #addsub
 
 [6]: #parameters-1
 
 [7]: #examples-1
 
-[8]: #infected
+[8]: #susceptible
 
 [9]: #parameters-2
 
 [10]: #examples-2
 
-[11]: #exposed
+[11]: #addsub-1
 
 [12]: #parameters-3
 
-[13]: #examples-3
+[13]: #infected
 
-[14]: #critical
+[14]: #parameters-4
 
-[15]: #parameters-4
+[15]: #examples-3
 
-[16]: #examples-4
+[16]: #addsub-2
 
-[17]: #hospitalized
+[17]: #parameters-5
 
-[18]: #parameters-5
+[18]: #exposed
 
-[19]: #examples-5
+[19]: #parameters-6
 
-[20]: #dead
+[20]: #examples-4
 
-[21]: #parameters-6
+[21]: #addsub-3
 
-[22]: #examples-6
+[22]: #parameters-7
 
-[23]: #vaccinated
+[23]: #critical
 
-[24]: #parameters-7
+[24]: #parameters-8
 
-[25]: #examples-7
+[25]: #examples-5
 
-[26]: #recovered
+[26]: #addsub-4
 
-[27]: #parameters-8
+[27]: #parameters-9
 
-[28]: #examples-8
+[28]: #hospitalized
 
-[29]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+[29]: #parameters-10
 
-[30]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+[30]: #examples-6
 
-[31]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
+[31]: #addsub-5
+
+[32]: #parameters-11
+
+[33]: #dead
+
+[34]: #parameters-12
+
+[35]: #examples-7
+
+[36]: #addsub-6
+
+[37]: #parameters-13
+
+[38]: #vaccinated
+
+[39]: #parameters-14
+
+[40]: #examples-8
+
+[41]: #addsub-7
+
+[42]: #parameters-15
+
+[43]: #recovered
+
+[44]: #parameters-16
+
+[45]: #examples-9
+
+[46]: #addsub-8
+
+[47]: #parameters-17
+
+[48]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+
+[49]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+
+[50]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+
+[51]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean

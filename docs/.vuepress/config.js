@@ -23,7 +23,6 @@ module.exports = {
           title: 'Module Docs',
           children: [
             ['pre', 'Pre Module'],
-            ['com', 'Com Module'],
             ['comp', 'Comp Module'],
             ['model', 'Model Module'],
             ['utils', 'Utils Module'],
