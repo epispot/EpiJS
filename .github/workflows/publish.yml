@@ -1,9 +1,12 @@
 name: Pubslish Main NPM Package to NPM and GPR
 
 on:
-  release:
-      types: [created]
   workflow_dispatch:
+    inputs:
+      tag: 
+        description: 'Tag to use'
+        required: false
+        default: 'latest'
 
 jobs:
     publish-npm:
@@ -14,7 +17,7 @@ jobs:
               with:
                   node-version: 12
                   registry-url: "https://registry.npmjs.org"
-            - run: npm publish --access=public
+            - run: npm publish --access=public --tag=${{ github.event.inputs.tag }}
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -28,6 +31,6 @@ jobs:
                   registry-url: "https://npm.pkg.github.com"
                   scope: "@epispot"
             - run: echo "registry=https://npm.pkg.github.com/@epispot" >> .npmrc
-            - run: npm publish --access=public
+            - run: npm publish --access=public --tag=${{ github.event.inputs.tag }}
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
