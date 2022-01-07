@@ -1,3 +1,11 @@
+# v3.0.0-alpha1
+
+* Plot Models (#83)
+* Switch to Plotly (#115)
+* Update `pre` module to return model with the same structure as the `model` module models (#117)
+* Deprecate `com` module- it might come back later! (#118)
+* Sub-compartments (#84)
+
 # v2.2.0
 
 - Add `.remove` and `.add` functions to `Model` class in `model` module to add and remove compartments.
