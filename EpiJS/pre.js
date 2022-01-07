@@ -215,7 +215,6 @@ function seihrd(rn, s, i, u, uh, a, di, dh, h, p, stochastic) {
 		omega5 = 0
 		omega6 = 0
 		omega7 = 0
-		omega8 = 0
 		f1 = 0
 		f2 = 0
 		f3 = 0
