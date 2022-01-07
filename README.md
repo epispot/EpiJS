@@ -1,5 +1,6 @@
-# EpiJS
-The epidemiology package for JavaScript
+![Code Snippet of EpiJS](https://i.ibb.co/xX7yyzH/image.png)
+<h1 align='center'>EpiJS</h1>
+<p align='center'>The epidemiology package for JavaScript
 
 [![License: GPL--3.0](https://img.shields.io/github/license/epispot/EpiJS?style=flat-square)](https://github.com/epispot/epijs/blob/main/LICENSE)
 [![npm version](https://img.shields.io/npm/v/@epispot/epijs?style=flat-square)
@@ -7,6 +8,8 @@ The epidemiology package for JavaScript
 [![GitHub issues](https://img.shields.io/github/issues/epispot/epijs?style=flat-square) ](https://github.com/epispot/epijs/issues/) 
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/epispot/epijs?style=flat-square) ](https://github.com/epispot/EpiJS/pulls) 
 [![Build Status](https://img.shields.io/github/workflow/status/epispot/EpiJS/Build?label=Build&logo=GitHub&logoColor=white&style=flat-square)](https://github.com/epispot/EpiJS/actions/workflows/build.yml)
+</p>
+<br>
 
 ## About
 EpiJS is a epidemiological modelling package for JavaScript with built-in support

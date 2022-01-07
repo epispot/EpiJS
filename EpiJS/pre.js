@@ -8,227 +8,176 @@
  */
 
 const gaussian = require('gaussian')
+const modelm = require('./model')
+const comp = require('./comp')
 
 /**
- * The SIR Model. Returns a chart.js graph with the total Susceptible, Infected, and Recovered after the given amount of time.
+ * The SIR Model. Returns the model as a `model` class from the `model` module.
  * @param {Number} rn - R Naught, or the amount of people one infected infects whlie infected.
  * @param {Number} s - The Susceptible population at the beggining of the outbreak
  * @param {Number} i - The Infected population at the beggining of th outbreak
- * @param {Number} time - The time the total simulation lasts.
  * @param {Number} u - The recovery rate
  * @param {Number} p - The total population.
  * @param {Boolean} stochastic - Whether to make the model stochastic or not.
- * @returns The data for the model as a list.
+ * @returns A model class from the `model` module. .
  * @example
  * 
- *      sir(4, 9999, 1, 100, 1/21, 10000, true)
+ *      let sirmodel = sir(4, 9999, 1, 1/21, 10000, true)
  */
 
-function sir(rn, s, i, time, u, p, stochastic) {
-	let data = [
-		{
-			data: [s],
-			label: "Suseptible"
-		},
-		{ 
-			data: [i],
-			label: "Infected"
-		},
-		{ 
-			data: [p-(s+i)],
-			label: "Recovered"
-		}
-	]
-	var f1 = 0;
-	var f2 = 0;
-
-	for(let x = 0; x<time; x++){
-		f1 = Math.sqrt((rn*u)*data[0].data[x]*data[1].data[x]/p)
-		f2 = Math.sqrt(u*data[1].data[x])
-
-		if (stochastic === true) {
-			var distribution = gaussian(0, 1)
-			var omega1 = distribution.random(1)[0]
-			var omega2 = distribution.random(1)[0]
-		}
-		else {
-			var omega1 = 0
-			var omega2 = 0
-			f1 = 0
-			f2 = 0
-		}
-		
-		data[0].data.push(data[0].data[x]-(((rn*u)*data[0].data[x]*data[1].data[x]/p)+f1*omega1))
-		data[1].data.push(data[1].data[x]+(((rn*u)*data[0].data[x]*data[1].data[x]/p)+f1*omega1)-((u*data[1].data[x]+f2*omega2)))
-		data[2].data.push(data[2].data[x]+(u*data[1].data[x]+f2*omega2))
-
-		// Check if any of the new values are below 0, if so, set them to 0
-		for(let i = 0; i<data.length; i++){ // skipcq: JS-0123
-			if(data[i].data[x+1] < 0){
-				data[i].data[x+1] = 0
-			}
-		}
+function sir(rn, s, i, u, p, stochastic) {
+	let distribution = gaussian(0, 1)
+	let omega1 = distribution.random(1)[0]
+	let omega2 = distribution.random(1)[0]
+	let f1 = 'sqrt((B*S*I)/p)'
+	let f2 = 'sqrt(u*I)'
+	if (stochastic !== true) {
+		omega1 = 0
+		omega2 = 0
+		f1 = 0
+		f2 = 0
 	}
-	
-	return data
+
+	let key = {
+		S: s,
+		I: i,
+		R: p-(s+i),
+		u: u,
+		B: u*rn,
+		p: p
+	}
+
+	// Create the compartments
+	let susceptible = new comp.Idiom('S-(((B*S*I)/p)+'+f1+'*'+omega1+')')
+	let infected = new comp.Idiom('I+(((B*S*I)/p)+'+f1+'*'+omega1+')-((u*I)+'+f2+'*'+omega2+')')
+	let recovered = new comp.Idiom('R+((u*I)+'+f2+'*'+omega2+')')
+
+	// Create the model
+	let model = new modelm.Model([[susceptible, 'S'], [infected, 'I'], [recovered, 'R']], key)
+
+	return model
 }
 
 /**
- * The SEIR Model. Returns a chart.js graph with the total Susceptible, Exposed, Infected, and Recovered after the given amount of time.
+ * The SEIR Model. Returns the model as a `model` class from the `model` module.
  * @param {Number} rn - R Naught, or the amount of people one infected infects whlie infected.
  * @param {Number} s - The Susceptible population at the beggining of the outbreak
  * @param {Number} i - The Infected population at the beggining of th outbreak
- * @param {Number} t - The time the total simulation lasts.
  * @param {Number} u - The recovery rate
  * @param {Number} a - The incubation period
  * @param {Number} p - The total population.
  * @param {Boolean} stochastic - Whether to make the model stochastic or not.
- * @returns The data for the model as a list.
+ * @returns A model class from the `model` module. .
  * @example
  * 
- *      seir(4, 9999, 1, 100, 1/7, 1/7, 10000, true)
+ *      seir(4, 9999, 1, 1/7, 1/7, 10000, true)
  */
-function seir(rn, s, i, t, u, a, p, stochastic) {
-	let data = [{ 
-			data: [s],
-			label: "Suseptible"
-		},
-		{ 
-			data: [0],
-			label: "Exposed"
-		},
-		{
-			data: [i],
-			label: "Infected"
-		},
-		{ 
-			data: [p-(s+i)],
-			label: "Recovered"
-		}
-	]
+function seir(rn, s, i, u, a, p, stochastic) {
+	let distribution = gaussian(0, 1)
+	let omega1 = distribution.random(1)[0]
+	let omega2 = distribution.random(1)[0]
+	let omega3 = distribution.random(1)[0]
+	let f1 = 'sqrt((B*S*I)/p)'
+	let f2 = 'sqrt(u*I)'
+	let f3 = 'sqrt(a*E)'
+	if (stochastic !== true) {
+		omega1 = 0
+		omega2 = 0
+		omega3 = 0
+		f1 = 0
+		f2 = 0
+		f3 = 0
+	}
 
-	for(let x = 0; x<t; x++){
-		var f1 = Math.sqrt((rn*u)*data[0].data[x]*data[1].data[x]/p)
-		var f2 = Math.sqrt(u*data[1].data[x])
-		var f3 = Math.sqrt(a*data[1].data[x])
-
-		if (stochastic === true) {
-			var distribution = gaussian(0, 1)
-			var omega1 = distribution.random(1)[0]
-			var omega2 = distribution.random(1)[0]
-			var omega3 = distribution.random(1)[0]
-		}
-		else {
-			var omega1 = 0
-			var omega2 = 0
-			var omega3 = 0
-			f1 = 0
-			f2 = 0
-			f3 = 0
-		}
-
-		data[0].data.push(data[0].data[x]-(((rn*u)*data[0].data[x]*data[2].data[x]/p)+f1*omega1))
-		data[1].data.push(data[1].data[x]+(((rn*u)*data[0].data[x]*data[2].data[x]/p)+f1*omega1)-((a*data[1].data[x])+f3*omega3))
-		data[2].data.push(data[2].data[x]+((a*data[1].data[x])+f3*omega3)-((u*data[2].data[x])+f2*omega2))
-		data[3].data.push(data[3].data[x]+((u*data[2].data[x])+f2*omega2))
-
-		// Check if any of the new values are below 0, if so, set them to 0
-		for(let i = 0; i<data.length; i++){ // skipcq: JS-0123
-			if(data[i].data[x+1] < 0){
-				data[i].data[x+1] = 0
-			}
-		}
+	let key = {
+		S: s,
+		I: i,
+		E: 0,
+		R: p-(s+i),
+		u: u,
+		a: a,
+		B: u*rn,
+		p: p
 	}
 	
-	return data
+	// Create the compartments
+	let susceptible = new comp.Idiom('S-(((B*S*I)/p)+'+f1+'*'+omega1+')')
+	let exposed = new comp.Idiom('E+(((B*S*I)/p)+'+f1+'*'+omega1+')-((a*E)+'+f3+'*'+omega3+')')
+	let infected = new comp.Idiom('I-((u*I)+'+f2+'*'+omega2+')+((a*E)+'+f3+'*'+omega3+')')
+	let recovered = new comp.Idiom('R+((u*I)+'+f2+'*'+omega2+')')
+
+	// Create the model
+	let model = new modelm.Model([[susceptible, 'S'], [exposed, 'E'], [infected, 'I'], [recovered, 'R']], key)
+	return model
 }
 
 /**
- * The SEIRD Model. Returns a chart.js graph with the total Susceptible, Exposed, Infected, Recovered, and Dead populations after the given amount of time.
+ * The SEIRD Model. Returns the model as a `model` class from the `model` module.
  * @param {Number} rn - R Naught, or the amount of people one infected infects whlie infected.
  * @param {Number} s - The Susceptible population at the beggining of the outbreak
  * @param {Number} i - The Infected population at the beggining of the outbreak
- * @param {Number} t - The time the total simulation lasts.
  * @param {Number} u - The recovery rate
  * @param {Number} a - The incubation period
  * @param {Number} d - The death rate
  * @param {Number} p - The total population.
  * @param {Boolean} stochastic - Whether to make the model stochastic or not.
- * @returns The data for the model as a list.
+ * @returns A model class from the `model` module. .
  * @example
  * 
- *      seird(4, 99999, 1, 100, 1/21, 1/14, 1/100, 10000, true)
+ *      seird(4, 99999, 1, 1/21, 1/14, 1/100, 10000, true)
  */
-function seird(rn, s, i, t, u, a, d, p, stochastic) {
-	let data = [{ 
-			data: [s],
-			label: "Suseptible"
-		},
-		{ 
-			data: [0],
-			label: "Exposed"
-		},
-		{
-			data: [i],
-			label: "Infected"
-		},
-		{ 
-			data: [p-(s+i)],
-			label: "Recovered"
-		},
-		{ 
-			data: [0],
-			label: "Dead"
-		}
-	]
-
-	for(let x = 0; x<t; x++){
-		var f1 = Math.sqrt((rn*u)*data[0].data[x]*data[1].data[x]/p)
-		var f2 = Math.sqrt(u*data[1].data[x])
-		var f3 = Math.sqrt(a*data[1].data[x])
-		var f4 = Math.sqrt(d*data[2].data[x])
-
-		if (stochastic === true) {
-			var distribution = gaussian(0, 1)
-			var omega1 = distribution.random(1)[0]
-			var omega2 = distribution.random(1)[0]
-			var omega3 = distribution.random(1)[0]
-			var omega4 = distribution.random(1)[0]
-		}
-		else {
-			var omega1 = 0
-			var omega2 = 0
-			var omega3 = 0
-			var omega4 = 0
-			f1 = 0
-			f2 = 0
-			f3 = 0
-			f4 = 0
-		}
-		data[0].data.push(data[0].data[x]-(((rn*u)*data[0].data[x]*data[2].data[x]/p)+f1*omega1))
-		data[1].data.push(data[1].data[x]+(((rn*u)*data[0].data[x]*data[2].data[x]/p)+f1*omega1)-((a*data[1].data[x])+f3*omega3))
-		data[2].data.push(data[2].data[x]+((a*data[1].data[x])+f3*omega3)-((u*data[2].data[x])+f2*omega2)-((d*data[2].data[x])+f4*omega4))
-		data[3].data.push(data[3].data[x]+((u*data[2].data[x])+f2*omega2))
-		data[4].data.push(data[4].data[x]+((d*data[2].data[x])+f4*omega4))
-
-		// Check if any of the new values are below 0, if so, set them to 0
-		for(let i = 0; i<data.length; i++){ // skipcq: JS-0123
-			if(data[i].data[x+1] < 0){
-				data[i].data[x+1] = 0
-			}
-		}
+function seird(rn, s, i, u, a, d, p, stochastic) {
+	let distribution = gaussian(0, 1)
+	let omega1 = distribution.random(1)[0]
+	let omega2 = distribution.random(1)[0]
+	let omega3 = distribution.random(1)[0]
+	let omega4 = distribution.random(1)[0]
+	let f1 = 'sqrt((B*S*I)/p)'
+	let f2 = 'sqrt(u*I)'
+	let f3 = 'sqrt(a*E)'
+	let f4 = 'sqrt(d*I)'
+	if (stochastic !== true) {
+		omega1 = 0
+		omega2 = 0
+		omega3 = 0
+		omega4 = 0
+		f1 = 0
+		f2 = 0
+		f3 = 0
+		f4 = 0
 	}
+		
+	let key = {
+		S: s,
+		I: i,
+		E: 0,
+		D: 0,
+		R: p-(s+i),
+		u: u,
+		a: a,
+		d: d,
+		B: u*rn,
+		p: p
+	}
+
+	// Create the compartments
+	let susceptible = new comp.Idiom('S-(((B*S*I)/p)+'+f1+'*'+omega1+')')
+	let exposed = new comp.Idiom('E+(((B*S*I)/p)+'+f1+'*'+omega1+')-((a*E)+'+f3+'*'+omega3+')')
+	let infected = new comp.Idiom('I-((u*I)+'+f2+'*'+omega2+')+((a*E)+'+f3+'*'+omega3+')-((d*I)+'+f4+'*'+omega4+')')
+	let recovered = new comp.Idiom('R+((u*I)+'+f2+'*'+omega2+')')
+	let dead = new comp.Idiom('D+((d*I)+'+f4+'*'+omega4+')')
 	
-	
-	return data
+	// Create the model
+	let model = new modelm.Model([[susceptible, 'S'], [exposed, 'E'], [infected, 'I'], [recovered, 'R'], [dead, 'D']], key)
+
+	return model
 }
 
 /**
- * The SEIHRD Model. Returns a chart.js graph with the total Susceptible, Exposed, Infected, Hospitalized, Recovered, and Dead populations after the given amount of time.
+ * The SEIHRD Model. Returns the model as a `model` class from the `model` module.
  * @param {Number} rn - R Naught, or the amount of people one infected infects whlie infected.
  * @param {Number} s - The Susceptible population at the beggining of the outbreak
  * @param {Number} i - The Infected population at the beggining of the outbreak
- * @param {Number} t - The time the total simulation lasts.
  * @param {Number} u - The recovery rate for the infected population
  * @param {Number} uh - The recovery rate for the hospitalized population
  * @param {Number} a - The incubation period
@@ -237,196 +186,35 @@ function seird(rn, s, i, t, u, a, d, p, stochastic) {
  * @param {Number} h - The hospitalization rate
  * @param {Number} p - The total population.
  * @param {Boolean} stochastic - Whether to make the model stochastic or not.
- * @returns The data for the model as a list.
+ * @returns A model class from the `model` module. .
  * @example
  * 
- *      seihrd(4, 9999, 1, 265, 1/21, 1/40, 1/14, 1/100, 1/20, 1/30, 10000, true)
+ *      seihrd(4, 9999, 1, 1/21, 1/40, 1/14, 1/100, 1/20, 1/30, 10000, true)
  */
-function seihrd(rn, s, i, t, u, uh, a, di, dh, h, p, stochastic) {
-	let data = [{ 
-			data: [s],
-			label: "Suseptible"
-		},
-		{ 
-			data: [0],
-			label: "Exposed"
-		},
-		{
-			data: [i],
-			label: "Infected"
-		},
-		{
-			data: [0],
-			label: "Hospitalized"
-		},
-		{ 
-			data: [p-(s+i)],
-			label: "Recovered"
-		},
-		{ 
-			data: [0],
-			label: "Dead"
-		}
-	]
-
-	for(let x = 0; x<t; x++){
-		var f1 = Math.sqrt((rn*u)*data[0].data[x]*data[1].data[x]/p)
-		var f2 = Math.sqrt(u*data[1].data[x])
-		var f3 = Math.sqrt(a*data[1].data[x])
-		var f4 = Math.sqrt(di*data[2].data[x])
-		var f5 = Math.sqrt(uh*data[3].data[x])
-		var f6 = Math.sqrt(h*data[2].data[x])
-		var f7 = Math.sqrt(dh*data[3].data[x])
-
-
-		if (stochastic === true) {
-			var distribution = gaussian(0, 1)
-			var omega1 = distribution.random(1)[0]
-			var omega2 = distribution.random(1)[0]
-			var omega3 = distribution.random(1)[0]
-			var omega4 = distribution.random(1)[0]
-			var omega5 = distribution.random(1)[0]
-			var omega6 = distribution.random(1)[0]
-			var omega7 = distribution.random(1)[0]
-		}
-		else {
-			var omega1 = 0
-			var omega2 = 0
-			var omega3 = 0
-			var omega4 = 0
-			var omega5 = 0
-			var omega6 = 0
-			var omega7 = 0
-			var omega8 = 0
-			f1 = 0
-			f2 = 0
-			f3 = 0
-			f4 = 0
-			f5 = 0
-			f6 = 0
-			f7 = 0
-		}
-		data[0].data.push(data[0].data[x]-(((rn*u)*data[0].data[x]*data[2].data[x]/p)+f1*omega1)) // Susceptible
-		data[1].data.push(data[1].data[x]+(((rn*u)*data[0].data[x]*data[2].data[x]/p)+f1*omega1)-((a*data[1].data[x])+f3*omega3)) // Exposed
-		data[2].data.push(data[2].data[x]+((a*data[1].data[x])+f3*omega3)-((u*data[2].data[x])+f2*omega2)-((di*data[2].data[x])+f4*omega4)-((h*data[2].data[x])+f6*omega6)) // Infected
-		data[3].data.push(data[3].data[x]+(h*data[2].data[x]+f6*omega6)-(uh*data[3].data[x]+f5*omega5)-(dh*data[3].data[x]+f7*omega7)) // Hospitalized
-		data[4].data.push(data[4].data[x]+(u*data[2].data[x]+f2*omega2)+(uh*data[3].data[x]+f5*omega5)) // Recovered
-		data[5].data.push(data[5].data[x]+(di*data[2].data[x]+f4*omega4)+(dh*data[3].data[x]+f7*omega7)) // Dead
-
-		// Check if any of the new values are below 0, if so, set them to 0
-		for(let i = 0; i<data.length; i++){ // skipcq: JS-0123
-			if(data[i].data[x+1] < 0){
-				data[i].data[x+1] = 0
-			}
-		}
-	}
-
-	return data
-}
-
-/**
- * The SEIHCRD Model. Returns a chart.js graph with the total Susceptible, Exposed, Infected, Hospitalized, Critical, Recovered, and Dead populations after the given amount of time.
- * @param {Number} rn - R Naught, or the amount of people one infected infects whlie infected.
- * @param {Number} s - The Susceptible population at the beggining of the outbreak
- * @param {Number} i - The Infected population at the beggining of the outbreak
- * @param {Number} t - The time the total simulation lasts.
- * @param {Number} u - The recovery rate for the infected population
- * @param {Number} uh - The recovery rate for the hospitalized population
- * @param {Number} a - The incubation period
- * @param {Number} di - The death rate for the infected population
- * @param {Number} dh - The death rate for the hospitalized population
- * @param {Number} ch - The rate at which patients go to the critical stage from the hospitalized compartment.
- * @param {Number} ci - The rate at which patients go to the critical stage from the infected compartemnt.
- * @param {Number} dc - The death rate for critical patients
- * @param {Number} uc - The recovery rate for critical patients
- * @param {Number} hc - The rate at which a critical patient goes to the hospitalized compartment, and are no longer critical.
- * @param {Number} ic - The rate at which a critical patient goes to the infected compartment, and are no longer critical.
- * @param {Number} h - The hospitalization rate
- * @param {Number} p - The total population.
- * @param {Boolean} stochastic - Whether to make the model stochastic or not.
- * @returns The data for the model as a list.
- * @example
- * 
- *      seihcrd(4, 9999, 1, 265, 1/21, 1/40, 1/14, 1/100, 1/20, 1/10, 1/40, 2/5, 1/5, 1/5, 1/5, 1/30, 10000, true)
- */
- function seihcrd(rn, s, i, t, u, uh, a, di, dh, ch, ci, dc, uc, hc, ic, h, p, stochastic) {
-  let data = [
-		{ 
-			data: [s],
-			label: "Suseptible"
-		},
-		{ 
-			data: [0],
-			label: "Exposed"
-		},
-		{
-			data: [i],
-			label: "Infected"
-		},
-		{
-			data: [0],
-			label: "Hospitalized"
-		},
-		{
-			data: [0],
-			label: "Critical"
-		},
-		{ 
-			data: [p-(s+i)],
-			label: "Recovered"
-		},
-		{ 
-			data: [0],
-			label: "Dead"
-		}
-	]
-
-  for(let x = 0; x<t; x++){
-	var f1 = Math.sqrt((rn*u)*data[0].data[x]*data[1].data[x]/p)
-	var f2 = Math.sqrt(u*data[1].data[x])
-	var f3 = Math.sqrt(a*data[1].data[x])
-	var f4 = Math.sqrt(di*data[2].data[x])
-	var f5 = Math.sqrt(uh*data[3].data[x])
-	var f6 = Math.sqrt(h*data[2].data[x])
-	var f7 = Math.sqrt(dh*data[3].data[x])
-	var f8 = Math.sqrt(ch*data[3].data[x])
-	var f9 = Math.sqrt(ci*data[2].data[x])
-	var f10 = Math.sqrt(dc*data[4].data[x])
-	var f11 = Math.sqrt(uc*data[4].data[x])
-	var f12 = Math.sqrt(hc*data[4].data[x])
-	var f13 = Math.sqrt(ic*data[4].data[x])
-
-
-	if (stochastic === true) {
-		var distribution = gaussian(0, 1)
-		var omega1 = distribution.random(1)[0]
-		var omega2 = distribution.random(1)[0]
-		var omega3 = distribution.random(1)[0]
-		var omega4 = distribution.random(1)[0]
-		var omega5 = distribution.random(1)[0]
-		var omega6 = distribution.random(1)[0]
-		var omega7 = distribution.random(1)[0]
-		var omega8 = distribution.random(1)[0]
-		var omega9 = distribution.random(1)[0]
-		var omega10 = distribution.random(1)[0]
-		var omega11 = distribution.random(1)[0]
-		var omega12 = distribution.random(1)[0]
-		var omega13 = distribution.random(1)[0]
-	}
-	else {
-		var omega1 = 0
-		var omega2 = 0
-		var omega3 = 0
-		var omega4 = 0
-		var omega5 = 0
-		var omega6 = 0
-		var omega7 = 0
-		var omega8 = 0
-		var omega9 = 0
-		var omega10 = 0
-		var omega11 = 0
-		var omega12 = 0
-		var omega13 = 0
+function seihrd(rn, s, i, u, uh, a, di, dh, h, p, stochastic) {
+	let distribution = gaussian(0, 1)
+	let omega1 = distribution.random(1)[0]
+	let omega2 = distribution.random(1)[0]
+	let omega3 = distribution.random(1)[0]
+	let omega4 = distribution.random(1)[0]
+	let omega5 = distribution.random(1)[0]
+	let omega6 = distribution.random(1)[0]
+	let omega7 = distribution.random(1)[0]
+	let f1 = 'sqrt((B*S*I)/p)'
+	let f2 = 'sqrt(u*I)'
+	let f3 = 'sqrt(a*E)'
+	let f4 = 'sqrt(d*I)'
+	let f5 = 'sqrt(y*H)'
+	let f6 = 'sqrt(z*I)'
+	let f7 = 'sqrt(x*H)'
+	if (stochastic !== true) {
+		omega1 = 0
+		omega2 = 0
+		omega3 = 0
+		omega4 = 0
+		omega5 = 0
+		omega6 = 0
+		omega7 = 0
 		f1 = 0
 		f2 = 0
 		f3 = 0
@@ -434,34 +222,40 @@ function seihrd(rn, s, i, t, u, uh, a, di, dh, h, p, stochastic) {
 		f5 = 0
 		f6 = 0
 		f7 = 0
-		f8 = 0
-		f9 = 0
-		f10 = 0
-		f11 = 0
-		f12 = 0
-		f13 = 0
 	}
-	data[0].data.push(data[0].data[x]-((rn*u)*data[0].data[x]*data[2].data[x]/p+f1*omega1)) // Susceptible
-	data[1].data.push(data[1].data[x]+((rn*u)*data[0].data[x]*data[2].data[x]/p+f1*omega1)-(a*data[1].data[x]+f3*omega3)) // Exposed
-	data[2].data.push(data[2].data[x]+(a*data[1].data[x]+f3*omega3)-(u*data[2].data[x]+f2*omega2)-(di*data[2].data[x]+f4*omega4)-(ci*data[2].data[x]+f9*omega9)+(ic*data[4].data[x]+f13*omega13)-(h*data[2].data[x]+f6*omega6)) // Infected
-	data[3].data.push(data[3].data[x]+(h*data[2].data[x]+f6*omega6)-(uh*data[3].data[x]+f5*omega5)-(dh*data[3].data[x]+f7*omega7)-(ch*data[3].data[x]+f8*omega8)+(hc*data[4].data[x]+f12*omega12)) // Hospitalized
-	data[4].data.push(data[4].data[x]+(ci*data[2].data[x]+f9*omega9)+(ch*data[3].data[x]+f8*omega8)-(uc*data[4].data[x]+f11*omega11)-(dc*data[4].data[x]+f10*omega10)-(hc*data[4].data[x]+f12*omega12)-(ic*data[4].data[x]+f13*omega13)) // Critical
-	data[5].data.push(data[5].data[x]+(u*data[2].data[x]+f2*omega2)+(uh*data[3].data[x]+f5*omega5)+(uc*data[4].data[x]+f11*omega11)) // Recovered
-	data[6].data.push(data[6].data[x]+(di*data[2].data[x]+f4*omega4)+(dh*data[3].data[x]+f7*omega7)+(dc*data[4].data[x]+f10*omega10)) // Dead
 
-	// Check if any of the new values are below 0, if so, set them to 0
-	for(let i = 0; i<data.length; i++){ // skipcq: JS-0123
-		if(data[i].data[x+1] < 0){
-			data[i].data[x+1] = 0
-		}
+	let key = {
+		S: s,
+		I: i,
+		E: 0,
+		D: 0,
+		H: 0,
+		R: p-(s+i),
+		u: u,
+		y: uh,
+		z: h,
+		x: dh,
+		a: a,
+		d: di,
+		B: u*rn,
+		p: p
 	}
-  }
-  
-  return data
+
+	// Create the compartments
+	let susceptible = new comp.Idiom('S-(((B*S*I)/p)+'+f1+'*'+omega1+')')
+	let exposed = new comp.Idiom('E+(((B*S*I)/p)+'+f1+'*'+omega1+')-((a*E)+'+f3+'*'+omega3+')')
+	let infected = new comp.Idiom('I-((u*I)+'+f2+'*'+omega2+')+((a*E)+'+f3+'*'+omega3+')-((d*I)+'+f4+'*'+omega4+')+((z*I)+'+f6+'*'+omega6+')')
+	let hospitalized = new comp.Idiom('H+((z*I)+'+f6+'*'+omega6+')-((x*H)+'+f7+'*'+omega7+')-((y*H)+'+f5+'*'+omega5+')')
+	let recovered = new comp.Idiom('R+((u*I)+'+f2+'*'+omega2+')+((y*H)+'+f5+'*'+omega5+')')
+	let dead = new comp.Idiom('D+((d*I)+'+f4+'*'+omega4+')+((x*H)+'+f7+'*'+omega7+')')
+
+	// Create the model
+	let model = new modelm.Model([[susceptible, 'S'], [exposed, 'E'], [infected, 'I'], [hospitalized, 'H'], [recovered, 'R'], [dead, 'D']], key)
+
+	return model
 }
 
 exports.sir = sir
 exports.seir = seir
 exports.seird = seird
 exports.seihrd = seihrd
-exports.seihcrd = seihcrd

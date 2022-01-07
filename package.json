@@ -1,6 +1,6 @@
 {
     "name": "@epispot/epijs",
-    "version": "2.2.0",
+    "version": "3.0.0-alpha.0",
     "description": "A disease modeling package.",
     "main": "EpiJS/index.js",
     "scripts": {
@@ -35,8 +35,9 @@
         "vuepress-plugin-tabs": "~0.3.0"
     },
     "dependencies": {
-        "chart.js": "~3.7.0",
+        "chart.js": "^3.7.0",
         "gaussian": "~1.2.0",
-        "mathjs": "~10.0.0"
+        "mathjs": "~10.0.0",
+        "plotly.js-dist-min": "^2.8.3"
     }
 }

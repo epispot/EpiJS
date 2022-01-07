@@ -6,11 +6,8 @@
 *   [plot][2]
     *   [Parameters][3]
     *   [Examples][4]
-*   [manipulate][5]
-    *   [Parameters][6]
-    *   [Examples][7]
 
-## Plot
+# Plot
 
 Graphs plots from the pre module.
 
@@ -20,63 +17,37 @@ Import it with:
 ```
 ## plot
 
-Plots a output of a model from the pre module.
+Plots models from pre or model modules. If in Node, this will generate a localhost, otherwise it will plot it in the HTML div element provided.
 
 ### Parameters
 
-*   `model` **[Array][8]** The output from the pre module function.
-*   `canvas` **[HTMLCanvasElement][9]** The canvas to show the output.
-*   `days` **[Number][10]** The amount of days to plot
-*   `colors` **[Array][8]** Custom colors for the graph, in the same order the compartments are. (optional, default `null`)
-*   `options` **[Object][8]** Optional. Custom configuration to pass into the options parameter for chart.js, defaults to:
-```JSON
-    {
-     title: {
-         display: true,
-         text: "Total Cases"
-     },
-     scales: {
-         yAxes: [{
-             ticks: {
-                 beginAtZero: true
-             }
-         }]
-     }
-    }
-```
-### Examples
-
-```javascript
-let sirout1 = sir(4, 9999, 1000, 100, 1/21, 10999, true)
-
-plot(sirout1, "canvas-pre1", 100) // Plots data for 100 days onto the canvas-pre1 chart, with the data from the SIR model.
-```
-
-Returns **any** Returns the chart.js chart, if needed for modification.
-
-## manipulate
-
-Manipulate the chart.js graph
-
-### Parameters
-
-*   `id`  The chart.js graph
-*   `mvalue` **[String][12]** The value to manipulate in `chart.data.datasets[x]`. This can be any valid chart.js parameter. See [https://www.chartjs.org/docs/latest/charts/line.html#line-styling][13]
-*   `value`  The value to insert into the graph
+*   `model` **[Object][5]** A model class from the pre or model modules.
+*   `time` **[Number][6]** The number of days to plot.
+*   `name` **[String][7]** The ID of the plot. If this is in HTML, it will be the ID of the div element for the graph.
+*   `title` **[String][7]** The title of the graph. (optional, default `'Cases vs. Time'`)
 
 ### Examples
 
 ```javascript
-let sirout1 = sir(4, 9999, 1000, 100, 1/21, 10999, true)
+let susceptible = new Idiom("S-(B*S*I/p)");
+let infected = new Idiom("I+(B*S*I/p)-(u*I)");
+let recovered = new Idiom("R+(u*I)");
 
-let sirplot = plot(sirout1, "canvas-pre1", 100)
+let key = {
+    "S": 10000,
+    "B": 0.3,
+    "I": 100,
+    "R": 0,
+    "p": 10100,
+    "u": 0.2
+};
 
-sirplot.manipulate(sirplot, "fill", true) // Set fill to true
+let sirm = new Model([[susceptible2, "S"], [infected2, "I"], [recovered2, "R"]], key)
+
+plot(sirout1, 100, "SIR", "SIR Model (Population vs. Time)")
 ```
 
-Returns **any** The chart.js graph
-
-[1]: #chart
+[1]: #http
 
 [2]: #plot
 
@@ -84,20 +55,8 @@ Returns **any** The chart.js graph
 
 [4]: #examples
 
-[5]: #manipulate
+[5]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
 
-[6]: #parameters-1
+[6]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
 
-[7]: #examples-1
-
-[8]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
-
-[9]: https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement
-
-[10]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
-
-[11]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
-
-[12]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
-
-[13]: https://www.chartjs.org/docs/latest/charts/line.html#line-styling
+[7]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String

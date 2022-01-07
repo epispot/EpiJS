@@ -4,11 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Creating a SIR Model in EpiJS | Manual | EpiJS</title>
-    <meta name="generator" content="VuePress 1.8.2">
+    <meta name="generator" content="VuePress 1.9.5">
     <link rel="shortcut icon" href="https://i.ibb.co/HKt7Bn3/Logo-Makr-4sk-LGO.png">
     <meta name="description" content="A disease modeling package for JS.">
     
-    <link rel="preload" href="/latest/assets/css/0.styles.b9717b67.css" as="style"><link rel="preload" href="/latest/assets/js/app.91f8e8e3.js" as="script"><link rel="preload" href="/latest/assets/js/2.b0282dab.js" as="script"><link rel="preload" href="/latest/assets/js/12.87248bdf.js" as="script"><link rel="prefetch" href="/latest/assets/js/10.932528a4.js"><link rel="prefetch" href="/latest/assets/js/11.872dc73d.js"><link rel="prefetch" href="/latest/assets/js/13.69389283.js"><link rel="prefetch" href="/latest/assets/js/14.2151a125.js"><link rel="prefetch" href="/latest/assets/js/15.1b080847.js"><link rel="prefetch" href="/latest/assets/js/16.a484d9e5.js"><link rel="prefetch" href="/latest/assets/js/17.113e2690.js"><link rel="prefetch" href="/latest/assets/js/3.6af3db70.js"><link rel="prefetch" href="/latest/assets/js/4.2a5d96fc.js"><link rel="prefetch" href="/latest/assets/js/5.33ec2a2e.js"><link rel="prefetch" href="/latest/assets/js/6.66b67ff0.js"><link rel="prefetch" href="/latest/assets/js/7.bbf703d4.js"><link rel="prefetch" href="/latest/assets/js/8.22d960c1.js"><link rel="prefetch" href="/latest/assets/js/9.570eb5e8.js">
+    <link rel="preload" href="/latest/assets/css/0.styles.b9717b67.css" as="style"><link rel="preload" href="/latest/assets/js/app.d6352518.js" as="script"><link rel="preload" href="/latest/assets/js/2.ad492dd0.js" as="script"><link rel="preload" href="/latest/assets/js/11.5fad8896.js" as="script"><link rel="prefetch" href="/latest/assets/js/10.267bb154.js"><link rel="prefetch" href="/latest/assets/js/12.c3943688.js"><link rel="prefetch" href="/latest/assets/js/13.de3abb58.js"><link rel="prefetch" href="/latest/assets/js/14.68e929e6.js"><link rel="prefetch" href="/latest/assets/js/15.46739f33.js"><link rel="prefetch" href="/latest/assets/js/16.3658cb0b.js"><link rel="prefetch" href="/latest/assets/js/3.76f07777.js"><link rel="prefetch" href="/latest/assets/js/4.a8768175.js"><link rel="prefetch" href="/latest/assets/js/5.abe8183b.js"><link rel="prefetch" href="/latest/assets/js/6.f802771e.js"><link rel="prefetch" href="/latest/assets/js/7.b814ca0b.js"><link rel="prefetch" href="/latest/assets/js/8.696a9b2b.js"><link rel="prefetch" href="/latest/assets/js/9.f7cf1c81.js">
     <link rel="stylesheet" href="/latest/assets/css/0.styles.b9717b67.css">
   </head>
   <body>
@@ -38,12 +38,12 @@
 <span class="token keyword">let</span> recovered <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Idiom</span><span class="token punctuation">(</span><span class="token string">&quot;R+(u*I)&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
 <span class="token keyword">let</span> key <span class="token operator">=</span> <span class="token punctuation">{</span>
- <span class="token string">&quot;S&quot;</span><span class="token operator">:</span> <span class="token number">10000</span><span class="token punctuation">,</span>
- <span class="token string">&quot;B&quot;</span><span class="token operator">:</span> <span class="token number">0.3</span><span class="token punctuation">,</span>
- <span class="token string">&quot;I&quot;</span><span class="token operator">:</span> <span class="token number">100</span><span class="token punctuation">,</span>
- <span class="token string">&quot;R&quot;</span><span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
- <span class="token string">&quot;p&quot;</span><span class="token operator">:</span> <span class="token number">10100</span><span class="token punctuation">,</span>
- <span class="token string">&quot;u&quot;</span><span class="token operator">:</span> <span class="token number">0.2</span>
+ <span class="token string-property property">&quot;S&quot;</span><span class="token operator">:</span> <span class="token number">10000</span><span class="token punctuation">,</span>
+ <span class="token string-property property">&quot;B&quot;</span><span class="token operator">:</span> <span class="token number">0.3</span><span class="token punctuation">,</span>
+ <span class="token string-property property">&quot;I&quot;</span><span class="token operator">:</span> <span class="token number">100</span><span class="token punctuation">,</span>
+ <span class="token string-property property">&quot;R&quot;</span><span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+ <span class="token string-property property">&quot;p&quot;</span><span class="token operator">:</span> <span class="token number">10100</span><span class="token punctuation">,</span>
+ <span class="token string-property property">&quot;u&quot;</span><span class="token operator">:</span> <span class="token number">0.2</span>
 <span class="token punctuation">}</span><span class="token punctuation">;</span>
 
 <span class="token keyword">let</span> sir <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Model</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">[</span>susceptible<span class="token punctuation">,</span> <span class="token string">&quot;S&quot;</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>infected<span class="token punctuation">,</span> <span class="token string">&quot;I&quot;</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>recovered<span class="token punctuation">,</span> <span class="token string">&quot;R&quot;</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">,</span> key<span class="token punctuation">)</span>
@@ -90,6 +90,6 @@ variant_outbreak <span class="token operator">=</span> NewYorkCity<span class="t
       </a>
       →
     </span></p></div> </main></div><div class="global-ui"></div></div>
-    <script src="/latest/assets/js/app.91f8e8e3.js" defer></script><script src="/latest/assets/js/2.b0282dab.js" defer></script><script src="/latest/assets/js/12.87248bdf.js" defer></script>
+    <script src="/latest/assets/js/app.d6352518.js" defer></script><script src="/latest/assets/js/2.ad492dd0.js" defer></script><script src="/latest/assets/js/11.5fad8896.js" defer></script>
   </body>
 </html>
