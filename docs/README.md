@@ -10,10 +10,31 @@ features:
     - details: Easy, customizable SIR based models, with SEIR, SEIRD, SIR, and more models for you to choose from.
     - details: Quick and readable graphs made with chart.js to get the info you need, when you need it.
     - details: Complex models like SEIHCRD models done simply, in only 1-line of code.
- footer: GPL-3.0 Licensed | Copyright © 2022-present epispot
+footer: GPL-3.0 Licensed | Copyright © 2022-present epispot
 ---
 
 </div>
 <br>
 <br>
 <br>
+
+![Code Snippet](https://camo.githubusercontent.com/ff9b39b3c3c07275af084d239a92f448f22519e14328b7e5d5320d9cb4db5816/68747470733a2f2f692e6962622e636f2f78583779797a482f696d6167652e706e67)
+
+Get started by installing the package:
+```sh
+npm i @epispot/epijs
+yarn add @epispot/epijs
+pnpm add @epispot/epijs
+```
+And add it to your code:
+```javascript
+const epijs = require('@epispot/epijs')
+```
+With that we can start by creating a super basic SIR model:
+```javascript
+const sir = epijs.pre.sir(4, 9999, 1, 1/14, 10000, true)
+
+plot(sir, 100, "SIR", "SIR Model (Population vs. Time)")
+```
+And:
+![EpiJS Plot](https://user-images.githubusercontent.com/55121845/148659758-4541ec34-2978-4a52-be3c-710d65d96d02.png)
