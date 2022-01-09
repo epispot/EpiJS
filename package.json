@@ -32,7 +32,6 @@
         "puppeteer": "~13.0.0",
         "terser": "~5.9.0",
         "vue-tabs-component": "~1.5.0",
-        "vuepress": "^1.9.5",
         "vuepress-plugin-tabs": "~0.3.0"
     },
     "dependencies": {
