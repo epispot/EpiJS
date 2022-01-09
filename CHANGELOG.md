@@ -1,4 +1,4 @@
-# v3.0.0-alpha1
+# v3.0.0-alpha0
 
 * Plot Models (#83)
 * Switch to Plotly (#115)
