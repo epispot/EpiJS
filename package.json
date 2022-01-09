@@ -4,7 +4,7 @@
     "description": "A disease modeling package.",
     "main": "EpiJS/index.js",
     "scripts": {
-        "test": "node tests/index.js",
+        "test": "mocha tests",
         "docs:dev": "bash scripts/doc.sh",
         "docs:build": "bash scripts/doc-build.sh",
         "build": "bash scripts/min.sh",

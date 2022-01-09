@@ -639,7 +639,7 @@ class Dead {
  *      // Note that you can pass in a string as a rate too, 
  *      // but we use a number in this case because we don't need to multiply 
  *      // by other compartment populations. We do actually do this for the prev parameter, though.
- *      let I = new Infected([0.001], ["S*0.4"], false)
+ *      let V = new Vaccinated([0.001], ["S*0.4"], false)
 */
 class Vaccinated {
   constructor (next, prev, stochastic) {
