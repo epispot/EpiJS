@@ -8,7 +8,6 @@
  */
 
 const http = require('http')
-const Plotly = require('plotly.js-dist-min')
 
 /**
  * Plots models from pre or model modules. If in Node, this will generate a localhost, otherwise it will plot it in the HTML div element provided.
@@ -108,6 +107,8 @@ function plot(model, time, name, title='Cases vs. Time') {
         console.log('[@epispot/epijs] Plotly server running on http://localhost:8080')
     }
     else { // Is running in the browser
+        const Plotly = require('plotly.js-dist-min')
+        
         // Create the plot
         let layout = {
             title: title,
