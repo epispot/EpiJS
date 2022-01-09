@@ -1,3 +1,7 @@
+# v3.0.0-alpha1
+
+* Fix plotly import error (#123)
+
 # v3.0.0-alpha0
 
 * Plot Models (#83)
