@@ -1,4 +1,4 @@
-![Code Snippet of EpiJS](https://i.ibb.co/xX7yyzH/image.png)
+<p align='center'><img src='https://user-images.githubusercontent.com/55121845/148666491-dd3e2c4a-898b-470d-a44e-0f35ba50510c.png'></img></p>
 <h1 align='center'>EpiJS</h1>
 <p align='center'>The epidemiology package for JavaScript
 
