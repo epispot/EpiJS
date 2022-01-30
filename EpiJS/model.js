@@ -212,10 +212,11 @@ function mexport(model, output, file_type=".json") {
  *let sirm = mimport("./output.json") 
  */
 function mimport(input, file_type=".json") {
+	let json = null;
 	if (file_type === ".json") {
-		let json = JSON.parse(fs.readFileSync(input))
+		json = JSON.parse(fs.readFileSync(input))
 	} else if (file_type === ".js") {
-		let json = require(output)
+		json = require(output)
 	}
 	
 	let comp = []

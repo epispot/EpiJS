@@ -71,7 +71,7 @@ function plot(model, time, name, title='Cases vs. Time') {
             mode: 'lines'
         })
     }
-
+    /* istanbul ignore if */
     if (typeof process === 'object' && String(process) === '[object process]') { // Is running in NodeJS
         // Create http server
         let server = http.createServer((req, res) => {
