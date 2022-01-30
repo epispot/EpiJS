@@ -105,3 +105,4 @@ yarn.lock
 
 # Files Created with tests
 model.json
+model.js

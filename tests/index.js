@@ -2,6 +2,7 @@ const assert = require('assert');
 const epijs = require('..');
 const package = require('../package.json');
 const puppeteer = require('puppeteer');
+const { doesNotMatch } = require('assert');
 
 describe('index.js', function () {
     it('should export all modules', function () {
@@ -19,15 +20,15 @@ describe('index.js', function () {
 
 describe('comp.js', function () {
     it('should be able to create compartments', function () {
-        let idiom = new epijs.comp.Idiom("S-(B*S*I)/N")
-        let S = new epijs.comp.Susceptible(["I*0.4/N"], [], true)
-        let I = new epijs.comp.Infected([0.3], [["S", "I*0.4/N"]], false) 
-        let E = new epijs.comp.Exposed([1/14], [["1/N", "(B*S*I)"]], false)
-        let C = new epijs.comp.Critical([0.14, 0.1], [["H", 0.3]], false) 
-        let H = new epijs.comp.Hospitalized([0.3], [["I", 0.1], ["E", 0.2]])
-        let D = new epijs.comp.Dead([0.3], [["I", 0.3]], false)
-        let V = new epijs.comp.Vaccinated([0.001], [["S", "0.4"]], false)
-        let R = new epijs.comp.Recovered([], [["I", 0.1]], true)
+        let idiom = new epijs.comp.Idiom("S-(B*S* I)/N")
+        let S = new epijs.comp.Susceptible(["I*0.4/ N"], [[0.4, 'R']], false)
+        let I = new epijs.comp.Infected([0.3], [["S", "I*0.4 /N"]], false) 
+        let E = new epijs.comp.Exposed([1/14], [["1/ N", "(B*S*I)"]], false)
+        let C = new epijs.comp.Critical([0.14, 0.1], [[" H", 0.3]], false) 
+        let H = new epijs.comp.Hospitalized([0.3], [["I ", 0.1], ["E", 0.2]])
+        let D = new epijs.comp.Dead([0.3], [[" I", 0.3]], false)
+        let V = new epijs.comp.Vaccinated([0.001], [["S ", "0.4"]], false)
+        let R = new epijs.comp.Recovered([1], [[" I", 0.1]], false)
 
         let key = {
             "S": 10000,
@@ -50,15 +51,15 @@ describe('comp.js', function () {
         }
     });
     it('should be able to create sub-compartments', function () {
-        let idiom = new epijs.comp.Idiom("S-(B*S*I)/N")
-        let S = new epijs.comp.Susceptible(["I*0.4/N"], [], true)
-        let I = new epijs.comp.Infected([0.3], [["S", "I*0.4/N"]], false) 
-        let E = new epijs.comp.Exposed([1/14], [["1/N", "(B*S*I)"]], false)
-        let C = new epijs.comp.Critical([0.14, 0.1], [["H", 0.3]], false) 
-        let H = new epijs.comp.Hospitalized([0.3], [["I", 0.1], ["E", 0.2]])
-        let D = new epijs.comp.Dead([0.3], [["I", 0.3]], false)
-        let V = new epijs.comp.Vaccinated([0.001], [["S", "0.4"]], false)
-        let R = new epijs.comp.Recovered([], [["I", 0.1]], true)
+        let idiom = new epijs.comp.Idiom("S-(B*S*I)/N+w")
+        let S = new epijs.comp.Susceptible(["I*0.4/N"], [[0.4, 'R']], true)
+        let I = new epijs.comp.Infected([0.3], [["S", "I*0.4/N"]], true) 
+        let E = new epijs.comp.Exposed([1/14], [["1/N", "(B*S*I)"]], true)
+        let C = new epijs.comp.Critical([0.14, 0.1], [["H", 0.3]], true) 
+        let H = new epijs.comp.Hospitalized([0.3], [["I", 0.1], ["E", 0.2]], true)
+        let D = new epijs.comp.Dead([0.3], [["I", 0.3]], true)
+        let V = new epijs.comp.Vaccinated([0.001], [["S", "0.4"]], true)
+        let R = new epijs.comp.Recovered([0.4], [["I", 0.1]], true)
 
         // Create sub-compartments
         idiom.addSub("sub-compartment", 10)
@@ -158,11 +159,19 @@ describe('model', function () {
             "u": 0.2
         };
 
+        S.addSub("sub-compartment", 10)
         let model = new epijs.model.Model([[S, 'S'], [I, 'I'], [R, 'R']], key)
         it('should be able to export/import', function () {
             epijs.model.mexport(model, 'model.json', '.json')
             let model2 = epijs.model.mimport('model.json', '.json')
             assert.equal(model2.compartments.length, 3);
+
+            epijs.model.mexport(model, 'model.js', '.js')
+            model2 = epijs.model.mimport('./model.js', '.js')
+
+            
+            epijs.model.mexport(model, 'model.json')
+            model2 = epijs.model.mimport('model.json')
         })
     })
 })
@@ -184,7 +193,7 @@ describe('plots', function () {
 
     let model = new epijs.model.Model([[S, 'S'], [I, 'I'], [R, 'R']], key)
     it('should be able to plot a EpiJS model', function () {
-        epijs.plots.plot(model, 100, 'SIR', 'Compartment Populations vs. Time')
+        epijs.plots.plot(model, 100, 'SIR')
     })
 })
 
@@ -208,7 +217,15 @@ describe('pre', function () {
 })
 
 describe('utils', function () {
-
+    it('should be able to calculate R-Naught', function () {
+        assert.equal(epijs.utils.calcrn(1/3, 1/14), 4+(2/3))
+    })
+    it('should be able to calculate infection rate', function () {
+        assert.equal(epijs.utils.calcb(4+(2/3), 1/14), 1/3)
+    })
+    it('should be able to calculate recovery rate', function () {
+        assert.equal(epijs.utils.calcu(4+(2/3), 1/3), 1/14)
+    })
 })
 
 /**

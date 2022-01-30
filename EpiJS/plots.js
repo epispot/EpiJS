@@ -105,7 +105,7 @@ function plot(model, time, name, title='Cases vs. Time') {
         // Start the server
         server.listen(8080)
         console.log('[@epispot/epijs] Plotly server running on http://localhost:8080')
-    }
+    } /* istanbul ignore next */ 
     else { // Is running in the browser
         const Plotly = require('plotly.js-dist-min')
         
