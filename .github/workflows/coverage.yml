@@ -1,4 +1,4 @@
-name: Build
+name: Coverage
 
 on: [push, pull_request]
 
@@ -22,6 +22,6 @@ jobs:
     - name: Run Browserify
       run: |
         npm run build
-    - name: Run Tests
+    - name: Coverage
       run: |
-        npm run test
+        npm run report
