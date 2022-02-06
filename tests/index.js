@@ -2,7 +2,6 @@ const assert = require('assert');
 const epijs = require('..');
 const package = require('../package.json');
 const puppeteer = require('puppeteer');
-const { doesNotMatch } = require('assert');
 
 describe('index.js', function () {
     it('should export all modules', function () {
