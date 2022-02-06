@@ -61,6 +61,8 @@ class Idiom {
     let out = math.evaluate(parsed.join(''))
 
     // Round up to 0 if below 0 for out
+		/* istanbul ignore if */
+		/* istanbul ignore if */
     if (out < 0) {
       out = 0
     }
@@ -157,6 +159,7 @@ class Susceptible {
     let out = math.evaluate(parsed.join(''))
 
     // Round up to 0 if below 0 for out
+		/* istanbul ignore if */
     if (out < 0) {
       out = 0
     }
@@ -246,6 +249,7 @@ class Infected {
     let out = math.evaluate(parsed.join(''))
 
     // Round up to 0 if below 0 for out
+		/* istanbul ignore if */
     if (out < 0) {
       out = 0
     }
@@ -334,6 +338,7 @@ class Exposed {
     let out = math.evaluate(parsed.join(''))
 
     // Round up to 0 if below 0 for out
+		/* istanbul ignore if */
     if (out < 0) {
       out = 0
     }
@@ -422,6 +427,7 @@ class Critical {
     let out = math.evaluate(parsed.join(''))
 
     // Round up to 0 if below 0 for out
+		/* istanbul ignore if */
     if (out < 0) {
       out = 0
     }
@@ -510,6 +516,7 @@ class Hospitalized {
     let out = math.evaluate(parsed.join(''))
 
     // Round up to 0 if below 0 for out
+		/* istanbul ignore if */
     if (out < 0) {
       out = 0
     }
@@ -599,6 +606,7 @@ class Dead {
     let out = math.evaluate(parsed.join(''))
 
     // Round up to 0 if below 0 for out
+		/* istanbul ignore if */
     if (out < 0) {
       out = 0
     }
@@ -639,7 +647,7 @@ class Dead {
  *      // Note that you can pass in a string as a rate too, 
  *      // but we use a number in this case because we don't need to multiply 
  *      // by other compartment populations. We do actually do this for the prev parameter, though.
- *      let I = new Infected([0.001], ["S*0.4"], false)
+ *      let V = new Vaccinated([0.001], ["S*0.4"], false)
 */
 class Vaccinated {
   constructor (next, prev, stochastic) {
@@ -687,6 +695,7 @@ class Vaccinated {
     let out = math.evaluate(parsed.join(''))
 
     // Round up to 0 if below 0 for out
+		/* istanbul ignore if */
     if (out < 0) {
       out = 0
     }
@@ -775,6 +784,7 @@ class Recovered {
     let out = math.evaluate(parsed.join(''))
 
     // Round up to 0 if below 0 for out
+		/* istanbul ignore if */
     if (out < 0) {
       out = 0
     }

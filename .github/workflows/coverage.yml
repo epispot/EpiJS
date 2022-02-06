@@ -1,0 +1,27 @@
+name: Coverage
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install Dependencies
+      continue-on-error: true  
+      run:  |
+        npm install
+        npm audit fix
+    - name: Run Browserify
+      run: |
+        npm run build
+    - name: Coverage
+      run: |
+        npm run report

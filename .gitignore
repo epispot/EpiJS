@@ -102,3 +102,7 @@ docs.sh
 # Lock Files
 package-lock.json
 yarn.lock
+
+# Files Created with tests
+model.json
+model.js

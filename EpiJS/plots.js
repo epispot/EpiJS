@@ -71,7 +71,7 @@ function plot(model, time, name, title='Cases vs. Time') {
             mode: 'lines'
         })
     }
-
+    /* istanbul ignore if */
     if (typeof process === 'object' && String(process) === '[object process]') { // Is running in NodeJS
         // Create http server
         let server = http.createServer((req, res) => {
@@ -105,7 +105,7 @@ function plot(model, time, name, title='Cases vs. Time') {
         // Start the server
         server.listen(8080)
         console.log('[@epispot/epijs] Plotly server running on http://localhost:8080')
-    }
+    } /* istanbul ignore next */ 
     else { // Is running in the browser
         const Plotly = require('plotly.js-dist-min')
         

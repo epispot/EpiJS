@@ -189,6 +189,7 @@ function mexport(model, output, file_type=".json") {
 		"key": model.key
 	}
 	for (let x in model.compartments) {
+		/* istanbul ignore if */
 		if (model.compartments[x][0].compartments === {}) {
 			delete model.compartments[x][0].compartments
 		}
@@ -212,16 +213,18 @@ function mexport(model, output, file_type=".json") {
  *let sirm = mimport("./output.json") 
  */
 function mimport(input, file_type=".json") {
+	let json = null;
 	if (file_type === ".json") {
-		let json = JSON.parse(fs.readFileSync(input))
+		json = JSON.parse(fs.readFileSync(input))
 	} else if (file_type === ".js") {
-		let json = require(output)
+		json = require(input)
 	}
 	
 	let comp = []
 
 	for (let x in json.compartments) {
 		// If compartments key does not exist in json.compartments[x], then add it
+		/* istanbul ignore if */
 		if (!Object.prototype.hasOwnProperty.call(json.compartments[x],"compartments")) {
 			json.compartments[x].compartments = {}
 		}

@@ -4,11 +4,13 @@
     "description": "A disease modeling package.",
     "main": "EpiJS/index.js",
     "scripts": {
-        "test": "node tests/index.js",
+        "test": "mocha tests --exit",
         "docs:dev": "bash scripts/doc.sh",
         "docs:build": "bash scripts/doc-build.sh",
         "build": "bash scripts/min.sh",
-        "docs:host": "vuepress dev docs"
+        "docs:host": "vuepress dev docs",
+        "coverage": "nyc mocha tests --exit --timeout=60000",
+        "report": "nyc mocha tests --exit --timeout=60000 && nyc report --reporter=lcov && codecov"
     },
     "repository": {
         "type": "git",
@@ -27,8 +29,10 @@
     "homepage": "epi.js.org",
     "devDependencies": {
         "browserify": "~17.0.0",
+        "codecov": "^3.8.3",
         "documentation": "~13.2.5",
         "mocha": "~9.2.0",
+        "nyc": "^15.1.0",
         "puppeteer": "~13.1.2",
         "terser": "~5.9.0",
         "vue-tabs-component": "~1.5.0",
