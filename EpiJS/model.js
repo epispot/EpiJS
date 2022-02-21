@@ -35,9 +35,8 @@ const comps = require('./comp')
  */
 class Model {
 
-	constructor(compartments, key) {
+	constructor(compartments) {
 		this.compartments = compartments
-		this.key = key
 	}
 
 	/**
@@ -58,18 +57,18 @@ class Model {
 	 *  "u": 0.2
 	 *};
 	 *
-	 *let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
+	 *let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]])
 	 *
-	 *model.get_data(100) // Get data for 100 days.
+	 *model.get_data(100, key) // Get data for 100 days.
 	 */
-	get_data(time) { // skipcq: JS-0045
+	get_data(time, keyvalues) { // skipcq: JS-0045
 		let key = {}
 		let newkey = {}
 		
-		// For key in this.key, add it to newkey and key.
-		for (let key_key in this.key) {
-			key[key_key] = this.key[key_key]
-			newkey[key_key] = this.key[key_key]
+		// For key in key, add it to newkey and key.
+		for (let key_key in keyvalues) {
+			key[key_key] = keyvalues[key_key]
+			newkey[key_key] = keyvalues[key_key]
 		}
 
 		for (let x = 0; x < time; x++) {
@@ -107,16 +106,7 @@ class Model {
 	 * let infected = new Idiom("I+(B*S*I/p)-(u*I)");
 	 * let recovered = new Idiom("R+(u*I)");
 	 * 
-	 * let key = {
-	 * 	"S": 10000,
-	 * 	"B": 0.3,
-	 * 	"I": 100,
-	 * 	"R": 0,
-	 * 	"p": 10100,
-	 * 	"u": 0.2
-	 * };
-	 * 
-	 * let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
+	 * let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]])
 	 * 
 	 * sirm.remove(recovered) // Removes the recovered compartment.
 	 */
@@ -137,17 +127,8 @@ class Model {
 	 * 	let susceptible = new Idiom("S-(B*S*I/p)");
 	 * let infected = new Idiom("I+(B*S*I/p)-(u*I)");
 	 * let recovered = new Idiom("R+(u*I)");
-	 * 	
-	 * let key = {
-	 * 	"S": 10000,
-	 * 	"B": 0.3,
-	 * 	"I": 100,
-	 * 	"R": 0,
-	 * 	"p": 10100,
-	 * 	"u": 0.2
-	 * };
 	 * 
-	 * let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
+	 * let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]])
 	 * 
 	 * sirm.remove(susceptible) // Removes the susceptible compartment.
 	 * sirm.add([susceptible, "S"], 0) // Adds the susceptible compartment back to the beginning
@@ -168,16 +149,7 @@ class Model {
  *let infected = new Idiom("I+(B*S*I/p)-(u*I)");
  *let recovered = new Idiom("R+(u*I)");
  *
- *let key = {
- *  "S": 10000,
- *  "B": 0.3,
- *  "I": 100,
- *  "R": 0,
- *  "p": 10100,
- *  "u": 0.2
- *};
- *
- *let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
+ *let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]])
  *
  *mexport(sirm, "output.js", file_type=".js")
  */
@@ -185,8 +157,7 @@ function mexport(model, output, file_type=".json") {
 	let jsonout = {
 		"compartments": {
 
-		},
-		"key": model.key
+		}
 	}
 	for (let x in model.compartments) {
 		/* istanbul ignore if */
@@ -230,7 +201,7 @@ function mimport(input, file_type=".json") {
 		}
 		comp.push([new comps.Idiom(json.compartments[x].equation), x])
 	}
-	return new Model(comp, json.key)
+	return new Model(comp)
 }
 
 exports.Model = Model

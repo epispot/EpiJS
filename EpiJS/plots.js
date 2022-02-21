@@ -34,7 +34,7 @@ const http = require('http')
  * 
  * plot(sirout1, 100, "SIR", "SIR Model (Population vs. Time)")
  */
-function plot(model, time, name, title='Cases vs. Time') {
+function plot(model, time, name, key, title='Cases vs. Time') {
     // Get model data for every day up to and including `time`
     let data = {
         xvals: [],
@@ -47,7 +47,7 @@ function plot(model, time, name, title='Cases vs. Time') {
 
     // For every day until `time`, get the data
     for (let x = 0; x < time; x++) {
-        let current = model.get_data(x+1)
+        let current = model.get_data(x+1, key)
 
         // For every compartment, get the data
         for (let y in model.compartments) {
