@@ -19,7 +19,7 @@ const comp = require('./comp')
  * @param {Number} u - The recovery rate
  * @param {Number} p - The total population.
  * @param {Boolean} stochastic - Whether to make the model stochastic or not.
- * @returns A model class from the `model` module. .
+ * @returns {Array} An array with the model class from the `model` module and the key.
  * @example
  * 
  *      let sirmodel = sir(4, 9999, 1, 1/21, 10000, true)
@@ -67,7 +67,7 @@ function sir(rn, s, i, u, p, stochastic) {
  * @param {Number} a - The incubation period
  * @param {Number} p - The total population.
  * @param {Boolean} stochastic - Whether to make the model stochastic or not.
- * @returns A model class from the `model` module. .
+ * @returns {Array} An array with the model class from the `model` module and the key.
  * @example
  * 
  *      seir(4, 9999, 1, 1/7, 1/7, 10000, true)
@@ -122,7 +122,7 @@ function seir(rn, s, i, u, a, p, stochastic) {
  * @param {Number} d - The death rate
  * @param {Number} p - The total population.
  * @param {Boolean} stochastic - Whether to make the model stochastic or not.
- * @returns A model class from the `model` module. .
+ * @returns {Array} An array with the model class from the `model` module and the key.
  * @example
  * 
  *      seird(4, 99999, 1, 1/21, 1/14, 1/100, 10000, true)
@@ -187,7 +187,7 @@ function seird(rn, s, i, u, a, d, p, stochastic) {
  * @param {Number} h - The hospitalization rate
  * @param {Number} p - The total population.
  * @param {Boolean} stochastic - Whether to make the model stochastic or not.
- * @returns A model class from the `model` module. .
+ * @returns {Array} An array with the model class from the `model` module and the key.
  * @example
  * 
  *      seihrd(4, 9999, 1, 1/21, 1/40, 1/14, 1/100, 1/20, 1/30, 10000, true)

@@ -42,15 +42,20 @@ class Model {
 	/**
 	 * Get data for the outbreak.
 	 * @param {Number} time - The total time to model.
+	 * @param {Object} keyvalues - The key values for the model. Can also be a function, which will be called for each time step. Only parameter is the time.
+	 * @returns {Object} The total population, and the populations of each compartment at `time`.
 	 * @example
 	 *
 	 *      let susceptible = new Idiom("S-(B*S*I/p)");
 	 *let infected = new Idiom("I+(B*S*I/p)-(u*I)");
 	 *let recovered = new Idiom("R+(u*I)");
 	 *
+	 *function time (t) {
+	 *	return 0.3 // This is constant, but you can change it to something else.
+	 *}
 	 *let key = {
 	 *  "S": 10000,
-	 *  "B": 0.3,
+	 *  "B": time,
 	 *  "I": 100,
 	 *  "R": 0,
 	 *  "p": 10100,
@@ -59,7 +64,7 @@ class Model {
 	 *
 	 *let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]])
 	 *
-	 *model.get_data(100, key) // Get data for 100 days.
+	 *let data = model.get_data(100, key) // Get data for 100 days.
 	 */
 	get_data(time, keyvalues) { // skipcq: JS-0045
 		let key = {}
