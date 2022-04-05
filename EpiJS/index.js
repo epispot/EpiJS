@@ -1,12 +1,12 @@
 const pre = require('./pre')
 const comp = require('./comp')
 const model = require('./model')
-const package = require('../package.json');
+const packagejson = require('../package.json');
 const utils = require('./utils')
 
 // Package info
-let version     = package.version;
-let description = package.description;
+let version     = packagejson.version;
+let description = packagejson.description;
 
 
 exports.pre = pre;
