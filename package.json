@@ -5,8 +5,8 @@
     "main": "EpiJS/index.js",
     "scripts": {
         "test": "mocha tests --exit",
-        "docs:dev": "bash scripts/doc.sh",
-        "docs:build": "bash scripts/doc-build.sh",
+        "docs:dev": "node scripts/docs.js && vuepress dev docs",
+        "docs:build": "node scripts/docs.js && vuepress build docs",
         "build": "bash scripts/min.sh",
         "docs:host": "vuepress dev docs",
         "coverage": "nyc mocha tests --exit --timeout=60000",
@@ -28,15 +28,20 @@
     },
     "homepage": "epi.js.org",
     "devDependencies": {
+        "@vuepress/plugin-back-to-top": "^1.9.7",
+        "@vuepress/plugin-nprogress": "^1.9.7",
         "browserify": "~17.0.0",
         "codecov": "^3.8.3",
-        "documentation": "~13.2.5",
+        "jsdoc-to-markdown": "^7.1.1",
+        "lru-cache": "^7.7.3",
         "mocha": "~9.2.0",
         "nyc": "^15.1.0",
         "puppeteer": "~13.5.1",
         "terser": "~5.12.0",
-        "vue-tabs-component": "~1.5.0",
-        "vuepress-plugin-tabs": "~0.3.0"
+        "vue-tabs-component": "^1.5.0",
+        "vuepress": "^1.9.7",
+        "vuepress-plugin-tabs": "^0.3.0",
+        "vuepress-theme-vt": "^0.4.2"
     },
     "dependencies": {
         "gaussian": "~1.2.0",
