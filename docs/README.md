@@ -2,7 +2,7 @@
 home: true
 heroImage: https://i.ibb.co/HKt7Bn3/Logo-Makr-4sk-LGO.png
 actionText: Get Started
-actionLink: /getting-started.md
+actionLink: /getting-started.html
 subActionText: Install
 subActionLink: /installation.html
 features:
