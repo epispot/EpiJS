@@ -49,9 +49,18 @@ class Idiom {
     }
 
     let y; // skipcq: JS-0119
+    let value; // skicq: JS-0119
     for (y in parsed) {
       if (parsed[y] in key) {
-        parsed.splice(y, 1, key[parsed[y]])
+        // If key[parsed[y]] is a function, run it, add pass in the current iteration.
+        if (typeof key[parsed[y]] === "function") {
+          value = key[parsed[y]](key["time"])
+        }
+        else {
+          value = key[parsed[y]]
+        }
+
+        parsed.splice(y, 1, value)
       }
       else if (parsed[y] === "w") {
         let distribution = new gaussian(0, 1)
@@ -146,9 +155,18 @@ class Susceptible {
     }
 
     let y; // skipcq: JS-0119
+    let value; // skicq: JS-0119
     for (y in parsed) {
       if (parsed[y] in key) {
-        parsed.splice(y, 1, key[parsed[y]])
+        // If key[parsed[y]] is a function, run it, add pass in the current iteration.
+        if (typeof key[parsed[y]] === "function") {
+          value = key[parsed[y]](key["time"])
+        }
+        else {
+          value = key[parsed[y]]
+        }
+
+        parsed.splice(y, 1, value)
       }
       else if (parsed[y] === "w") {
         let distribution = new gaussian(0, 1)
@@ -236,9 +254,18 @@ class Infected {
     }
 
     let y; // skipcq: JS-0119
+    let value; // skicq: JS-0119
     for (y in parsed) {
       if (parsed[y] in key) {
-        parsed.splice(y, 1, key[parsed[y]])
+        // If key[parsed[y]] is a function, run it, add pass in the current iteration.
+        if (typeof key[parsed[y]] === "function") {
+          value = key[parsed[y]](key["time"])
+        }
+        else {
+          value = key[parsed[y]]
+        }
+
+        parsed.splice(y, 1, value)
       }
       else if (parsed[y] === "w") {
         let distribution = new gaussian(0, 1)
@@ -326,9 +353,18 @@ class Exposed {
     }
 
     let y; // skipcq: JS-0119
+    let value; // skicq: JS-0119
     for (y in parsed) {
       if (parsed[y] in key) {
-        parsed.splice(y, 1, key[parsed[y]])
+        // If key[parsed[y]] is a function, run it, add pass in the current iteration.
+        if (typeof key[parsed[y]] === "function") {
+          value = key[parsed[y]](key["time"])
+        }
+        else {
+          value = key[parsed[y]]
+        }
+
+        parsed.splice(y, 1, value)
       }
       else if (parsed[y] === "w") {
         let distribution = new gaussian(0, 1)
@@ -415,9 +451,18 @@ class Critical {
     }
 
     let y; // skipcq: JS-0119
+    let value; // skicq: JS-0119
     for (y in parsed) {
       if (parsed[y] in key) {
-        parsed.splice(y, 1, key[parsed[y]])
+        // If key[parsed[y]] is a function, run it, add pass in the current iteration.
+        if (typeof key[parsed[y]] === "function") {
+          value = key[parsed[y]](key["time"])
+        }
+        else {
+          value = key[parsed[y]]
+        }
+
+        parsed.splice(y, 1, value)
       }
       else if (parsed[y] === "w") {
         let distribution = new gaussian(0, 1)
@@ -504,9 +549,18 @@ class Hospitalized {
     }
 
     let y; // skipcq: JS-0119
+    let value; // skicq: JS-0119
     for (y in parsed) {
       if (parsed[y] in key) {
-        parsed.splice(y, 1, key[parsed[y]])
+        // If key[parsed[y]] is a function, run it, add pass in the current iteration.
+        if (typeof key[parsed[y]] === "function") {
+          value = key[parsed[y]](key["time"])
+        }
+        else {
+          value = key[parsed[y]]
+        }
+
+        parsed.splice(y, 1, value)
       }
       else if (parsed[y] === "w") {
         let distribution = new gaussian(0, 1)
@@ -594,9 +648,18 @@ class Dead {
     }
 
     let y; // skipcq: JS-0119
+    let value; // skicq: JS-0119
     for (y in parsed) {
       if (parsed[y] in key) {
-        parsed.splice(y, 1, key[parsed[y]])
+        // If key[parsed[y]] is a function, run it, add pass in the current iteration.
+        if (typeof key[parsed[y]] === "function") {
+          value = key[parsed[y]](key["time"])
+        }
+        else {
+          value = key[parsed[y]]
+        }
+
+        parsed.splice(y, 1, value)
       }
       else if (parsed[y] === "w") {
         let distribution = new gaussian(0, 1)
@@ -683,9 +746,18 @@ class Vaccinated {
     }
 
     let y; // skipcq: JS-0119
+    let value; // skicq: JS-0119
     for (y in parsed) {
       if (parsed[y] in key) {
-        parsed.splice(y, 1, key[parsed[y]])
+        // If key[parsed[y]] is a function, run it, add pass in the current iteration.
+        if (typeof key[parsed[y]] === "function") {
+          value = key[parsed[y]](key["time"])
+        }
+        else {
+          value = key[parsed[y]]
+        }
+
+        parsed.splice(y, 1, value)
       }
       else if (parsed[y] === "w") {
         let distribution = new gaussian(0, 1)
@@ -772,9 +844,18 @@ class Recovered {
     }
 
     let y; // skipcq: JS-0119
+    let value; // skicq: JS-0119
     for (y in parsed) {
       if (parsed[y] in key) {
-        parsed.splice(y, 1, key[parsed[y]])
+        // If key[parsed[y]] is a function, run it, add pass in the current iteration.
+        if (typeof key[parsed[y]] === "function") {
+          value = key[parsed[y]](key["time"])
+        }
+        else {
+          value = key[parsed[y]]
+        }
+
+        parsed.splice(y, 1, value)
       }
       else if (parsed[y] === "w") {
         let distribution = new gaussian(0, 1)
