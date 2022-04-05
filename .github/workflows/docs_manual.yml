@@ -1,9 +1,11 @@
-name: Docs
+name: Manually Deploy Docs
 
 on:
-  release:
-    types: [published]
   workflow_dispatch:
+    inputs:
+        release:
+          required: true
+          description: 'Release number'
 
 jobs:
   build:
@@ -36,10 +38,11 @@ jobs:
           git pull origin gh-pages
           rm -rf latest/
           git checkout main -- docs/.vuepress/dist/
-          mkdir ${{ github.event.release.tag_name }}
+          rm -rf ${{ github.event.inputs.release }}
+          mkdir ${{ github.event.inputs.release }}
           mkdir latest
-          mv docs/.vuepress/dist/* ${{ github.event.release.tag_name }}
-          grep -rl '/latest' ./${{ github.event.release.tag_name }} | xargs sed -i 's-/latest-/${{ github.event.release.tag_name }}-g'
+          mv docs/.vuepress/dist/* ${{ github.event.inputs.release }}
+          grep -rl '/latest' ./${{ github.event.inputs.release }} | xargs sed -i 's-/latest-/${{ github.event.inputs.release }}-g'
           rm -rf docs/
           git checkout main -- docs/.vuepress/dist/
           mv docs/.vuepress/dist/* ./latest/

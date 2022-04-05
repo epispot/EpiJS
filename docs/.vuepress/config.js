@@ -2,15 +2,20 @@ module.exports = {
     title: 'EpiJS',
     description: 'A disease modeling package for JS.',
     plugins: [ 
-      'tabs'
+      'tabs',
+      '@vuepress/back-to-top',
+      '@vuepress/nprogress'
     ],
     base: '/latest/',
+    theme: "vt",
     themeConfig: {
+      enableDarkMode: true,
       nav: [
         { text: 'Documentation', link: '/getting-started' },
         { text: 'Demo', link: 'https://epi.js.org/demo/index.html'},
         { text: 'GitHub', link: 'https://github.com/epispot/EpiJS'}
       ],
+      logo: 'https://i.ibb.co/HKt7Bn3/Logo-Makr-4sk-LGO.png',
       sidebar: [
         {
           title: "Introduction",

@@ -43,7 +43,7 @@ On the web:
 - Pre-built customizable compartments
 ## Contributing
 
-<a href="https://open.vscode.dev/epispot/EpiJS"><img src="https://open.vscode.dev/badges/open-in-vscode.svg" alt="Open in Visual Studio Code"></a>
+<a href="https://open.vscode.dev/epispot/EpiJS"><img src="https://img.shields.io/badge/%20-Open%20In%20Visual%20Studio%20Code-blue?logo=visual-studio-code" alt="Open in Visual Studio Code"></a>
 
 Clone the repo:
 ```sh

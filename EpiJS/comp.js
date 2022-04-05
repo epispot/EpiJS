@@ -14,16 +14,16 @@ const gaussian = require('gaussian')
  * Class for a custom compartments.
  * @param {String} equation The equation for the compartment. This defines what to run to get a new value for the next day in the model. Use any variable in the equation (1 char max), but when making this a model, you need to define this in the key.
  *      If using other compartment classes, they each have their own corresponding variable:
- *
- *- 'S' - Susceptible
- *- 'E' - Exposed
- *- 'I' - Infectious
- *- 'R' - Recovered
- *- 'D' - Dead
- *- 'C' - Critical
- *- 'H' - Hospitalized
- *- 'V' - Vaccinated
- *- 'w' - Reserved for stochastic models. If put, it will be replaced with a random number generated from the gaussian distribution.
+ * <br>
+ * - 'S' - Susceptible <br>
+ * - 'E' - Exposed <br>
+ * - 'I' - Infectious <br>
+ * - 'R' - Recovered <br>
+ * - 'D' - Dead <br>
+ * - 'C' - Critical <br>
+ * - 'H' - Hospitalized <br>
+ * - 'V' - Vaccinated <br>
+ * - 'w' - Reserved for stochastic models. If put, it will be replaced with a random number generated from the gaussian distribution.
  * 
  * @example
  *
