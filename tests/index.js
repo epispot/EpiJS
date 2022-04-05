@@ -181,19 +181,19 @@ describe('plots', function () {
 describe('pre', function () {
     it('should generate an SIR model', function () {
         let sir = epijs.pre.sir(0.3, 0.2, 0.1, 100, 10100)
-        assert.equal(sir.compartments.length, 3);
+        assert.equal(sir[0].compartments.length, 3);
     })
     it('should generate an SEIR model', function () {
         let seir = epijs.pre.seir(0.3, 0.2, 0.1, 0.2, 100, 10100)
-        assert.equal(seir.compartments.length, 4);
+        assert.equal(seir[0].compartments.length, 4);
     })
     it('should generate an SEIRD model', function () {
         let seird = epijs.pre.seird(0.3, 0.2, 0.1, 0.2, 0.1, 100, 10100)
-        assert.equal(seird.compartments.length, 5);
+        assert.equal(seird[0].compartments.length, 5);
     })
     it('should generate a SEIHRD model', function () {
         let seihrd = epijs.pre.seihrd(0.3, 0.2, 0.1, 0.2, 0.1, 0.1, 100, 10100)
-        assert.equal(seihrd.compartments.length, 6);
+        assert.equal(seihrd[0].compartments.length, 6);
     })
 })
 

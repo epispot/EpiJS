@@ -53,9 +53,9 @@ function sir(rn, s, i, u, p, stochastic) {
 	let recovered = new comp.Idiom('R+((u*I)+'+f2+'*'+omega2+')')
 
 	// Create the model
-	let model = new modelm.Model([[susceptible, 'S'], [infected, 'I'], [recovered, 'R']], key)
+	let model = new modelm.Model([[susceptible, 'S'], [infected, 'I'], [recovered, 'R']])
 
-	return model
+	return [model, key]
 }
 
 /**
@@ -107,8 +107,9 @@ function seir(rn, s, i, u, a, p, stochastic) {
 	let recovered = new comp.Idiom('R+((u*I)+'+f2+'*'+omega2+')')
 
 	// Create the model
-	let model = new modelm.Model([[susceptible, 'S'], [exposed, 'E'], [infected, 'I'], [recovered, 'R']], key)
-	return model
+	let model = new modelm.Model([[susceptible, 'S'], [exposed, 'E'], [infected, 'I'], [recovered, 'R']])
+
+	return [model, key]
 }
 
 /**
@@ -168,9 +169,9 @@ function seird(rn, s, i, u, a, d, p, stochastic) {
 	let dead = new comp.Idiom('D+((d*I)+'+f4+'*'+omega4+')')
 	
 	// Create the model
-	let model = new modelm.Model([[susceptible, 'S'], [exposed, 'E'], [infected, 'I'], [recovered, 'R'], [dead, 'D']], key)
+	let model = new modelm.Model([[susceptible, 'S'], [exposed, 'E'], [infected, 'I'], [recovered, 'R'], [dead, 'D']])
 
-	return model
+	return [model, key]
 }
 
 /**
@@ -250,9 +251,9 @@ function seihrd(rn, s, i, u, uh, a, di, dh, h, p, stochastic) {
 	let dead = new comp.Idiom('D+((d*I)+'+f4+'*'+omega4+')+((x*H)+'+f7+'*'+omega7+')')
 
 	// Create the model
-	let model = new modelm.Model([[susceptible, 'S'], [exposed, 'E'], [infected, 'I'], [hospitalized, 'H'], [recovered, 'R'], [dead, 'D']], key)
+	let model = new modelm.Model([[susceptible, 'S'], [exposed, 'E'], [infected, 'I'], [hospitalized, 'H'], [recovered, 'R'], [dead, 'D']])
 
-	return model
+	return [model, key]
 }
 
 exports.sir = sir

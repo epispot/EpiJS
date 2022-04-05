@@ -30,9 +30,9 @@ const http = require('http')
  *     "u": 0.2
  * };
  *
- * let sirm = new Model([[susceptible2, "S"], [infected2, "I"], [recovered2, "R"]], key)
+ * let sirm = new Model([[susceptible2, "S"], [infected2, "I"], [recovered2, "R"]])
  * 
- * plot(sirout1, 100, "SIR", "SIR Model (Population vs. Time)")
+ * plot(sirout1, 100, "SIR", key, "SIR Model (Population vs. Time)")
  */
 function plot(model, time, name, key, title='Cases vs. Time') {
     // Get model data for every day up to and including `time`
