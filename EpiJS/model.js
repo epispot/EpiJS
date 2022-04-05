@@ -80,7 +80,7 @@ class Model {
 			let y; // skipcq: JS-0119
 
 			// Add "time" key to key, in case a key value is a function of time.
-			key["time"] = x
+			key.time = x
 			for (y in this.compartments) {
 				newkey[this.compartments[y][1]] = this.compartments[y][0].get_data(key)
 			}
