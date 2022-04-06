@@ -108,14 +108,14 @@ describe('model', function () {
     };
 
     it('should be able to create a model', function () {
-        let model = new epijs.model.Model([[S, 'S'], [I, 'I'], [R, 'R']], key)
+        let model = new epijs.model.Model([[S, 'S'], [I, 'I'], [R, 'R']])
 
         assert.equal(model.compartments.length, 3);
     });
     it('should be able to get data', function () {
-        let model = new epijs.model.Model([[S, 'S'], [I, 'I'], [R, 'R']], key)
+        let model = new epijs.model.Model([[S, 'S'], [I, 'I'], [R, 'R']])
 
-        let data = model.get_data(3)
+        let data = model.get_data(3, key)
         assert.equal(typeof data, 'object')
         assert.equal(Object.keys(data).length, 3)
     })
@@ -123,17 +123,8 @@ describe('model', function () {
         let S = new epijs.comp.Susceptible(["I*0.4/N"], [], true)        
         let I = new epijs.comp.Infected([0.3], [["S", "I*0.4/N"]], false)        
         let R = new epijs.comp.Recovered([], [["I", 0.1]], true)
-
-        let key = {
-            "S": 10000,
-            "B": 0.3,
-            "I": 100,
-            "R": 0,
-            "N": 10100,
-            "u": 0.2
-        };
         
-        let model = new epijs.model.Model([[S, 'S'], [I, 'I'], [R, 'R']], key)
+        let model = new epijs.model.Model([[S, 'S'], [I, 'I'], [R, 'R']])
         it('should be able to remove compartments', function () {
             model.remove(S)
             assert.equal(Object.keys(model.compartments).length, 2);
@@ -149,17 +140,8 @@ describe('model', function () {
         let I = new epijs.comp.Infected([0.3], [["S", "I*0.4/N"]], false)        
         let R = new epijs.comp.Recovered([], [["I", 0.1]], true)
 
-        let key = {
-            "S": 10000,
-            "B": 0.3,
-            "I": 100,
-            "R": 0,
-            "N": 10100,
-            "u": 0.2
-        };
-
         S.addSub("sub-compartment", 10)
-        let model = new epijs.model.Model([[S, 'S'], [I, 'I'], [R, 'R']], key)
+        let model = new epijs.model.Model([[S, 'S'], [I, 'I'], [R, 'R']])
         it('should be able to export/import', function () {
             epijs.model.mexport(model, 'model.json', '.json')
             let model2 = epijs.model.mimport('model.json', '.json')
@@ -190,28 +172,28 @@ describe('plots', function () {
 
     S.addSub("sub-compartment", 10)
 
-    let model = new epijs.model.Model([[S, 'S'], [I, 'I'], [R, 'R']], key)
+    let model = new epijs.model.Model([[S, 'S'], [I, 'I'], [R, 'R']])
     it('should be able to plot a EpiJS model', function () {
-        epijs.plots.plot(model, 100, 'SIR')
+        epijs.plots.plot(model, 100, 'SIR', key)
     })
 })
 
 describe('pre', function () {
     it('should generate an SIR model', function () {
         let sir = epijs.pre.sir(0.3, 0.2, 0.1, 100, 10100)
-        assert.equal(sir.compartments.length, 3);
+        assert.equal(sir[0].compartments.length, 3);
     })
     it('should generate an SEIR model', function () {
         let seir = epijs.pre.seir(0.3, 0.2, 0.1, 0.2, 100, 10100)
-        assert.equal(seir.compartments.length, 4);
+        assert.equal(seir[0].compartments.length, 4);
     })
     it('should generate an SEIRD model', function () {
         let seird = epijs.pre.seird(0.3, 0.2, 0.1, 0.2, 0.1, 100, 10100)
-        assert.equal(seird.compartments.length, 5);
+        assert.equal(seird[0].compartments.length, 5);
     })
     it('should generate a SEIHRD model', function () {
         let seihrd = epijs.pre.seihrd(0.3, 0.2, 0.1, 0.2, 0.1, 0.1, 100, 10100)
-        assert.equal(seihrd.compartments.length, 6);
+        assert.equal(seihrd[0].compartments.length, 6);
     })
 })
 
@@ -227,7 +209,6 @@ describe('utils', function () {
     })
 })
 
-/**
 describe('web', function () {
     this.timeout(60000)
     it('should have no errors on page', async function () {
@@ -255,6 +236,4 @@ describe('web', function () {
         
         await browser.close();
     });
-}) 
-
-*/
+})
