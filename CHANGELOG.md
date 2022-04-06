@@ -1,3 +1,8 @@
+# v3.0.0-alpha2
+
+* Remove `key` as initial parameter of the model class.
+* Allow key values to be passed as a function of time. (#143)
+
 # v3.0.0-alpha1
 
 * Fix plotly import error (#123)

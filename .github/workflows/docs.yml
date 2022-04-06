@@ -39,7 +39,7 @@ jobs:
           mkdir ${{ github.event.release.tag_name }}
           mkdir latest
           mv docs/.vuepress/dist/* ${{ github.event.release.tag_name }}
-          grep -rl '/latest' ./${{ github.event.release.tag_name }} | xargs sed -i 's-/latest-/${{ github.event.release.tag_name }}-g'
+          grep -rl '/latest' ./${{ github.event.release.tag_name }} | xargs sed -i 's+/latest+/${{ github.event.release.tag_name }}+g'
           rm -rf docs/
           git checkout main -- docs/.vuepress/dist/
           mv docs/.vuepress/dist/* ./latest/

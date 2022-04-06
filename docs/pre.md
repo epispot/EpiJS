@@ -7,27 +7,27 @@
 ## Functions
 
 <dl>
-<dt><a href="#sir">sir(rn, s, i, u, p, stochastic)</a> ⇒</dt>
+<dt><a href="#sir">sir(rn, s, i, u, p, stochastic)</a> ⇒ <code>Array</code></dt>
 <dd><p>The SIR Model. Returns the model as a <code>model</code> class from the <code>model</code> module.</p>
 </dd>
-<dt><a href="#seir">seir(rn, s, i, u, a, p, stochastic)</a> ⇒</dt>
+<dt><a href="#seir">seir(rn, s, i, u, a, p, stochastic)</a> ⇒ <code>Array</code></dt>
 <dd><p>The SEIR Model. Returns the model as a <code>model</code> class from the <code>model</code> module.</p>
 </dd>
-<dt><a href="#seird">seird(rn, s, i, u, a, d, p, stochastic)</a> ⇒</dt>
+<dt><a href="#seird">seird(rn, s, i, u, a, d, p, stochastic)</a> ⇒ <code>Array</code></dt>
 <dd><p>The SEIRD Model. Returns the model as a <code>model</code> class from the <code>model</code> module.</p>
 </dd>
-<dt><a href="#seihrd">seihrd(rn, s, i, u, uh, a, di, dh, h, p, stochastic)</a> ⇒</dt>
+<dt><a href="#seihrd">seihrd(rn, s, i, u, uh, a, di, dh, h, p, stochastic)</a> ⇒ <code>Array</code></dt>
 <dd><p>The SEIHRD Model. Returns the model as a <code>model</code> class from the <code>model</code> module.</p>
 </dd>
 </dl>
 
 <a name="sir"></a>
 
-## sir(rn, s, i, u, p, stochastic) ⇒
+## sir(rn, s, i, u, p, stochastic) ⇒ <code>Array</code>
 The SIR Model. Returns the model as a `model` class from the `model` module.
 
 **Kind**: global function  
-**Returns**: A model class from the `model` module. .  
+**Returns**: <code>Array</code> - An array with the model class from the `model` module and the key.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -44,11 +44,11 @@ let sirmodel = sir(4, 9999, 1, 1/21, 10000, true)
 ```
 <a name="seir"></a>
 
-## seir(rn, s, i, u, a, p, stochastic) ⇒
+## seir(rn, s, i, u, a, p, stochastic) ⇒ <code>Array</code>
 The SEIR Model. Returns the model as a `model` class from the `model` module.
 
 **Kind**: global function  
-**Returns**: A model class from the `model` module. .  
+**Returns**: <code>Array</code> - An array with the model class from the `model` module and the key.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -66,11 +66,11 @@ seir(4, 9999, 1, 1/7, 1/7, 10000, true)
 ```
 <a name="seird"></a>
 
-## seird(rn, s, i, u, a, d, p, stochastic) ⇒
+## seird(rn, s, i, u, a, d, p, stochastic) ⇒ <code>Array</code>
 The SEIRD Model. Returns the model as a `model` class from the `model` module.
 
 **Kind**: global function  
-**Returns**: A model class from the `model` module. .  
+**Returns**: <code>Array</code> - An array with the model class from the `model` module and the key.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -89,11 +89,11 @@ seird(4, 99999, 1, 1/21, 1/14, 1/100, 10000, true)
 ```
 <a name="seihrd"></a>
 
-## seihrd(rn, s, i, u, uh, a, di, dh, h, p, stochastic) ⇒
+## seihrd(rn, s, i, u, uh, a, di, dh, h, p, stochastic) ⇒ <code>Array</code>
 The SEIHRD Model. Returns the model as a `model` class from the `model` module.
 
 **Kind**: global function  
-**Returns**: A model class from the `model` module. .  
+**Returns**: <code>Array</code> - An array with the model class from the `model` module and the key.  
 
 | Param | Type | Description |
 | --- | --- | --- |

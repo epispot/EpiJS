@@ -32,7 +32,7 @@ Create a model.
 
 * [Model](#Model)
     * [new Model(compartments, key)](#new_Model_new)
-    * [.get_data(time)](#Model+get_data)
+    * [.get_data(time, keyvalues)](#Model+get_data) ⇒ <code>Object</code>
     * [.remove(compartment)](#Model+remove)
     * [.add(compartment, index)](#Model+add)
 
@@ -64,14 +64,16 @@ let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], ke
 ```
 <a name="Model+get_data"></a>
 
-### model.get\_data(time)
+### model.get\_data(time, keyvalues) ⇒ <code>Object</code>
 Get data for the outbreak.
 
 **Kind**: instance method of [<code>Model</code>](#Model)  
+**Returns**: <code>Object</code> - The total population, and the populations of each compartment at `time`.  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | time | <code>Number</code> | The total time to model. |
+| keyvalues | <code>Object</code> | The key values for the model. Can also be a function, which will be called for each time step. Only parameter is the time. |
 
 **Example**  
 ```js
@@ -79,18 +81,21 @@ let susceptible = new Idiom("S-(B*S*I/p)");
 let infected = new Idiom("I+(B*S*I/p)-(u*I)");
 let recovered = new Idiom("R+(u*I)");
 
+function time (t) {
+	return 0.3 // This is constant, but you can change it to something else.
+}
 let key = {
  "S": 10000,
- "B": 0.3,
+ "B": time,
  "I": 100,
  "R": 0,
  "p": 10100,
  "u": 0.2
 };
 
-let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
+let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]])
 
-model.get_data(100) // Get data for 100 days.
+let data = model.get_data(100, key) // Get data for 100 days.
 ```
 <a name="Model+remove"></a>
 
@@ -109,16 +114,7 @@ let susceptible = new Idiom("S-(B*S*I/p)");
 let infected = new Idiom("I+(B*S*I/p)-(u*I)");
 let recovered = new Idiom("R+(u*I)");
 
-let key = {
-	"S": 10000,
-	"B": 0.3,
-	"I": 100,
-	"R": 0,
-	"p": 10100,
-	"u": 0.2
-};
-
-let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
+let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]])
 
 sirm.remove(recovered) // Removes the recovered compartment.
 ```
@@ -139,17 +135,8 @@ Add a compartment to the model.
 let susceptible = new Idiom("S-(B*S*I/p)");
 let infected = new Idiom("I+(B*S*I/p)-(u*I)");
 let recovered = new Idiom("R+(u*I)");
-	
-let key = {
-	"S": 10000,
-	"B": 0.3,
-	"I": 100,
-	"R": 0,
-	"p": 10100,
-	"u": 0.2
-};
 
-let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
+let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]])
 
 sirm.remove(susceptible) // Removes the susceptible compartment.
 sirm.add([susceptible, "S"], 0) // Adds the susceptible compartment back to the beginning
@@ -173,16 +160,7 @@ let susceptible = new Idiom("S-(B*S*I/p)");
 let infected = new Idiom("I+(B*S*I/p)-(u*I)");
 let recovered = new Idiom("R+(u*I)");
 
-let key = {
- "S": 10000,
- "B": 0.3,
- "I": 100,
- "R": 0,
- "p": 10100,
- "u": 0.2
-};
-
-let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]], key)
+let sirm = new Model([[susceptible, "S"], [infected, "I"], [recovered, "R"]])
 
 mexport(sirm, "output.js", file_type=".js")
 ```
