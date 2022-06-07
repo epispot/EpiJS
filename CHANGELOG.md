@@ -1,3 +1,7 @@
+# v3.0.0-alpha3
+
+* Add back model module (was removed in the previous version, however, not in the commit history!)
+
 # v3.0.0-alpha2
 
 * Remove `key` as initial parameter of the model class.
