@@ -73,6 +73,11 @@ function plot(model, time, name, key, title='Cases vs. Time') {
     }
     /* istanbul ignore if */
     if (typeof process === 'object' && String(process) === '[object process]') { // Is running in NodeJS
+        // HTML encode
+        title = String(title).replace(/[^\w. ]/gi, function(c){
+            return '&#'+c.charCodeAt(0)+';';
+        });
+
         // Create http server
         let server = http.createServer((req, res) => {
             // Send the plot as HTML
