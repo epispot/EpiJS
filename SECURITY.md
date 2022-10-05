@@ -4,7 +4,7 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| v2.0.x | ✅ (LTS Release) |
+| v2.x | ✅ (LTS Release) |
 | v1.3.x | ✅ |
 | v1.2.x | ✅ |
 | <1.2.x | ❌ |
