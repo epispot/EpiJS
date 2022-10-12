@@ -45,7 +45,7 @@
     },
     "dependencies": {
         "gaussian": "~1.2.0",
-        "mathjs": "~11.2.1",
+        "mathjs": "~11.3.0",
         "plotly.js-dist-min": "^2.8.3"
     }
 }
