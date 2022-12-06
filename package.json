@@ -41,7 +41,7 @@
         "vue-tabs-component": "^1.5.0",
         "vuepress": "^1.9.7",
         "vuepress-plugin-tabs": "^0.3.0",
-        "vuepress-theme-vt": "^0.5.0"
+        "vuepress-theme-vt": "^0.6.4"
     },
     "dependencies": {
         "gaussian": "~1.2.0",
