@@ -10,7 +10,7 @@
 | <1.2.x | ❌ |
 ## Reporting a Vulnerability
 
-All vulnerabilities can be submitted on the [npm page](https://npmjs.org/package/@epispot/epijs), or contact `npm.quantalabs@gmail.com`.
+Vulnerabilities **should not** be disclosed as an issue, pull request, or other publicly-accessible document unless its severity has already been assessed to pose negligible risks to users. Instead, please submit a security advisory on GitHub: https://github.com/epispot/EpiJS/security/advisories. Alternatively, all vulnerabilities can be submitted on the [npm page](https://npmjs.org/package/@epispot/epijs), or contact `npm.quantalabs@gmail.com`.
 
 ## Fixes
 
