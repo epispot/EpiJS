@@ -32,7 +32,7 @@
         "@vuepress/plugin-nprogress": "^1.9.7",
         "browserify": "~17.0.0",
         "codecov": "^3.8.3",
-        "jsdoc-to-markdown": "^7.1.1",
+        "jsdoc-to-markdown": "^8.0.0",
         "lru-cache": "^7.7.3",
         "mocha": "~10.2.0",
         "nyc": "^15.1.0",
