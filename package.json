@@ -37,7 +37,7 @@
         "mocha": "~10.2.0",
         "nyc": "^15.1.0",
         "puppeteer": "~20.7.2",
-        "terser": "~5.18.1",
+        "terser": "~5.19.3",
         "vue-tabs-component": "^1.5.0",
         "vuepress": "^1.9.7",
         "vuepress-plugin-tabs": "^0.3.0",
